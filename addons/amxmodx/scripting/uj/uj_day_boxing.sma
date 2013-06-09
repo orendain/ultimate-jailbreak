@@ -4,9 +4,9 @@
 #include <fakemeta>
 #include <hamsandwich>
 #include <uj_core>
+#include <uj_effects>
 #include <uj_menus>
 #include <uj_days>
-#include <uj_colorchat>
 
 new const PLUGIN_NAME[] = "[UJ] Day - Boxing";
 new const PLUGIN_AUTH[] = "eDeloa";
@@ -121,8 +121,7 @@ public uj_fw_days_end(dayID)
 {
   // If dayID refers to our day and our day is enabled
   if(dayID == g_day && g_dayEnabled) {
-    reset();
-    g_dayEnabled = false;
+    end_day();
   }
 }
 
@@ -139,23 +138,24 @@ start_day()
       uj_core_strip_weapons(playerID);
       switch(cs_get_user_team(playerID)) {
         case CS_TEAM_T:
-          uj_core_set_player_view_model(playerID, CSW_KNIFE, g_szViewGlovesTerro);
+          uj_effects_set_view_model(playerID, CSW_KNIFE, g_szViewGlovesTerro);
         case CS_TEAM_CT:
-          uj_core_set_player_view_model(playerID, CSW_KNIFE, g_szViewGlovesCt);
+          uj_effects_set_view_model(playerID, CSW_KNIFE, g_szViewGlovesCt);
       }
     }
   }
 }
 
-reset()
+end_day()
 {
   // Reset all models
   new players[32], playerCount;
   get_players(players, playerCount, "c");
   for (new i = 0; i < playerCount; ++i) {
-    uj_core_reset_player_view_model(players[i], CSW_KNIFE);
-    uj_core_reset_player_weap_model(players[i], CSW_KNIFE);
+    uj_effects_reset_view_model(players[i], CSW_KNIFE);
+    uj_effects_reset_weap_model(players[i], CSW_KNIFE);
   }
+  g_dayEnabled = false;
 }
 
 public FwdPlayerTakeDamagePre(iVictim, iInflictor, iAttacker, Float: flDamage, iDmgBits)

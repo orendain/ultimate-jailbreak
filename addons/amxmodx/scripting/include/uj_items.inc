@@ -19,12 +19,13 @@
  * Registers an item for use.
  *
  * @param name        Item name
+ * @param name        Message to display after the item is purchased.
  * @param costCVar    CVar: Cost of the item
  * @param rebelCVar   CVar: Whethor or not this item is a rebel item
  *
  * @return            An internal item ID, or UJ_ITEM_INVALID on failure.
  */
-native uj_items_register(const name[], costCVar, rebelCVar);
+native uj_items_register(const name[], const message[], costCVar, rebelCVar);
 
 /**
  * Find out if an item is a rebel item or not.

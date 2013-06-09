@@ -4,7 +4,6 @@
 #include <fakemeta>
 #include <uj_menus>
 #include <uj_days>
-#include <uj_colorchat>
 
 new const PLUGIN_NAME[] = "[UJ] Day - Freeday";
 new const PLUGIN_AUTH[] = "eDeloa";
@@ -20,7 +19,6 @@ new bool: g_dayEnabled
 
 // Menu variables
 new g_menuSpecial
-new g_menuActivities
 
 public plugin_precache()
 {
@@ -34,23 +32,17 @@ public plugin_init()
 
   // Find all valid menus to display this under
   g_menuSpecial = uj_menus_get_menu_id("Special Days")
-  g_menuActivities = uj_menus_get_menu_id("Activities")
 }
 
-public uj_fw_days_select_pre(id, dayid, menuid)
+public uj_fw_days_select_pre(id, dayID, menuID)
 {
-  // Block all days from being enabled if a freeday is in effect
-  if (g_dayEnabled && dayid != g_day) {
-    return UJ_DAY_NOT_AVAILABLE;
-  }
-
   // This is not our day - do not block
-  if (dayid != g_day) {
+  if (dayID != g_day) {
     return UJ_DAY_AVAILABLE;
   }
 
   // Only display if in the parent menu we recognize
-  if (menuid != g_menuActivities && menuid != g_menuSpecial) {
+  if (menuID != g_menuSpecial) {
     return UJ_DAY_DONT_SHOW;
   }
 
@@ -63,19 +55,31 @@ public uj_fw_days_select_pre(id, dayid, menuid)
   return UJ_DAY_AVAILABLE;
 }
 
-public uj_fw_days_select_post(id, dayid)
+public uj_fw_days_select_post(id, dayID)
 {
   // This is not our item
-  if (dayid != g_day)
+  if (dayID != g_day)
     return;
 
-  g_dayEnabled = true;
+  start_day();
 }
 
 public uj_fw_days_end(dayID)
 {
   // If dayID refers to our day and our day is enabled
   if(dayID == g_day && g_dayEnabled) {
-    g_dayEnabled = false;
+    end_day();
   }
+}
+
+start_day()
+{
+  if (!g_dayEnabled) {
+    g_dayEnabled = true;
+  }
+}
+
+end_day()
+{
+  g_dayEnabled = false;
 }
