@@ -20,7 +20,7 @@
  * @param playerID      Creator (and now leader) of the gang
  * @param name          Name of the gang
  *
- * @return              An internal, unique, gang ID, or UJ_GANGa_INVALID on failure.
+ * @return              An internal, unique, persistant gang ID, or UJ_GANG_INVALID on failure.
  */
 native uj_gangs_create_gang(playerID, const gangName[]);
 
@@ -39,6 +39,17 @@ native uj_gangs_destroy_gang(gangID);
  * @return        Gang count
  */
 native uj_gangs_get_gang_count();
+
+/**
+ * Get the name of a gang.
+ *
+ * @param gangID            Internal gangID
+ * @param gangName          The array to store the name into.
+ * @param gangNameLength    The max length of the gang name.
+ *
+ * @noreturn
+ */
+native uj_gangs_get_name(gangID, gangName[], gangNameLength);
 
 /**
  * Create a new Gang to store in the system
@@ -60,6 +71,15 @@ native uj_gangs_set_name(gangID, const gangName[]);
 native uj_gangs_get_gang(playerID);
 
 /**
+ * Find a gang by name
+ *
+ * @param gangName    The name of a gang
+ *
+ * @return            An internal gang ID, or UJ_GANG_INVALID if gang not found or on failure.
+ */
+native uj_gangs_get_gang_id(const gangName[]);
+
+/**
  * Adds a member to the specified gang
  *
  * @param playerID      Player index
@@ -70,10 +90,10 @@ native uj_gangs_get_gang(playerID);
 native uj_gangs_add_member(playerID, gangID);
 
 /**
- * Adds a member to the specified gang
+ * Removes a member from a specified gang
  *
  * @param playerID      Player index
- * @param gangID        Gang to add the specified player to
+ * @param gangID        Gang to remove the player from.
  *
  * @noreturn
  */
@@ -111,6 +131,15 @@ native uj_gangs_add_admin(playerID, gangID);
  * @noreturn
  */
 native uj_gangs_remove_admin(playerID, gangID);
+
+/**
+ * Find a user's rank within a gang
+ *
+ * @param playerID      Player index
+ *
+ * @return              A player's rank within the gang, or UJ_GANG_RANK_INVALID on fail
+ */
+native uj_gangs_get_member_rank(playerID);
 
 /**
  * Sets a player as a gang's leader

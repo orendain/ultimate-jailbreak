@@ -28,7 +28,7 @@ native uj_freedays_give(playerID);
 /**
  * Removes a player's freeday.
  *
- * @param playerID        Player index
+ * @param playerID        Player index, or 0 for all
  *
  * @noreturn
  */

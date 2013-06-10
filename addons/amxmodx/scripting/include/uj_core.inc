@@ -116,6 +116,12 @@ forward uj_fw_core_get_max_health(playerID, dataArray[]);
 
 /*
  * Called when cell doors are opened.
- * Currently only supports when doors opened via uj_core_open_cell_doors()
  */
 forward uj_fw_core_cell_doors_opened();
+
+/*
+ * Called when one prisoner is left standing.
+ *
+ * @param playerID          The last prisoner standing
+ */
+forward uj_fw_core_last_request_reached(playerID);

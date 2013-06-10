@@ -190,7 +190,6 @@ public FwdEmitSound(id, iChannel, const szSound[], Float: flVolume, Float: iAttn
       if(equal(szSound, g_szKnifeSounds[i]))
       {
         emit_sound(id, iChannel, g_szCustomKnifeSounds[i], flVolume, iAttn, iFlags, iPitch);
-        //uj_colorchat_print(id,id, "Emitting sound: %s", g_szCustomKnifeSounds[i]);
         return FMRES_SUPERCEDE;
       }
     }
