@@ -14,7 +14,7 @@ new const ITEM_MESSAGE[] = "Now to decide ... escape ... or surprise attack?";
 new const ITEM_COST[] = "50";
 new const ITEM_REBEL[] = "true";
 
-new const INVISIBILITY_ALPHA[] = "15";
+new const INVISIBILITY_ALPHA[] = "50";
 
 // Menu variables
 new g_shopMenu;
@@ -103,7 +103,7 @@ give_invisibility(playerID)
     // Find transparency level
     new alpha = get_pcvar_num(g_alphaCVar);
 
-    // Glow user and set bit so we can track it
+    // Glow user and set bit
     uj_effects_glow_player(playerID, 0, 0, 0, alpha);
     set_bit(g_hasInvisibility, playerID);
   }

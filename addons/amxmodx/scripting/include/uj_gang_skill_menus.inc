@@ -1,17 +1,17 @@
-#if defined _uj_gang_skill_menus_included
+#if defined _uj_gang_skills_included
   #endinput
 #endif
-#define _uj_gang_skill_menus_included
+#define _uj_gang_skills_included
 
 #include <uj_menus>
 
 #if AMXX_VERSION_NUM >= 175 
-  #pragma reqlib uj_gang_skill_menus
+  #pragma reqlib uj_gang_skills
   #if !defined AMXMODX_NOAUTOLOAD
-    #pragma loadlib uj_gang_skill_menus
+    #pragma loadlib uj_gang_skills
   #endif
 #else
-  #pragma library uj_gang_skill_menus
+  #pragma library uj_gang_skills
 #endif
 
 /*
@@ -20,22 +20,58 @@
 
 /*
  * Registers a gang skill to the gang skill system.
- * To obtain a skillID, first register a skill through uj_gang_skills_register()
  *
- * @param skillID     The internal skillID of the skill
- * @param skillName   Skill name
- * @param costPCVar   A pointer to the cvar that defines the cost of this skill
- * @param maxPCVar    A pointer to the cvar that defines the maximum level of this skill
+ * @param skillName       Skill name
+ * @param costPCVar       A CVar pointer to the cost of each skill level
+ * @param maxLevelPCVar   A CVar pointer to the maximum level of the skill
  *
- * @return            An internal, unique, skillEntryID or UJ_GANG_SKILL_INVALID on failure.
+ * @return                A unique skilID or UJ_GANG_SKILL_INVALID on failure.
  */
-native uj_gang_skill_menus_register(skillID, const skillName[], costPCVar, maxPCVar);
+native uj_gang_skills_register(const skillName[], costPCVar, maxLevelPCVar);
 
+/*
+ * Display a message to all affected gang members about a skill change.
+ *
+ * @param playerID    Player performing the change
+ * @param gangID      The affected gang
+ * @param skillID     The affected skill
+ */
+native uj_gang_skills_announce_upgrade(playerID, gangID, skillID);
+
+/*
+ * Find the cost of a skill.
+ *
+ * @param skillID     The skill ID to look up
+ *
+ * @return            The cost of the skill, or UJ_GANG_SKILL_INVALID if fail
+ */
+native uj_gang_skills_get_cost(skillID);
+
+/*
+ * Find the max allowed level of a skill.
+ *
+ * @param skillID     The skill ID to look up
+ *
+ * @return            The max allowed level, or UJ_GANG_SKILL_INVALID if fail
+ */
+native uj_gang_skills_get_max_level(skillID);
+
+/*
+ * Display a list of all registered skills.
+ * uj_fw_gang_skills_select_post() is called after a selection is made.
+ *
+ * @param playerID      The player to display the menu to.
+ * @param gangID        The gang to filter out skills from.
+ * @param filterCost    True to filter out skills the player cannot afford
+ * @param filterLow     True to filter out skills at the lowest level
+ * @param filterMax     True to filter out skills at the maximum level
+ *
+ * @noreturn
+ */
+native uj_gang_skills_show_menu(playerID, gangID, bool:filterCost, bool:filterLow, bool:filterHigh);
 
 /**
  * Forwards
- *
- * These names are short for uj_fw_gang_skill_menus_select_pre/post()
  */
 
 /*
@@ -50,13 +86,14 @@ native uj_gang_skill_menus_register(skillID, const skillName[], costPCVar, maxPC
  * @param menuID          The internal menuID this skill is attemping to display in
  * @param skillEntryID    The internal skillEntryID of the skill entry
  */
-forward uj_fw_gang_skill_menus_s_pre(playerID, menuID, skillEntryID);
+forward uj_fw_gang_skills_select_pre(playerID, menuID, skillID);
 
 /*
  * Called after a player selects a skill entry from a menu.
  *
+ * @param pluginID        The plugin the process was initiated by.
  * @param playerID        Player index
- * @param menuID          The internal menuID this skill is attemping to display in
+ * @param gangID          The gang results were based on
  * @param skillEntryID    The internal skillEntryID of the skill entry
  */
-forward uj_fw_gang_skill_menus_s_post(playerID, menuID, skillEntryID);
+forward uj_fw_gang_skills_select_post(pluginID, playerID, gangID, skillID);

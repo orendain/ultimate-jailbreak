@@ -85,6 +85,13 @@ forward uj_fw_requests_select_pre(playerID, requestID, menuID);
  */
 forward uj_fw_requests_select_post(playerID, targetID, requestID);
 
+/*
+ * Called when one prisoner is left standing.
+ *
+ * @param playerID          The last prisoner standing
+ */
+forward uj_fw_requests_reached(playerID);
+
 /**
  * Called when the current request ends.
  *

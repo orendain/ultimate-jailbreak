@@ -24,7 +24,7 @@
 native uj_playermenu_show_teams(playerID, bool:showSpectatorTeam);
 
 /**
- * Display a menu that lists players.
+ * Display a menu that lists players (filterable by team).
  *
  * @param playerID   The player to display the menu to
  * @param flags[]    Flags to pass onto get_players(), to filter the players listed
@@ -32,7 +32,17 @@ native uj_playermenu_show_teams(playerID, bool:showSpectatorTeam);
  *
  * @noreturn
  */
-native uj_playermenu_show_players(playerID, const flags[], const team[]="");
+native uj_playermenu_show_team_players(playerID, const flags[], const team[]="");
+
+/**
+ * Display a menu that lists players whose player IDs are passed in as arguments.
+ *
+ * @param playerID   The player to display the menu to
+ * @param players[]  The players to list in the menu
+ *
+ * @noreturn
+ */
+native uj_playermenu_show_players(playerID, const players[], playerCount);
 
 
 /**

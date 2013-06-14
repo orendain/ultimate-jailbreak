@@ -100,17 +100,28 @@ native uj_gangs_add_member(playerID, gangID);
 native uj_gangs_remove_member(playerID, gangID);
 
 /**
- * Return a list of all members, and their rank, in a gang
+ * Return a Trie of all members, and their rank, in a gang
  *
  * Possible ranks include:
  *  - UJ_GANG_RANK_MEMBER
  *  - UJ_GANG_RANK_ADMIN
  *  - UJ_GANG_RANK_LEADER
- *
+ *t
  * @return        A Trie structure where a player's authID is the key
  *                and the player's rank is the value.
  */
 native uj_gangs_get_membership(gangID);
+
+/**
+ * Return a list of all members in a gang
+ *
+ * @param gangID           The gang to look for members of
+ * @param players[]        An array to store playerIDs in (must be at least 32-cells long)
+ * @param playersLength    The max length of the players array
+ *
+ * @return                 The number of online gang members.
+ */
+native uj_gangs_get_online_members(gangID, players[], playersLength);
 
 /**
  * Adds a member to the specified gang
@@ -155,6 +166,14 @@ native uj_gangs_set_leader(playerID, gangID);
 /**
  * Forwards
  */
+
+/**
+ * Called after a gang is created.
+ *
+ * @param gangID        The gang that was created
+ * @param gangName      The name of the gang that was created
+ */
+forward uj_fw_gangs_gang_created(gangID, const gangName[]);
 
 /**
  * Called after a gang is destroyed.

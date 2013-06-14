@@ -21,7 +21,7 @@
  *
  * @noreturn
  */
-native uj_effects_set_max_speed(playerID, Float:maxSpeed);
+//native uj_effects_set_max_speed(playerID, Float:maxSpeed);
 
 /**
  * Reset a player's max speed.
@@ -34,14 +34,14 @@ native uj_effects_reset_max_speed(playerID);
  * Glow a player with the parameters specified.
  *
  * @param playerID        Player index.
- * @param alpha     Alpha (transparency). Lower is more invisible.
  * @param red       Redness of the glow (0-255)
  * @param green     Greeness of the glow (0-255)
  * @param blue      Blueness of the glow (0-255)
+ * @param alpha     Transparency (0: invisible - 255:visible)
  *
  * @noreturn
  */
-native uj_effects_glow_player(playerID, alpha, red, green, blue);
+native uj_effects_glow_player(playerID, red, green, blue, alpha);
 
 /**
  * Removes all glow effects from a player.
@@ -52,6 +52,14 @@ native uj_effects_glow_player(playerID, alpha, red, green, blue);
  */
 native uj_effects_glow_reset(playerID);
 
+/**
+ * Turn a player into a rocket
+ *
+ * @param playerID        Player index
+ *
+ * @noreturn
+ */
+native uj_effects_rocket(playerID);
 
 /**
  * Player models
@@ -126,3 +134,16 @@ native uj_effects_set_weap_model(playerID, weaponID, const weaponModel[]);
  * @noreturn
  */
 native uj_effects_reset_weap_model(playerID, weaponID);
+
+
+/*
+ * Forwards
+ */
+
+/**
+ * Called when a player's maxspeed needs to be determined
+ *
+ * @param playerID          Player index.
+ * @param data              data[0] should be checked/changed to reflect the damage that should be taken
+ */
+forward uj_effects_determine_max_speed(player, data[]);

@@ -28,16 +28,21 @@ native uj_core_open_cell_doors();
 /**
  * Block the ability to pickup weapons.
  *
- * @noreturn
- */
-native uj_core_weapon_pickup_block();
-
-/**
- * Allow the ability to pickup weapons.
+ * @param playerID  The player to block or allow, or 0 for all
+ * @param allow     True to block weapon pickup, false to allow it.
  *
  * @noreturn
  */
-native uj_core_weapon_pickup_allow();
+native uj_core_set_weapon_pickup(playerID, bool:block);
+
+/**
+ * Set friendly fire
+ *
+ * @param enabled   True to enable friendly fire, false to disable it.
+ *
+ * @noreturn
+ */
+native uj_core_set_friendly_fire(bool:enabled);
 
 /**
  * Removes all glow effects from a player.
@@ -51,7 +56,7 @@ native uj_core_strip_weapons(playerID, bool: give_knife = true);
 
 /**
  * Use this function to retrieve a players' max health. This value
- * is affected by all Ultimate Jailbreak plugins.
+ * may be modified by any Ultimate Jailbreak plugin.
  *
  * @param playerID        Player index
  *
@@ -109,19 +114,27 @@ forward uj_fw_core_round_end();
 /*
  * Called when determining a player's maximum health points.
  *
+ * @param playerID          The player in question
  * @param dataArray         dataArray[0] should be checked/changed to reflect a
  *                          user's max health
  */
 forward uj_fw_core_get_max_health(playerID, dataArray[]);
 
 /*
- * Called when cell doors are opened.
+ * Called when determing changes to damage a player has caused or taken.
+ *
+ * @param victimID          The victim in the exchange
+ * @param inflictorID       The inflictor in the exchange
+ * @param attackerID        The attacker in the exchange
+ * @param originalDamage    The amount of damage initially computed, not adjusted for armor, etc.
+ * @param damagebits        The damagebits set
+ * @param dataArray         dataArray[0] should be checked/changed to reflect the damage that should be taken
  */
-forward uj_fw_core_cell_doors_opened();
+forward uj_fw_core_get_damage_taken(victimID, inflictorID, attackerID, float:originalDamage, damagebits, dataArray[]);
 
 /*
- * Called when one prisoner is left standing.
+ * Called when cell doors are opened.
  *
- * @param playerID          The last prisoner standing
+ * @param activateorID       The entity that activated this door (could be a player)
  */
-forward uj_fw_core_last_request_reached(playerID);
+forward uj_fw_core_cell_doors_opened(activatorID);

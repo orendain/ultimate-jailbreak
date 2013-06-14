@@ -1,7 +1,7 @@
-#if defined _uj_gang_skills_const_included
+#if defined _uj_gang_s_db_const_included
   #endinput
 #endif
-#define _uj_gang_skills_const_included
+#define _uj_gang_s_db_const_included
 
 /* Gang ID constants */
 #define UJ_GANG_SKILL_INVALID -1
