@@ -10,8 +10,8 @@ new const PLUGIN_VERS[] = "v0.1";
 
 new const SKILL_NAME[] = "Health";
 new const SKILL_COST[] = "50";
-new const SKILL_PER[] = "2";
-new const SKILL_MAX[] = "20";
+new const SKILL_PER[] = "1";
+new const SKILL_MAX[] = "50";
 
 // CVars
 new g_skillCost
@@ -81,7 +81,6 @@ public uj_fw_core_get_max_health(playerID, dataArray[])
     if (skillLevel) {
       // Determine the user's maximum health
       new totalHealth = 100 + (skillLevel * get_pcvar_num(g_skillPer));
-
       if (dataArray[0] < totalHealth) {
         dataArray[0] = totalHealth;
       }

@@ -55,14 +55,13 @@ native uj_core_set_friendly_fire(bool:enabled);
 native uj_core_strip_weapons(playerID, bool: give_knife = true);
 
 /**
- * Use this function to retrieve a players' max health. This value
- * may be modified by any Ultimate Jailbreak plugin.
+ * Determine a player's maximum health and have pev_max_health reflect that.
  *
  * @param playerID        Player index
  *
- * @return                A player's max health, including changes any plugins make
+ * @return                The player's max health
  */
-native uj_core_get_max_health(playerID);
+native uj_core_determine_max_health(playerID);
 
 /**
  * Get the number of prisoners

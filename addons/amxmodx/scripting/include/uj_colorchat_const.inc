@@ -4,6 +4,7 @@
 #define _uj_colorchat_const_included
 
 #define UJ_COLORCHAT_PREFIX "^4[Ultimate Jailbreak]^1 "
+#define UJ_COLORCHAT_PREFIX_TEXT "[Ultimate Jailbreak]"
 
 enum
 {
