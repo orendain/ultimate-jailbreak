@@ -5,12 +5,12 @@
 #include <uj_items>
 #include <uj_colorchat>
 
-new const PLUGIN_NAME[] = "[UJ] Item - Silent Steps";
+new const PLUGIN_NAME[] = "[UJ] Item - Nade Pack";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
-new const ITEM_NAME[] = "Silent Steps";
-new const ITEM_MESSAGE[] = "... ninja status ...";
+new const ITEM_NAME[] = "Nade Pack";
+new const ITEM_MESSAGE[] = "Nades primed and ready!";
 new const ITEM_COST[] = "10";
 new const ITEM_REBEL[] = "false";
 
@@ -23,15 +23,15 @@ new g_costCVar;
 new g_rebelCVar;
 
 // Keep track of who has a nadepack
-new g_hasSilentSteps;
+new g_hasNadePack;
 
 public plugin_init()
 {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
 
   // Register CVars
-  g_costCVar = register_cvar("uj_item_silentsteps_cost", ITEM_COST);
-  g_rebelCVar = register_cvar("uj_item_silentsteps_rebel", ITEM_REBEL);
+  g_costCVar = register_cvar("uj_item_nadepack_cost", ITEM_COST);
+  g_rebelCVar = register_cvar("uj_item_nadepack_rebel", ITEM_REBEL);
 
   // Register this item
   g_item = uj_items_register(ITEM_NAME, ITEM_MESSAGE, g_costCVar, g_rebelCVar);
@@ -57,7 +57,7 @@ public uj_fw_items_select_pre(playerID, itemID, menuID)
   }
   
   // Disable if player already has this item
-  if (get_bit(g_hasSilentSteps, playerID)) {
+  if (get_bit(g_hasNadePack, playerID)) {
     return UJ_ITEM_NOT_AVAILABLE;
   }
 
@@ -73,7 +73,7 @@ public uj_fw_items_select_post(playerID, itemID, menuID)
   if (g_item != itemID)
     return;
 
-  give_silentsteps(playerID);
+  give_nadepack(playerID);
 }
 
 /*
@@ -88,24 +88,27 @@ public uj_fw_items_strip_item(playerID, itemID)
     return;
   }
 
-  remove_silentsteps(playerID);
+  remove_nadepack(playerID);
 }
 
-give_silentsteps(playerID)
+give_nadepack(playerID)
 {
-  if (!get_bit(g_hasSilentSteps, playerID)) {
-    set_bit(g_hasSilentSteps, playerID);
+  if (!get_bit(g_hasNadePack, playerID)) {
+    set_bit(g_hasNadePack, playerID);
 
-    set_user_footsteps(playerID, 1);
+    // Give the player full nades
+    give_item(playerID, "weapon_hegrenade");
+    //give_item(playerID, "weapon_smokegrenade");
+    give_item(playerID, "weapon_flashbang");
+    give_item(playerID, "weapon_flashbang");
   }
   return PLUGIN_HANDLED;
 }
 
-remove_silentsteps(playerID)
+remove_nadepack(playerID)
 {
   // We don't strip the user of his/her nades
-  if (get_bit(g_hasSilentSteps, playerID)) {
-    set_user_footsteps(playerID, 0);
-    clear_bit(g_hasSilentSteps, playerID);
+  if (get_bit(g_hasNadePack, playerID)) {
+    clear_bit(g_hasNadePack, playerID);
   }
 }
