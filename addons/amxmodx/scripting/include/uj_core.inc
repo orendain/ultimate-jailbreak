@@ -59,7 +59,7 @@ native uj_core_strip_weapons(playerID, bool: give_knife = true);
  *
  * @param playerID        Player index
  *
- * @return                The player's max health
+ * @return                The player's max health as a float
  */
 native uj_core_determine_max_health(playerID);
 

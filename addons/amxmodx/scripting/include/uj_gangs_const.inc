@@ -11,3 +11,6 @@
 #define UJ_GANG_RANK_MEMBER 1
 #define UJ_GANG_RANK_ADMIN 2
 #define UJ_GANG_RANK_LEADER 3
+
+/* Gang membership constants */
+#define UJ_GANG_FULL -2

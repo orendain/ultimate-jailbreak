@@ -85,7 +85,7 @@ native uj_gangs_get_gang_id(const gangName[]);
  * @param playerID      Player index
  * @param gangID        Gang to add the specified player to
  *
- * @noreturn
+ * @return              UJ_GANG_FULL if the gang is full, UJ_GANG_INVALID on invalid gang, or otherwise okay
  */
 native uj_gangs_add_member(playerID, gangID);
 
@@ -106,7 +106,7 @@ native uj_gangs_remove_member(playerID, gangID);
  *  - UJ_GANG_RANK_MEMBER
  *  - UJ_GANG_RANK_ADMIN
  *  - UJ_GANG_RANK_LEADER
- *t
+ *
  * @return        A Trie structure where a player's authID is the key
  *                and the player's rank is the value.
  */
