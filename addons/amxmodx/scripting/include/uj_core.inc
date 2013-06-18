@@ -33,7 +33,16 @@ native uj_core_open_cell_doors();
  *
  * @noreturn
  */
-native uj_core_set_weapon_pickup(playerID, bool:block);
+native uj_core_block_weapon_pickup(playerID, bool:block);
+
+/**
+ * Check to see if weapon pickup is blocked.
+ *
+ * @param playerID  The player to enquire about, or 0 for all
+ *
+ * @return          True if weapon pickup is blocked, false otherwise.
+ */
+native uj_core_get_weapon_pickup(playerID);
 
 /**
  * Set friendly fire
@@ -62,6 +71,11 @@ native uj_core_strip_weapons(playerID, bool: give_knife = true);
  * @return                The player's max health as a float
  */
 native uj_core_determine_max_health(playerID);
+
+/**
+ * Get number of players.  Replacement for get_players()
+ */
+native uj_core_get_players(players[], bool:aliveOnly=false, CsTeams:CSTeam=-1);
 
 /**
  * Get the number of prisoners

@@ -14,7 +14,7 @@ new const ITEM_MESSAGE[] = "Now to decide ... escape ... or surprise attack?";
 new const ITEM_COST[] = "60";
 new const ITEM_REBEL[] = "true";
 
-new const INVISIBILITY_ALPHA[] = "35";
+new const INVISIBILITY_ALPHA[] = "20";
 
 // Menu variables
 new g_shopMenu;

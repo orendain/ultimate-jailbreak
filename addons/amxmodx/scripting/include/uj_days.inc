@@ -30,7 +30,7 @@ native uj_days_register(const name[], const objective[], const sound[]);
  *
  * @param name    Exact name (case-insensitive) of the day to search for
  *
- * @return        An internal dayID, UJ_INVALID_DAY of none found
+ * @return        An internal dayID, UJ_DAY_INVALID of none found
  */
 native uj_days_get_id(const name[]);
 
@@ -52,7 +52,7 @@ native uj_days_start(playerID, dayID);
 /**
  * Returns the day that is currently in progress.
  *
- * @return      An internal dayID, or UJ_INVALID_DAY if none
+ * @return      An internal dayID, or UJ_DAY_INVALID if none
  */
 native uj_days_get_current();
 
