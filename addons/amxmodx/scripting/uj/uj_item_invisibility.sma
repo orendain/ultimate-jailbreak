@@ -12,7 +12,7 @@ new const PLUGIN_VERS[] = "v0.1";
 new const ITEM_NAME[] = "Invisibility";
 new const ITEM_MESSAGE[] = "Now to decide ... escape ... or surprise attack?";
 new const ITEM_COST[] = "60";
-new const ITEM_REBEL[] = "true";
+new const ITEM_REBEL[] = "1";
 
 new const INVISIBILITY_ALPHA[] = "20";
 

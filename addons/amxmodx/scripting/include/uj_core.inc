@@ -21,9 +21,11 @@
 /**
  * Open all cell doors.
  *
+ * @param playerID  The player to block or allow, or 0 for all
+ *
  * @noreturn
  */
-native uj_core_open_cell_doors();
+native uj_core_open_cell_doors(playerID);
 
 /**
  * Block the ability to pickup weapons.

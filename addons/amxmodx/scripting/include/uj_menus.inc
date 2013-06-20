@@ -34,6 +34,13 @@ native uj_menus_register_menu(const name[]);
 native uj_menus_register_entry(const name[]);
 
 /**
+ * Append text to the end of the next menu entry that will be processed.
+ *
+ * @param text        The additional text to append to the end of the menu entry
+ */
+native uj_menus_add_text(const text[]);
+
+/**
  * Find a menuID given a menu name
  *
  * @param name    Menu name to look for.
