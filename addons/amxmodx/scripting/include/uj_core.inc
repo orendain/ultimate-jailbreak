@@ -3,6 +3,7 @@
 #endif
 #define _uj_core_included
 
+#include <cstrike>
 #include <uj_core_const>
 
 #if AMXX_VERSION_NUM >= 175 
@@ -69,15 +70,18 @@ native uj_core_strip_weapons(playerID, bool: give_knife = true);
  * Determine a player's maximum health and have pev_max_health reflect that.
  *
  * @param playerID        Player index
- *
- * @return                The player's max health as a float
+ * @param health          The variable to store the player's max health
  */
-native uj_core_determine_max_health(playerID);
+native uj_core_determine_max_health(playerID, &Float:health);
 
 /**
  * Get number of players.  Replacement for get_players()
+ *
+ * @param players        Array to store playerIDs in
+ * @param aliveOnly      True to find only living players, false otherwise.
+ * @param CSTeam         The team, if any, to filter to. (see CsTeams enum in cstrike module)
  */
-native uj_core_get_players(players[], bool:aliveOnly=false, CsTeams:CSTeam=-1);
+native uj_core_get_players(players[], bool:aliveOnly=false, CsTeams:CSTeam=CS_TEAM_SPECTATOR);
 
 /**
  * Get the number of prisoners

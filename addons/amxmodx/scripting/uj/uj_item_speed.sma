@@ -13,7 +13,7 @@ new const PLUGIN_VERS[] = "v0.1";
 new const ITEM_NAME[] = "Speed";
 new const ITEM_MESSAGE[] = "VRROOOOOMM! Here we go!";
 new const ITEM_COST[] = "25";
-new const ITEM_REBEL[] = "false";
+new const ITEM_REBEL[] = "0";
 
 new const SPEED_MAXSPEED[] = "1.3";
 
@@ -105,9 +105,9 @@ public uj_effects_determine_max_speed(playerID, data[])
 {
   if (get_bit(g_hasSpeed, playerID)) {
     // Need to first cast data[0] as a Float
-    new Float:result = data[0];
+    new Float:result = float(data[0]);
     result *= get_pcvar_float(g_maxSpeed);
-    data[0] = result;
+    data[0] = floatround(result);
     //uj_colorchat_print(playerID, playerID, "item data, %f", data[0]);
     //uj_colorchat_print(playerID, playerID, "item result, %f", result);
   }

@@ -3,6 +3,7 @@
 #include <cstrike>
 #include <fakemeta>
 #include <hamsandwich>
+#include <uj_chargers>
 #include <uj_core>
 #include <uj_effects>
 #include <uj_menus>
@@ -131,12 +132,11 @@ start_day()
     g_dayEnabled = true;
 
     // Set models for all players
-    new players[32], playerCount, playerID;
-    get_players(players, playerCount, "c");
+    new players[32], playerID;
+    new playerCount = uj_core_get_players(players, false);
     for (new i = 0; i < playerCount; ++i) {
       playerID = players[i];
       uj_core_strip_weapons(playerID);
-      uj_core_set_friendly_fire(true);
       switch(cs_get_user_team(playerID)) {
         case CS_TEAM_T:
           uj_effects_set_view_model(playerID, CSW_KNIFE, g_szViewGlovesTerro);
@@ -145,8 +145,10 @@ start_day()
       }
     }
 
-    // Disable gun pickup
-    uj_core_set_weapon_pickup(0, true);
+    uj_core_set_friendly_fire(true);
+    uj_core_block_weapon_pickup(0, true);
+    uj_chargers_block_heal(0, true);
+    uj_chargers_block_armor(0, true);
   }
 }
 
@@ -154,17 +156,18 @@ end_day()
 {
   if (g_dayEnabled) {
     // Reset all models
-    new players[32], playerCount;
-    get_players(players, playerCount, "c");
+    new players[32];
+    new playerCount = uj_core_get_players(players, false);
     for (new i = 0; i < playerCount; ++i) {
       uj_effects_reset_view_model(players[i], CSW_KNIFE);
       uj_effects_reset_weap_model(players[i], CSW_KNIFE);
     }
     uj_core_set_friendly_fire(false);
-    g_dayEnabled = false;
+    uj_core_block_weapon_pickup(0, false);
+    uj_chargers_block_heal(0, false);
+    uj_chargers_block_armor(0, false);
 
-    // Enable gun pickup
-    uj_core_set_weapon_pickup(0, false);
+    g_dayEnabled = false;
   }
 }
 

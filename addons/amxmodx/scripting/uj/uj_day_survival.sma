@@ -7,16 +7,6 @@
 #include <uj_days>
 #include <uj_effects>
 
-
-
-
-
-#include <uj_colorchat>
-
-
-
-
-
 new const PLUGIN_NAME[] = "[UJ] Day - Survival";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
@@ -102,7 +92,7 @@ start_day()
 
     // Find settings
     new ammoCount = get_pcvar_num(g_ammoPCVar);
-    new Float:maxspeed = get_pcvar_float(g_speedPCVar);
+    //new Float:maxspeed = get_pcvar_float(g_speedPCVar);
 
     new players[32], playerID;
     new playerCount = uj_core_get_players(players, true, CS_TEAM_CT);
@@ -148,9 +138,9 @@ end_day()
 public uj_effects_determine_max_speed(playerID, data[])
 {
   if (g_dayEnabled && cs_get_user_team(playerID) == CS_TEAM_CT) {
-    new Float:result = data[0];
+    new Float:result = float(data[0]);
     result *= get_pcvar_float(g_speedPCVar);
-    data[0] = result;
+    data[0] = floatround(result);
     //uj_colorchat_print(playerID, playerID, "survival speed is %f", data[0]);
   }
 }

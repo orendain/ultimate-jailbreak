@@ -96,12 +96,16 @@ start_request(playerID, targetID)
     cs_set_user_bpammo(targetID, CSW_SCOUT, ammoCount);
 
     // Do not allow participants to pick up any guns
-    uj_core_set_weapon_pickup(playerID, true);
-    uj_core_set_weapon_pickup(targetID, true);
+    uj_core_block_weapon_pickup(playerID, true);
+    uj_core_block_weapon_pickup(targetID, true);
 
     // Set health
     set_pev(playerID, pev_health, 100.0);
     set_pev(targetID, pev_health, 100.0);
+
+    // Give armor
+    cs_set_user_armor(playerID, 100, CS_ARMOR_VESTHELM)
+    cs_set_user_armor(targetID, 100, CS_ARMOR_VESTHELM)
 
     // Find gravity setting
     new Float:gravity = get_pcvar_float(g_gravityPCVar);
@@ -127,7 +131,7 @@ public uj_fw_requests_end(requestID)
     set_user_gravity(g_playerID, 1.0);
     set_user_gravity(g_targetID, 1.0);
 
-    uj_core_set_weapon_pickup(g_playerID, false);
-    uj_core_set_weapon_pickup(g_targetID, false);
+    uj_core_block_weapon_pickup(g_playerID, false);
+    uj_core_block_weapon_pickup(g_targetID, false);
   }
 }

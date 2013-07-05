@@ -7,18 +7,16 @@
 #include <uj_menus>
 #include <uj_requests>
 
-new const PLUGIN_NAME[] = "[UJ] Request - Knife Dual";
+new const PLUGIN_NAME[] = "[UJ] Request - Knife Duel";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
-new const REQUEST_NAME[] = "Knife Dual";
+new const REQUEST_NAME[] = "Knife Duel";
 new const REQUEST_OBJECTIVE[] = "Come at me, bro!";
 
 // Request variables
 new g_request;
 new bool:g_requestEnabled;
-new g_playerID;
-new g_targetID;
 
 // Menu variables
 new g_menuLastRequests;
@@ -70,24 +68,18 @@ public uj_fw_requests_select_post(playerID, targetID, requestID)
 start_request(playerID, targetID)
 {
   if (!g_requestEnabled) {
-    // Block weapon pickup
-    uj_core_set_weapon_pickup(playerID, true);
-    uj_core_set_weapon_pickup(targetID, true);
-
     // Strip users of weapons, and give out knives
     uj_core_strip_weapons(playerID);
     uj_core_strip_weapons(targetID);
-
-    // Do not allow participants to pick up any guns
-    uj_core_set_weapon_pickup(playerID, true);
-    uj_core_set_weapon_pickup(targetID, true);
 
     // Set health
     set_pev(playerID, pev_health, 100.0);
     set_pev(targetID, pev_health, 100.0);
 
-    g_playerID = playerID;
-    g_targetID = targetID;
+    // Give armor
+    cs_set_user_armor(playerID, 100, CS_ARMOR_VESTHELM)
+    cs_set_user_armor(targetID, 100, CS_ARMOR_VESTHELM)
+
     g_requestEnabled = true;
   }
 }
@@ -97,8 +89,5 @@ public uj_fw_requests_end(requestID)
   // If requestID refers to our request and our request is enabled
   if(requestID == g_request && g_requestEnabled) {
     g_requestEnabled = false;
-
-    uj_core_set_weapon_pickup(g_playerID, false);
-    uj_core_set_weapon_pickup(g_targetID, false);
   }
 }

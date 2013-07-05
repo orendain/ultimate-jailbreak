@@ -14,7 +14,7 @@ new const PLUGIN_VERS[] = "v0.1";
 new const ITEM_NAME[] = "Parachute";
 new const ITEM_MESSAGE[] = "You'll fly like a feather in the breeze...";
 new const ITEM_COST[] = "10";
-new const ITEM_REBEL[] = "false";
+new const ITEM_REBEL[] = "0";
 
 new const PARACHUTE_FALLSPEED[] = "100";
 new const PARACHUTE_MODEL[] = "models/ultimate_jailbreak/parachute.mdl";

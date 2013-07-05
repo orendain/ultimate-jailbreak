@@ -95,7 +95,7 @@ native uj_gangs_add_member(playerID, gangID);
  * @param playerID      Player index
  * @param gangID        Gang to remove the player from.
  *
- * @noreturn
+ * @return              UJ_GANG_INVALID if gangID was invalid
  */
 native uj_gangs_remove_member(playerID, gangID);
 

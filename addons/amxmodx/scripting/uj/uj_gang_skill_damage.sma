@@ -1,9 +1,11 @@
 #include <amxmodx>
 #include <cstrike>
 #include <fun>
+#include <uj_colorchat>
 #include <uj_gangs>
 #include <uj_gang_skill_db>
 #include <uj_gang_skills>
+#include <uj_logs>
 
 new const PLUGIN_NAME[] = "[UJ] Gang Skill - Damage";
 new const PLUGIN_AUTH[] = "eDeloa";
@@ -12,7 +14,7 @@ new const PLUGIN_VERS[] = "v0.1";
 // PER * MAX = 15%
 new const SKILL_NAME[] = "Damage";
 new const SKILL_COST[] = "500";
-new const SKILL_PER[] = "0.005";
+new const SKILL_PER[] = "0.01";
 new const SKILL_MAX[] = "30";
 
 new g_skillCost;
@@ -61,28 +63,23 @@ public uj_fw_gang_skill_menus_s_post(playerID, menuID, skillEntryID)
   set_user_gravity(targetID, gravity);
 }*/
 
-// Set a user's gravity whenever s/he spawns
-public uj_fw_core_player_spawn(playerID)
-{
-  // Only affect prisoners
-  if (cs_get_user_team(playerID) == CS_TEAM_T) {
-    new Float:per = get_pcvar_float(g_skillPer);
-    new gangID = uj_gangs_get_gang(playerID);
-    new level = uj_gang_skill_db_get_level(gangID, g_skill);
-    
-    new Float:gravity = 1.0 - (per*level);
-    set_user_gravity(playerID, gravity);
-  }
-}
-
 // Called when determining the final damage to compute
 public uj_fw_core_get_damage_taken(victimID, inflictorID, attackerID, float:originalDamage, damagebits, data[])
 {
   if ((1<=attackerID<=32) && cs_get_user_team(attackerID) == CS_TEAM_T) {
     new gangID = uj_gangs_get_gang(attackerID);
     new skillLevel = uj_gang_skill_db_get_level(gangID, g_skill);
-    if (skillLevel) {
-      data[0] = data[0] * (1.0 + (skillLevel * get_pcvar_float(g_skillPer)));
+
+    if (skillLevel > 0) {
+      new Float:per = get_pcvar_float(g_skillPer);
+
+      new Float:damage = float(data[0]);
+      damage *= 1.0 + (skillLevel * per);
+
+      uj_colorchat_print(attackerID, attackerID, "Upgrading your damage from %i to %i", data[0], floatround(damage));
+      uj_logs_log_dev("[uj_gang_skill_damage] Player %i: upgrading damage from %i to %i", attackerID, data[0], floatround(damage));
+
+      data[0] = floatround(damage);
     }
   }
 

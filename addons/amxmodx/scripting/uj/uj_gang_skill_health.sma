@@ -1,5 +1,6 @@
 #include <amxmodx>
 #include <cstrike>
+#include <uj_colorchat>
 #include <uj_gangs>
 #include <uj_gang_skill_db>
 #include <uj_gang_skills>
@@ -78,12 +79,15 @@ public uj_fw_core_get_max_health(playerID, dataArray[])
     new gangID = uj_gangs_get_gang(playerID);
     new skillLevel = uj_gang_skill_db_get_level(gangID, g_skill);
 
-    if (skillLevel) {
+    if (skillLevel > 0) {
       // Determine the user's maximum health
       new Float:totalHealth = 100.0 + (skillLevel * get_pcvar_float(g_skillPer));
-      new Float:currentHealth = dataArray[0];
+      new Float:currentHealth = float(dataArray[0]);
+
+      //uj_colorchat_print(playerID, playerID, "data[0]_int = %i, data[0]_float = %f, currentHealth = %f", dataArray[0], float(dataArray[0]), currentHealth);
+
       if (currentHealth < totalHealth) {
-        dataArray[0] = totalHealth;
+        dataArray[0] = floatround(totalHealth);
       }
     }
   }

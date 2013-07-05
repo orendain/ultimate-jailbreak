@@ -12,7 +12,7 @@ new const PLUGIN_VERS[] = "v0.1";
 new const ITEM_NAME[] = "Silent Steps";
 new const ITEM_MESSAGE[] = "... ninja status ...";
 new const ITEM_COST[] = "10";
-new const ITEM_REBEL[] = "false";
+new const ITEM_REBEL[] = "0";
 
 // Menu variables
 new g_menuShop;
@@ -95,7 +95,6 @@ give_silentsteps(playerID)
 {
   if (!get_bit(g_hasSilentSteps, playerID)) {
     set_bit(g_hasSilentSteps, playerID);
-
     set_user_footsteps(playerID, 1);
   }
   return PLUGIN_HANDLED;

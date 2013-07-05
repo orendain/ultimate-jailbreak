@@ -35,7 +35,7 @@ native uj_gang_skill_db_get_id(const name[]);
 /*
  * Find a skill name
  *
- * @param sillID         The skillID
+ * @param sillID       The skillID
  * @param skillName    An array to fill with the skill's name
  * @param maxLength    The maximum number of characters to store inside skillName[]
  *

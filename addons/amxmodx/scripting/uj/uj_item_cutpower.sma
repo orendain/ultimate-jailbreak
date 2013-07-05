@@ -13,7 +13,7 @@ new const PLUGIN_VERS[] = "v0.1";
 new const ITEM_NAME[] = "Cut-off Power";
 new const ITEM_MESSAGE[] = "Now they see you, now they don't.";
 new const ITEM_COST[] = "30";
-new const ITEM_REBEL[] = "false";
+new const ITEM_REBEL[] = "0";
 
 // Menu variables
 new g_shopMenu;
@@ -34,8 +34,8 @@ public plugin_init()
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
 
   // Register CVars
-  g_costCVar = register_cvar("uj_item_invisibility_cost", ITEM_COST);
-  g_rebelCVar = register_cvar("uj_item_invisibility_rebel", ITEM_REBEL);
+  g_costCVar = register_cvar("uj_item_cutpower_cost", ITEM_COST);
+  g_rebelCVar = register_cvar("uj_item_cutpower_rebel", ITEM_REBEL);
 
   // Register this item
   g_item = uj_items_register(ITEM_NAME, ITEM_MESSAGE, g_costCVar, g_rebelCVar);

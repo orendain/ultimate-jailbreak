@@ -15,7 +15,7 @@ new const PLUGIN_VERS[] = "v0.1";
 new const ITEM_NAME[] = "Crowbar";
 new const ITEM_MESSAGE[] = "Permanently attached! Smash some faces!";
 new const ITEM_COST[] = "50";
-new const ITEM_REBEL[] = "false";
+new const ITEM_REBEL[] = "0";
 
 new const CROWBAR_DAMAGE[] = "1.15";
 

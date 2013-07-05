@@ -12,7 +12,7 @@ new const PLUGIN_VERS[] = "v0.1";
 new const ITEM_NAME[] = "Nade Pack";
 new const ITEM_MESSAGE[] = "Nades primed and ready!";
 new const ITEM_COST[] = "10";
-new const ITEM_REBEL[] = "false";
+new const ITEM_REBEL[] = "0";
 
 // Menu variables
 new g_menuShop;

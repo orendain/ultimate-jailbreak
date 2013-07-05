@@ -15,7 +15,8 @@ new const DAY_NAME[] = "Ghostbusters";
 new const DAY_OBJECTIVE[] = "I aint afraid of no ghosts!";
 new const DAY_SOUND[] = "";
 
-new const SPARTA_PRIMARY_AMMO[] = "400";
+new const GHOSTBUSTERS_AMMO[] = "400";
+new const GHOSTBUSTERS_HEALTH[] = "400";
 
 // Day variables
 new g_day;
@@ -26,6 +27,7 @@ new g_menuSpecial
 
 // Cvars
 new g_primaryAmmoPCVar;
+new g_healthPCVar;
 
 public plugin_precache()
 {
@@ -41,7 +43,8 @@ public plugin_init()
   g_menuSpecial = uj_menus_get_menu_id("Special Days");
 
   // CVars
-  g_primaryAmmoPCVar = register_cvar("uj_day_ghostbusters_ammo", SPARTA_PRIMARY_AMMO);
+  g_primaryAmmoPCVar = register_cvar("uj_day_ghostbusters_ammo", GHOSTBUSTERS_AMMO);
+  g_healthPCVar = register_cvar("uj_day_ghostbusters_health", GHOSTBUSTERS_HEALTH);
 }
 
 public uj_fw_days_select_pre(playerID, dayID, menuID)
@@ -101,6 +104,8 @@ start_day()
       cs_set_user_bpammo(playerID, CSW_M249, primaryAmmoCount);
     }
 
+    new health = get_pcvar_num(g_healthPCVar);
+
     playerCount = uj_core_get_players(players, true, CS_TEAM_CT);
     for (new i = 0; i < playerCount; ++i) {
       playerID = players[i];
@@ -108,6 +113,7 @@ start_day()
       // Set user up with noclip
       uj_core_strip_weapons(playerID);
       set_user_noclip(playerID, 1);
+      set_user_health(playerID, health);
     }
 
     uj_core_block_weapon_pickup(0, true);

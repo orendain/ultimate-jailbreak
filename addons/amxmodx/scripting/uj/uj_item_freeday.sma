@@ -12,7 +12,7 @@ new const PLUGIN_VERS[] = "v0.1";
 new const ITEM_NAME[] = "Supra's Freeday";
 new const ITEM_MESSAGE[] = "You're free like a bird!";
 new const ITEM_COST[] = "300";
-new const ITEM_REBEL[] = "false";
+new const ITEM_REBEL[] = "0";
 
 // Menu variables
 new g_shopMenu;

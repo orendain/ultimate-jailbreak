@@ -837,8 +837,12 @@ public forward_touch(ent,id)
 		
 		case 15 :
 		{
-			uj_colorchat_print(id, id, "%s has given you^3 Guards Uniform^1!", mysterybox2);
-			cs_set_user_model(id, "gign");			
+			// Temporarily replacing uniform with HE-grenade
+			uj_colorchat_print(id, id, "%s has given you^3 HE-Grenade^1!", mysterybox2);
+			give_item( id, "weapon_hegrenade" );
+
+			//uj_colorchat_print(id, id, "%s has given you^3 Guards Uniform^1!", mysterybox2);
+			//cs_set_user_model(id, "gign");			
 		}
 		
 		case 16 :
