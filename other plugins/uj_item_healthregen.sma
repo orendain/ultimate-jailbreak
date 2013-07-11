@@ -10,14 +10,12 @@
 #include <uj_effects>
 #include <uj_menus>
 #include <uj_items>
-#include <uj_colorchat>
 
-#define REGEN_MAXHP 160.0
 #define REGEN_TIMER 2.0
-#define REGEN_AMOUNT 3.0		// self heal
-#define StartHP 100.0
+#define REGEN_AMOUNT 3.0    // self heal
 #define REGEN_AMOUNTOTHERS 2.0
 #define REGEN_DISTANCE 200.0
+#define REGEN_TASKID 789
 
 new const PLUGIN_NAME[] = "[UJ] Item - Health Regeneration";
 new const PLUGIN_AUTH[] = "eDeloa";
@@ -58,7 +56,7 @@ public plugin_init()
   // Find the menu that item should appear in
   g_shopMenu = uj_menus_get_menu_id("Shop Menu");
   
-  g_iMaxPlayers   = get_maxplayers();
+  g_iMaxPlayers = get_maxplayers();
   
 }
 
@@ -115,67 +113,50 @@ public uj_fw_items_strip_item(playerID, itemID)
 
 give_shopitem(playerID)
 {
-	if (!get_bit(g_hasItem, playerID)) {
-    // Find transparency level
-
+  if (!get_bit(g_hasItem, playerID)) {
     // Glow user and set bit
-	set_bit(g_hasItem, playerID);
-	set_task(REGEN_TIMER,"Task_HPRegenLoop",playerID,_,_,"b");
-
+    set_bit(g_hasItem, playerID);
+    set_task(REGEN_TIMER, "Task_HPRegenLoop", (REGEN_TASKID + playerID), _, _, "b");
   }
-	return PLUGIN_HANDLED;
 }
 
 remove_item(playerID)
 {
   // If the user is glowed, remove glow and clear bit
   if (get_bit(g_hasItem, playerID)) {
+    remove_task(REGEN_TASKID + playerID);
     clear_bit(g_hasItem, playerID);
   }
 }
 
-public client_disconnect(playerID)
-{
-
-	remove_item(playerID);
-
-}
-
-public client_putinserver(playerID)
-{
-
-	remove_item(playerID)
-
-}
-
-
 public Task_HPRegenLoop(playerID)
 {
-	//new aData[ GangInfo ];
-	//ArrayGetArray( g_aGangs, g_iGang[ id ], aData );
-	new Float: NewHP;
-	//new iHealth = 100 + aData[ GangHP ] * get_pcvar_num( g_pHealthPerLevel );
-	new iHealth = 100;
-	
-	if(entity_get_float(playerID, EV_FL_health) < iHealth) 
-	{
-		NewHP = entity_get_float(playerID, EV_FL_health) + REGEN_AMOUNT;
-	
-		if(NewHP >= REGEN_MAXHP) // If user regened to much HP. We set the MAXHP
-			NewHP = REGEN_MAXHP;
-		entity_set_float(playerID, EV_FL_health,NewHP);
-	}
-	
-	new Team = get_user_team(playerID);
+  if (!get_bit(g_hasItem, playerID)) {
+    return PLUGIN_CONTINUE;
+  }
 
-	for(new i=1;i<=g_iMaxPlayers;i++) if(get_user_team(i) == Team && is_user_alive(i) && i != playerID && entity_range(playerID,i) <= REGEN_DISTANCE)
-	{
-		NewHP = entity_get_float(i, EV_FL_health) + REGEN_AMOUNTOTHERS;
-		
-		if(NewHP >= StartHP) // If user regened to much HP. We set the MAXHP
-			NewHP = StartHP;
+  new tempHealth, Float:currentHealth, Float:newHealth, Float:maxHealth;
+  new CsTeams:team = cs_get_user_team(playerID);
 
-		entity_set_float(i, EV_FL_health,NewHP);
-	}
-	return PLUGIN_CONTINUE;
+  for (new targetID = 1; targetID <= g_iMaxPlayers; ++targetID) {
+    if (cs_get_user_team(targetID) == team &&
+        is_user_alive(targetID) &&
+        entity_range(targetID, playerID) <= REGEN_DISTANCE) {
+
+          // Find current and max health values
+          pev(targetID, pev_health, currentHealth);
+          uj_core_determine_max_health(targetID, tempHealth);
+          maxHealth = float(tempHealth);
+
+          newHealth += currentHealth + ((targetID == playerID) ? REGEN_AMOUNT : REGEN_AMOUNTOTHERS);
+
+          // If user regened to much HP. We set the MAXHP
+          if(newHealth >= maxHealth) {
+            newHealth = maxHealth;
+          }
+
+          set_pev(targetID, pev_health, newHealth);
+    }
+  }
+  return PLUGIN_CONTINUE;
 }

@@ -209,7 +209,6 @@ remove_uj_item(playerID)
 
 public fire_rocket(playerID)
 {
-  update_bazooka_hud(playerID);
   clear_bit(g_canShoot, playerID);
   
   new data[1]

@@ -32,6 +32,8 @@ new g_menuMain
 new g_costCVar;
 new g_rebelCVar;
 
+new g_hasWeapon;
+
 new const g_weaponNames[][] =
 {
   "Special Ops (M4A1, USP)",
@@ -197,13 +199,20 @@ public uj_fw_items_select_post(playerID, itemID, menuID)
 
     // Give the user armor
     cs_set_user_armor(playerID, 100, CS_ARMOR_VESTHELM)
+
+    set_bit(g_hasWeapon, playerID);
   }
 }
 
 public uj_fw_items_strip_item(playerID, itemID)
 {
-  if (itemID == UJ_ITEM_ALL_ITEMS || in_array(g_itemIDs, itemID, sizeof(g_itemIDs)) >= 0) {
-    uj_core_strip_weapons(playerID);
+  if (!get_bit(g_hasWeapon, playerID)) {
+    return;
+  }
+  if (itemID == UJ_ITEM_ALL_ITEMS ||
+      in_array(g_itemIDs, itemID, sizeof(g_itemIDs)) >= 0) {
+        uj_core_strip_weapons(playerID);
+        clear_bit(g_hasWeapon, playerID);
   }
 }
 
