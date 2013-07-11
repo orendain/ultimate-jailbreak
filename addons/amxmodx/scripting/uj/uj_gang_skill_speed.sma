@@ -60,7 +60,7 @@ public uj_fw_gang_skill_menus_s_post(playerID, menuID, skillEntryID)
   set_user_gravity(targetID, gravity);
 }*/
 
-public uj_effects_determine_max_speed(playerID, Float:data[])
+public uj_effects_determine_max_speed(playerID, data[])
 {
   if (cs_get_user_team(playerID) == CS_TEAM_T) {
     new gangID = uj_gangs_get_gang(playerID);
@@ -68,9 +68,9 @@ public uj_effects_determine_max_speed(playerID, Float:data[])
     if (skillLevel > 0) {
       //uj_colorchat_print(playerID, playerID, "skill speed affecting.");
       // Need to first cast as Floats
-      //new Float:result = data[0];
-      data[0] *= 1.0 + (skillLevel * get_pcvar_float(g_skillPer));
-      //data[0] = result;
+      new Float:result = float(data[0]);
+      result *= 1.0 + (skillLevel * get_pcvar_float(g_skillPer));
+      data[0] = floatround(result);
       //uj_colorchat_print(playerID, playerID, "skill, data %f, result %f", data[0], result)
       //uj_colorchat_print(playerID, playerID, "gang %i, skill %i", gangID, skillLevel)
     }

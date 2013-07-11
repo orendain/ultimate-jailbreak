@@ -2,6 +2,8 @@
 #include <fun>
 #include <cstrike>
 #include <fakemeta>
+#include <uj_core>
+#include <uj_freedays>
 #include <uj_menus>
 #include <uj_days>
 
@@ -72,10 +74,24 @@ start_day()
 {
   if (!g_dayEnabled) {
     g_dayEnabled = true;
+
+    new players[32];
+    new playerCount = uj_core_get_players(players, true, CS_TEAM_T);
+    for (new i = 0; i < playerCount; ++i) {
+      uj_freedays_give(players[i]);
+    }
   }
 }
 
 end_day()
 {
-  g_dayEnabled = false;
+  if (g_dayEnabled) {
+    new players[32];
+    new playerCount = uj_core_get_players(players, true, CS_TEAM_T);
+    for (new i = 0; i < playerCount; ++i) {
+      uj_freedays_remove(players[i]);
+    }
+
+    g_dayEnabled = false;
+  }
 }

@@ -76,7 +76,7 @@ public uj_fw_core_get_damage_taken(victimID, inflictorID, attackerID, float:orig
       new Float:damage = float(data[0]);
       damage *= 1.0 + (skillLevel * per);
 
-      uj_colorchat_print(attackerID, attackerID, "Upgrading your damage from %i to %i", data[0], floatround(damage));
+      //uj_colorchat_print(attackerID, attackerID, "Upgrading your damage from %i to %i", data[0], floatround(damage));
       uj_logs_log_dev("[uj_gang_skill_damage] Player %i: upgrading damage from %i to %i", attackerID, data[0], floatround(damage));
 
       data[0] = floatround(damage);

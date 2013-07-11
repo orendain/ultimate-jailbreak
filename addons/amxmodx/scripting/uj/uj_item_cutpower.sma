@@ -10,7 +10,7 @@ new const PLUGIN_NAME[] = "[UJ] Item - Cut Power";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
-new const ITEM_NAME[] = "Cut-off Power";
+new const ITEM_NAME[] = "Cut-Off Power";
 new const ITEM_MESSAGE[] = "Now they see you, now they don't.";
 new const ITEM_COST[] = "30";
 new const ITEM_REBEL[] = "0";

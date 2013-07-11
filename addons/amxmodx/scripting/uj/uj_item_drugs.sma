@@ -1,49 +1,51 @@
 #include <amxmodx>
+#include <cstrike>
 #include <uj_core>
 #include <uj_effects>
 #include <uj_menus>
 #include <uj_items>
 #include <uj_colorchat>
 
-new const PLUGIN_NAME[] = "[UJ] Item - Invisibility";
+new const PLUGIN_NAME[] = "[UJ] Item - Drugs";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
-new const ITEM_NAME[] = "Invisibility";
-new const ITEM_MESSAGE[] = "Now to decide ... escape ... or surprise attack?";
+new const ITEM_NAME[] = "Grand Daddy's Drugs";
+new const ITEM_MESSAGE[] = "Turnt Up!";
 new const ITEM_COST[] = "50";
-new const ITEM_REBEL[] = "true";
+new const ITEM_REBEL[] = "0";
 
-new const INVISIBILITY_ALPHA[] = "50";
+new const ITEM_MAXSPEED[] = "1.3";
 
 // Menu variables
-new g_shopMenu;
+new g_menuShop;
 new g_item;
 
 // Common CVars
 new g_costCVar;
 new g_rebelCVar;
 
-// Item-specific CVars
-new g_alphaCVar;
-
-// Keep track of who has invisibility
-new g_hasInvisibility;
+// Keep track of who this item
+new g_hasItem;
+new g_maxSpeed;
+new gmsg_SetFOV;
 
 public plugin_init()
 {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
 
   // Register CVars
-  g_costCVar = register_cvar("uj_item_invisibility_cost", ITEM_COST);
-  g_rebelCVar = register_cvar("uj_item_invisibility_rebel", ITEM_REBEL);
-  g_alphaCVar = register_cvar("uj_item_invisibility_alpha", INVISIBILITY_ALPHA);
+  g_costCVar = register_cvar("uj_item_drugs_cost", ITEM_COST);
+  g_rebelCVar = register_cvar("uj_item_drugs_rebel", ITEM_REBEL);
+  g_maxSpeed = register_cvar("uj_item_drugs_speed", ITEM_MAXSPEED);
 
   // Register this item
   g_item = uj_items_register(ITEM_NAME, ITEM_MESSAGE, g_costCVar, g_rebelCVar);
 
   // Find the menu that item should appear in
-  g_shopMenu = uj_menus_get_menu_id("Shop Menu");
+  g_menuShop = uj_menus_get_menu_id("Shop Menu");
+
+  gmsg_SetFOV = get_user_msgid("SetFOV");
 }
 
 /*
@@ -58,12 +60,12 @@ public uj_fw_items_select_pre(playerID, itemID, menuID)
   }
 
   // Only display if it appears in the menu we retrieved in plugin_init()
-  if (menuID != g_shopMenu) {
+  if (menuID != g_menuShop) {
     return UJ_ITEM_DONT_SHOW;
   }
 
-  // If the specified user is already invisible, hide item from menus
-  if (get_bit(g_hasInvisibility, playerID)) {
+  // Disable if player already has this item
+  if (get_bit(g_hasItem, playerID)) {
     return UJ_ITEM_NOT_AVAILABLE;
   }
   
@@ -79,7 +81,7 @@ public uj_fw_items_select_post(playerID, itemID, menuID)
   if (g_item != itemID)
     return;
 
-  give_invisibility(playerID);
+  give_item(playerID);
 }
 
 /*
@@ -94,27 +96,41 @@ public uj_fw_items_strip_item(playerID, itemID)
     return;
   }
 
-  remove_invisibility(playerID);
+  remove_item(playerID);
 }
 
-give_invisibility(playerID)
+give_item(playerID)
 {
-  if (!get_bit(g_hasInvisibility, playerID)) {
-    // Find transparency level
-    new alpha = get_pcvar_num(g_alphaCVar);
+  if (!get_bit(g_hasItem, playerID)) {
+    set_bit(g_hasItem, playerID);
 
-    // Glow user and set bit
-    uj_effects_glow_player(playerID, 0, 0, 0, alpha);
-    set_bit(g_hasInvisibility, playerID);
+    message_begin(MSG_ONE, gmsg_SetFOV, { 0, 0, 0 }, playerID);
+    write_byte(180);
+    message_end();
+    uj_effects_reset_max_speed(playerID);
   }
   return PLUGIN_HANDLED;
 }
 
-remove_invisibility(playerID)
+remove_item(playerID)
 {
-  // If the user is glowed, remove glow and clear bit
-  if (get_bit(g_hasInvisibility, playerID)) {
-    uj_effects_glow_reset(playerID);
-    clear_bit(g_hasInvisibility, playerID);
+  // We don't strip the user of his/her armor
+  if (get_bit(g_hasItem, playerID)) {
+    clear_bit(g_hasItem, playerID);
+    uj_effects_reset_max_speed(playerID);
+  }
+}
+
+
+/*
+ * Called when determining a player's max speed
+ */
+public uj_effects_determine_max_speed(playerID, data[])
+{
+  if (get_bit(g_hasItem, playerID)) {
+    // Need to first cast data[0] as a Float
+    new Float:result = float(data[0]);
+    result *= get_pcvar_float(g_maxSpeed);
+    data[0] = floatround(result);
   }
 }

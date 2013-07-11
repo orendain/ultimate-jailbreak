@@ -24,6 +24,13 @@
 native uj_gang_skill_db_register(const name[]);
 
 /*
+ * Total number of skills that have been registered
+ *
+ * @return        Skill count
+ */
+native uj_gang_skill_db_get_count();
+
+/*
  * Find a skill id by name
  *
  * @param name    Skill name

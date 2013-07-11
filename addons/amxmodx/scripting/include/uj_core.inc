@@ -72,7 +72,7 @@ native uj_core_strip_weapons(playerID, bool: give_knife = true);
  * @param playerID        Player index
  * @param health          The variable to store the player's max health
  */
-native uj_core_determine_max_health(playerID, &Float:health);
+native uj_core_determine_max_health(playerID, &health);
 
 /**
  * Get number of players.  Replacement for get_players()
@@ -81,7 +81,7 @@ native uj_core_determine_max_health(playerID, &Float:health);
  * @param aliveOnly      True to find only living players, false otherwise.
  * @param CSTeam         The team, if any, to filter to. (see CsTeams enum in cstrike module)
  */
-native uj_core_get_players(players[], bool:aliveOnly=false, CsTeams:CSTeam=CS_TEAM_SPECTATOR);
+native uj_core_get_players(players[], bool:aliveOnly=false, CsTeams:CSTeam=CS_TEAM_UNASSIGNED);
 
 /**
  * Get the number of prisoners

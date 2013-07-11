@@ -104,7 +104,7 @@ give_invisibility(playerID)
     new alpha = get_pcvar_num(g_alphaCVar);
 
     // Glow user and set bit
-    uj_effects_glow_player(playerID, 0, 0, 0, alpha);
+    uj_effects_set_visibility(playerID, alpha);
     set_bit(g_hasInvisibility, playerID);
   }
   return PLUGIN_HANDLED;
@@ -114,7 +114,7 @@ remove_invisibility(playerID)
 {
   // If the user is glowed, remove glow and clear bit
   if (get_bit(g_hasInvisibility, playerID)) {
-    uj_effects_glow_reset(playerID);
+    uj_effects_reset_visibility(playerID);
     clear_bit(g_hasInvisibility, playerID);
   }
 }

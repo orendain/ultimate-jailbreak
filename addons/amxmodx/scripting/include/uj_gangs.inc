@@ -34,7 +34,7 @@ native uj_gangs_create_gang(playerID, const gangName[]);
 native uj_gangs_destroy_gang(gangID);
 
 /*
- * Total number of gangs that have been registered, including destroyed gangs.
+ * Total number of gangs that have been registered (including destroyed gangs?)
  *
  * @return        Gang count
  */
@@ -52,7 +52,7 @@ native uj_gangs_get_gang_count();
 native uj_gangs_get_name(gangID, gangName[], gangNameLength);
 
 /**
- * Create a new Gang to store in the system
+ * Set a gang's name
  *
  * @param gangID        Internal gangID
  * @param gangName      The name to rename the gang with
@@ -80,12 +80,21 @@ native uj_gangs_get_gang(playerID);
 native uj_gangs_get_gang_id(const gangName[]);
 
 /**
+ * The number of members in a particular gang.
+ *
+ * @param gangID      The gangID
+ *
+ * @return            Number of members in this gang, UJ_GANG_INVALID on invalid gangID
+ */
+native uj_gangs_get_member_count(gangID);
+
+/**
  * Adds a member to the specified gang
  *
  * @param playerID      Player index
  * @param gangID        Gang to add the specified player to
  *
- * @return              UJ_GANG_FULL if the gang is full, UJ_GANG_INVALID on invalid gang, or otherwise okay
+ * @return              UJ_GANG_INVALID on invalid gang, or otherwise okay
  */
 native uj_gangs_add_member(playerID, gangID);
 
@@ -98,6 +107,16 @@ native uj_gangs_add_member(playerID, gangID);
  * @return              UJ_GANG_INVALID if gangID was invalid
  */
 native uj_gangs_remove_member(playerID, gangID);
+
+/**
+ * Removes a member from a specified gang (through his or her authID)
+ *
+ * @param authID[]      Player's authID
+ * @param gangID        Gang to remove the player from.
+ *
+ * @return              UJ_GANG_INVALID if gangID was invalid
+ */
+native uj_gangs_remove_member_auth(const authID[], gangID);
 
 /**
  * Return a Trie of all members, and their rank, in a gang

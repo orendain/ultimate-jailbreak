@@ -17,13 +17,6 @@
  */
 
 /**
- * Set a player's max speed.
- *
- * @noreturn
- */
-//native uj_effects_set_max_speed(playerID, Float:maxSpeed);
-
-/**
  * Reset a player's max speed.
  *
  * @noreturn
@@ -33,15 +26,15 @@ native uj_effects_reset_max_speed(playerID);
 /**
  * Glow a player with the parameters specified.
  *
- * @param playerID        Player index.
+ * @param playerID  Player index.
  * @param red       Redness of the glow (0-255)
  * @param green     Greeness of the glow (0-255)
  * @param blue      Blueness of the glow (0-255)
- * @param alpha     Transparency (0: invisible - 255:visible)
+ * @param size      Shell size (0-255)
  *
  * @noreturn
  */
-native uj_effects_glow_player(playerID, red, green, blue, alpha);
+native uj_effects_glow_player(playerID, red, green, blue, size);
 
 /**
  * Removes all glow effects from a player.
@@ -51,6 +44,25 @@ native uj_effects_glow_player(playerID, red, green, blue, alpha);
  * @noreturn
  */
 native uj_effects_glow_reset(playerID);
+
+/**
+ * Set a player's visibility.
+ *
+ * @param playerID        Player index
+ * @param alpha           Transparency (0: invisible - 255:visible)
+ *
+ * @noreturn
+ */
+native uj_effects_set_visibility(playerID, alpha);
+
+/**
+ * Reset a player's visibility.
+ *
+ * @param playerID        Player index
+ *
+ * @noreturn
+ */
+native uj_effects_reset_visibility(playerID);
 
 /**
  * Turn a player into a rocket
