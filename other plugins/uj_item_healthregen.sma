@@ -26,8 +26,6 @@ new const ITEM_MESSAGE[] = "You will heal over time whenever you receive damage.
 new const ITEM_COST[] = "25";
 new const ITEM_REBEL[] = "0";
 
-new g_iMaxPlayers;
-
 // Menu variables
 new g_shopMenu;
 new g_item;
@@ -55,9 +53,6 @@ public plugin_init()
 
   // Find the menu that item should appear in
   g_shopMenu = uj_menus_get_menu_id("Shop Menu");
-  
-  g_iMaxPlayers = get_maxplayers();
-  
 }
 
 /*
@@ -136,13 +131,13 @@ public Task_HPRegenLoop(playerID)
   }
 
   new tempHealth, Float:currentHealth, Float:newHealth, Float:maxHealth;
-  new CsTeams:team = cs_get_user_team(playerID);
-
-  for (new targetID = 1; targetID <= g_iMaxPlayers; ++targetID) {
-    if (cs_get_user_team(targetID) == team &&
-        is_user_alive(targetID) &&
-        entity_range(targetID, playerID) <= REGEN_DISTANCE) {
-
+  
+  new players[32], targetID;
+  new CsTeams:userTeam = cs_get_user_team(playerID);
+  new playerCount = uj_core_get_players(players, true, userTeam);
+  for (new i = 0; i < playerCount; ++i) {
+    targetID = players[i];
+    if (entity_range(targetID, playerID) <= REGEN_DISTANCE) {
           // Find current and max health values
           pev(targetID, pev_health, currentHealth);
           uj_core_determine_max_health(targetID, tempHealth);
