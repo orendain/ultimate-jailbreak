@@ -1,7 +1,6 @@
+#include <amxmisc>
 #include <amxmodx>
-#include <cstrike>
 #include <fakemeta>
-#include <fun>
 #include <uj_core>
 #include <uj_colorchat>
 #include <uj_menus>
@@ -24,6 +23,7 @@ public plugin_init()
   // Now register this menu as an item of the main menu
   g_mainMain = uj_menus_get_menu_id("Main Menu");
   g_menuEntry = uj_menus_register_entry(MENU_NAME);
+  
 }
 
 public uj_fw_menus_select_pre(playerID, menuID, entryID)
@@ -76,3 +76,7 @@ public uj_fw_playermenu_player_select(pluginID, playerID, targetID)
   get_user_name(targetID, targetName, charsmax(targetName));
   uj_colorchat_print(0, playerID, "^3%s^1 has healed ^3%s^1 to ^4%i^1 HP!", playerName, targetName, floatround(health));
 }
+
+/* AMXX-Studio Notes - DO NOT MODIFY BELOW HERE
+*{\\ rtf1\\ ansi\\ deff0{\\ fonttbl{\\ f0\\ fnil Tahoma;}}\n\\ viewkind4\\ uc1\\ pard\\ lang1033\\ f0\\ fs16 \n\\ par }
+*/
