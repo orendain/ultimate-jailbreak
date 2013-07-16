@@ -8,7 +8,7 @@
 #define PLUGIN_AUTH "eDeloa"
 #define PLUGIN_VERS "v0.1"
 
-#define FLAG_ADMIN ADMIN_IMMUNITY
+#define FLAG_ADMIN ADMIN_LEVEL_C
 #define FLAG_USER ADMIN_ALL
 
 enum _:POINTS_TYPE
@@ -27,6 +27,7 @@ public plugin_init()
   register_concmd("uj_points_remove", "cmd_points_remove", FLAG_ADMIN, "<target> <amount>");
   register_concmd("uj_points_set", "cmd_points_set", FLAG_ADMIN, "<target> <amount>");
   register_concmd("uj_points_donate", "cmd_points_donate", FLAG_USER, "<target> <amount>");
+  register_concmd("uj_points_list", "cmd_points_list", FLAG_ADMIN, "<target> <amount>");
 }
 
 public cmd_points_add(id, level, cid)
@@ -139,6 +140,27 @@ public cmd_points_donate(id, level, cid)
   uj_points_add(player, amount);
 
   print_message(player, id, amount, POINTS_TYPE: POINTS_DONATE)
+
+  return PLUGIN_HANDLED;
+}
+
+public cmd_points_list(playerID, level, cid)
+{
+  if(!cmd_access(playerID, level, cid, 1))
+    return PLUGIN_HANDLED;
+
+  client_print(playerID, print_console, "%-35s%20s", "Player", "Points")
+  client_print(playerID, print_console, "==================================")
+
+  new playerName[32], points;
+  new maxPlayers = get_maxplayers();
+  for (new targetID = 1; targetID <= maxPlayers; ++targetID) {
+    if (is_user_connected(targetID)) {
+      get_user_name(targetID, playerName, charsmax(playerName));
+      points = uj_points_get(targetID);
+      client_print(playerID, print_console, "%-.20s %15i", playerName, points)
+    }
+  }
 
   return PLUGIN_HANDLED;
 }
