@@ -204,6 +204,9 @@ public uj_fw_items_select_post(playerID, itemID, menuID)
   }
 }
 
+// Do not strip someone's weapon.
+// Saves processing + stops weap from dropping upon death.
+/*
 public uj_fw_items_strip_item(playerID, itemID)
 {
   if (!get_bit(g_hasWeapon, playerID)) {
@@ -214,7 +217,7 @@ public uj_fw_items_strip_item(playerID, itemID)
         uj_core_strip_weapons(playerID);
         clear_bit(g_hasWeapon, playerID);
   }
-}
+}*/
 
 stock in_array(dArray[], value, size)
 {

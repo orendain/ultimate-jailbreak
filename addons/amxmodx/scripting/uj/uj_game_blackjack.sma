@@ -749,25 +749,25 @@ doGameOver(id)
 		case -1:
 		{
 			uj_colorchat_print(0,UJ_COLORCHAT_RED,"^4%s^1 lost ^4%i^1 points in Blackjack!",name,betValues[id]);
-			uj_logs_log("[uj_game_blackjack] %s lost %i points in Blackjack.")
+			uj_logs_log("[uj_game_blackjack] %s lost %i points in Blackjack.",name,betValues[id]);
 		}
 		case 0:
 		{
 			uj_colorchat_print(0,UJ_COLORCHAT_RED,"^4%s^1 had a draw in Blackjack!",name);
 			uj_points_add(id, betValues[id]);
-			uj_logs_log("[uj_game_blackjack] %s drew %i points in Blackjack.")
+			uj_logs_log("[uj_game_blackjack] %s drew %i points in Blackjack.",name,betValues[id]);
 		}
 		case 1:
 		{
 			uj_colorchat_print(0,UJ_COLORCHAT_RED,"^4%s^1 won ^4%i^1 points in Blackjack!",name,betValues[id]);
 			uj_points_add(id, 2*betValues[id]);
-			uj_logs_log("[uj_game_blackjack] %s won %i points in Blackjack.")
+			uj_logs_log("[uj_game_blackjack] %s won %i points in Blackjack.",name,betValues[id]);
 		}
 		case 2:
 		{
 			uj_colorchat_print(0,UJ_COLORCHAT_RED,"^3[Blackjack!]^1 ^4%s^1 won ^4%i^1 points in Blackjack!",name,betValues[id]*2);
 			uj_points_add(id, 3*betValues[id]);
-			uj_logs_log("[uj_game_blackjack] %s lost %i points in Blackjack with a Blackjack.")
+			uj_logs_log("[uj_game_blackjack] %s lost %i points in Blackjack with a Blackjack.",name,betValues[id]);
 		}
 	}
 }

@@ -80,6 +80,8 @@ native uj_core_determine_max_health(playerID, &health);
  * @param players        Array to store playerIDs in
  * @param aliveOnly      True to find only living players, false otherwise.
  * @param CSTeam         The team, if any, to filter to. (see CsTeams enum in cstrike module)
+ *
+ * @return               The number of players returned.
  */
 native uj_core_get_players(players[], bool:aliveOnly=false, CsTeams:CSTeam=CS_TEAM_UNASSIGNED);
 

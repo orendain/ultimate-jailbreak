@@ -17,8 +17,8 @@
 #define FIRST_PLAYER_ID 1
 #define IsPlayer(%1) (FIRST_PLAYER_ID <= %1 <= g_iMaxPlayers)
 
-#define m_pPlayer 41		// Ham_Item_Deploy (Weapon Owner)
-#define OFFSET_LINUX 4		// Weapons Linux Offset
+#define m_pPlayer 41    // Ham_Item_Deploy (Weapon Owner)
+#define OFFSET_LINUX 4    // Weapons Linux Offset
 
 #define IsPrimaryWeapon(%1) ( (1<<%1) & PRIMARY_WEAPONS_BIT )
 #define IsSecondaryWeapon(%1) ( (1<<%1) & WEAPONS_PISTOLS )
@@ -120,7 +120,7 @@ public plugin_init()
   register_forward(FM_AddToFullPack, "Fwd_AddToFullPack", 1);
   register_forward(FM_PlayerPreThink, "Fwd_PlayerPreThink");
   register_forward(FM_Touch, "Fwd_Touch");  
-  g_iMsgFog		= get_user_msgid("Fog");
+  g_iMsgFog   = get_user_msgid("Fog");
   
 }
 
@@ -159,72 +159,71 @@ public uj_fw_days_end(dayID)
   // If dayID refers to our day and our day is enabled
   if(dayID == g_day && g_dayEnabled) {
     end_day();
-   
   }
 }
 
 start_day()
 {
-	if (!g_dayEnabled) {
-	g_dayEnabled = true;
+  if (!g_dayEnabled) {
+    g_dayEnabled = true;
 
-	// Find settings
-	//new primaryAmmoCount = get_pcvar_num(g_primaryAmmoPCVar);
-	//new secondaryAmmoCount = get_pcvar_num(g_secondaryAmmoPCVar);
-	set_lights(g_iNightCrawlerDayLights);
-	msg_create_fog( 255, 255, 255, 2 ); //fog
+    // Find settings
+    //new primaryAmmoCount = get_pcvar_num(g_primaryAmmoPCVar);
+    //new secondaryAmmoCount = get_pcvar_num(g_secondaryAmmoPCVar);
+    set_lights(g_iNightCrawlerDayLights);
+    msg_create_fog( 255, 255, 255, 2 ); //fog
 
-	new players[32], playerID;
-	new playerCount = uj_core_get_players(players, true, CS_TEAM_T);
-	for (new i = 0; i < playerCount; ++i) {
-	playerID = players[i];
+    new players[32], playerID;
+    new playerCount = uj_core_get_players(players, true, CS_TEAM_T);
+    for (new i = 0; i < playerCount; ++i) {
+      playerID = players[i];
 
-	// Give user items
-	uj_core_strip_weapons(playerID);
-	//set_tag_player(iPlayer, "Survivor");
-	//SaveWeapons(iPlayer);
-	GiveItem(playerID, "weapon_m4a1", 200);
-	GiveItem(playerID, "weapon_deagle", 125);
-	cs_reset_user_model(playerID);
-	emit_sound(playerID, CHAN_VOICE, NightCrawlerSounds[0], 1.0, ATTN_NORM, 0, PITCH_NORM);
-	
-	if(playerID == g_iRandom) 
-	g_iRandom = fnGetRandomPlayer();
-	}
+      // Give user items
+      uj_core_strip_weapons(playerID);
+      //set_tag_player(iPlayer, "Survivor");
+      //SaveWeapons(iPlayer);
+      GiveItem(playerID, "weapon_m4a1", 200);
+      GiveItem(playerID, "weapon_deagle", 125);
+      cs_reset_user_model(playerID);
+      emit_sound(playerID, CHAN_VOICE, NightCrawlerSounds[0], 1.0, ATTN_NORM, 0, PITCH_NORM);
+      
+      if(playerID == g_iRandom) 
+        g_iRandom = fnGetRandomPlayer();
+    }
 
-	playerCount = uj_core_get_players(players, true, CS_TEAM_CT);
-	for (new i = 0; i < playerCount; ++i) {
-	playerID = players[i];
-	
-	// Give user items
-	uj_core_strip_weapons(playerID);
-	//give_item(playerID, "weapon_m4a1");
-	//set_tag_player(iPlayer, "NightCrawler"); // Had to add a delay
-	clear_bit(g_HasBeenHit, playerID);
-	clear_bit(g_bTeleport, playerID);
-	g_bTeleportUsed[playerID] = 0;
-	//cs_set_user_model(playerID, "nightcrawler3");
-	new iOrigin[3];
-	get_user_origin(playerID, iOrigin);
-	message_begin(MSG_PVS, SVC_TEMPENTITY, iOrigin);
-	write_byte(TE_TELEPORT);
-	write_coord(iOrigin[0]);
-	write_coord(iOrigin[1]);
-	write_coord(iOrigin[2]);
-	message_end();
-	set_task(0.2, "tagtask", playerID);
-	//SaveWeapons(playerID);
-	//cs_set_user_nvg( playerID, 0 );
-	set_user_footsteps(playerID, 1);
-	set_user_maxspeed(playerID, 265.0);
-	if(g_iRandom == playerID)
-		g_iRandom = fnGetRandomPlayer();
-	}
-	
-	uj_core_block_weapon_pickup(0, true);
-	uj_chargers_block_heal(0, true);
-	uj_chargers_block_armor(0, true);
-	}
+    playerCount = uj_core_get_players(players, true, CS_TEAM_CT);
+    for (new i = 0; i < playerCount; ++i) {
+      playerID = players[i];
+      
+      // Give user items
+      uj_core_strip_weapons(playerID);
+      //give_item(playerID, "weapon_m4a1");
+      //set_tag_player(iPlayer, "NightCrawler"); // Had to add a delay
+      clear_bit(g_HasBeenHit, playerID);
+      clear_bit(g_bTeleport, playerID);
+      g_bTeleportUsed[playerID] = 0;
+      //cs_set_user_model(playerID, "nightcrawler3");
+      new iOrigin[3];
+      get_user_origin(playerID, iOrigin);
+      message_begin(MSG_PVS, SVC_TEMPENTITY, iOrigin);
+      write_byte(TE_TELEPORT);
+      write_coord(iOrigin[0]);
+      write_coord(iOrigin[1]);
+      write_coord(iOrigin[2]);
+      message_end();
+      set_task(0.2, "tagtask", playerID);
+      //SaveWeapons(playerID);
+      //cs_set_user_nvg( playerID, 0 );
+      set_user_footsteps(playerID, 1);
+      set_user_maxspeed(playerID, 265.0);
+      if(g_iRandom == playerID)
+        g_iRandom = fnGetRandomPlayer();
+    }
+    
+    uj_core_block_weapon_pickup(0, true);
+    uj_chargers_block_heal(0, true);
+    uj_chargers_block_armor(0, true);
+  }
 }
 
 end_day()
@@ -238,13 +237,14 @@ end_day()
     //cs_reset_user_model(playerID);
   }
 
-  g_dayEnabled = false;
   set_lights("#OFF");
   fog(false);
   client_cmd( 0, "stopsound" );
   uj_core_block_weapon_pickup(0, false);
   uj_chargers_block_heal(0, false);
   uj_chargers_block_armor(0, false);
+
+  g_dayEnabled = false;
 }
 
 public Fwd_PlayerWeaponTouch(const iEntity, const playerID)
@@ -278,213 +278,213 @@ fnGetRandomPlayer() {
 
 public Player_AddPlayerItem(const playerID, const iEntity)  //anti gun glitch
 {
-	new iWeapID = cs_get_weapon_id( iEntity );
+  new iWeapID = cs_get_weapon_id( iEntity );
 
-	if( !iWeapID )
-		return HAM_IGNORED;
+  if( !iWeapID )
+    return HAM_IGNORED;
     
-	static CsTeams:team;
-	team = cs_get_user_team(playerID);
-	if (g_dayEnabled) 
-	{
-	switch(team)
-	{
-	case CS_TEAM_T:
-	if(iWeapID != CSW_KNIFE && iWeapID != CSW_M4A1)
-	{
-	SetHamReturnInteger( 1 );
-	return HAM_SUPERCEDE;
-	}
-	case CS_TEAM_CT:
-	if(iWeapID != CSW_KNIFE)
-	{
-	SetHamReturnInteger( 1 );
-	return HAM_SUPERCEDE;
-	}
-	}
+  static CsTeams:team;
+  team = cs_get_user_team(playerID);
+  if (g_dayEnabled) 
+  {
+  switch(team)
+  {
+  case CS_TEAM_T:
+  if(iWeapID != CSW_KNIFE && iWeapID != CSW_M4A1)
+  {
+  SetHamReturnInteger( 1 );
+  return HAM_SUPERCEDE;
+  }
+  case CS_TEAM_CT:
+  if(iWeapID != CSW_KNIFE)
+  {
+  SetHamReturnInteger( 1 );
+  return HAM_SUPERCEDE;
+  }
+  }
       
-	return HAM_IGNORED;
-	}
-	
-	return HAM_IGNORED;
+  return HAM_IGNORED;
+  }
+  
+  return HAM_IGNORED;
 }
 
 public fog(bool:FogOn) {
-	if(FogOn) {
-		message_begin(MSG_ALL,g_iMsgFog,{0,0,0},0);
-		write_byte(180);	// red
-		write_byte(1);		// green
-		write_byte(1);		// blue
-		write_byte(10);		// Start distance 10
-		write_byte(41);		// Start distance 41
-		write_byte(95);		// End distance 95
-		write_byte(59);		// End distance 59
-		message_end();	
-	}
-	else {
-		message_begin(MSG_ALL,g_iMsgFog,{0,0,0},0);
-		write_byte(0);		// red
-		write_byte(0);		// green
-		write_byte(0);		// blue
-		write_byte(0);		// Start distance
-		write_byte(0);		// Start distance
-		write_byte(0);		// End distance
-		write_byte(0);		// End distance
-		message_end();
-	}
+  if(FogOn) {
+    message_begin(MSG_ALL,g_iMsgFog,{0,0,0},0);
+    write_byte(180);  // red
+    write_byte(1);    // green
+    write_byte(1);    // blue
+    write_byte(10);   // Start distance 10
+    write_byte(41);   // Start distance 41
+    write_byte(95);   // End distance 95
+    write_byte(59);   // End distance 59
+    message_end();  
+  }
+  else {
+    message_begin(MSG_ALL,g_iMsgFog,{0,0,0},0);
+    write_byte(0);    // red
+    write_byte(0);    // green
+    write_byte(0);    // blue
+    write_byte(0);    // Start distance
+    write_byte(0);    // Start distance
+    write_byte(0);    // End distance
+    write_byte(0);    // End distance
+    message_end();
+  }
 }
 
 stock msg_create_fog( iRed, iGreen, iBlue, iDensity )
 {
-	// Fog density offsets [Thnx to DA]
-	new const fog_density[ ] = { 0, 0, 0, 0, 111, 18, 3, 58, 111, 18, 125, 58, 66, 96, 27, 59, 90, 101, 60, 59, 90,
-	101, 68, 59, 10, 41, 95, 59, 111, 18, 125, 59, 111, 18, 3, 60, 68, 116, 19, 60 };
-	
-	// Get the amount of density
-	new dens;
-	dens = ( 4 * iDensity );
-	
-	// The fog message
-	message_begin( MSG_BROADCAST, get_user_msgid( "Fog" ), { 0,0,0 }, 0 );
-	write_byte( iRed ); // Red
-	write_byte( iGreen ); // Green
-	write_byte( iBlue ); // Blue
-	write_byte( fog_density[ dens ] ); // SD
-	write_byte( fog_density[ dens + 1 ] ); // ED
-	write_byte( fog_density[ dens + 2 ] ); // D1
-	write_byte( fog_density[ dens + 3 ] ); // D2
-	message_end( );
+  // Fog density offsets [Thnx to DA]
+  new const fog_density[ ] = { 0, 0, 0, 0, 111, 18, 3, 58, 111, 18, 125, 58, 66, 96, 27, 59, 90, 101, 60, 59, 90,
+  101, 68, 59, 10, 41, 95, 59, 111, 18, 125, 59, 111, 18, 3, 60, 68, 116, 19, 60 };
+  
+  // Get the amount of density
+  new dens;
+  dens = ( 4 * iDensity );
+  
+  // The fog message
+  message_begin( MSG_BROADCAST, get_user_msgid( "Fog" ), { 0,0,0 }, 0 );
+  write_byte( iRed ); // Red
+  write_byte( iGreen ); // Green
+  write_byte( iBlue ); // Blue
+  write_byte( fog_density[ dens ] ); // SD
+  write_byte( fog_density[ dens + 1 ] ); // ED
+  write_byte( fog_density[ dens + 2 ] ); // D1
+  write_byte( fog_density[ dens + 3 ] ); // D2
+  message_end( );
 }
 
 GiveItem(const playerID, const szItem[], const bpAmmo) {
-	give_item(playerID, szItem);
-	cs_set_user_bpammo(playerID, get_weaponid(szItem), bpAmmo);
+  give_item(playerID, szItem);
+  cs_set_user_bpammo(playerID, get_weaponid(szItem), bpAmmo);
 }
 
 public Fwd_PlayerDamage(const victim, const inflictor, const attacker, Float:damage, const iDamageType)
 {
-	//set_user_team = cs_get_user_team(victim);
-	if(is_user_alive(victim) && iDamageType == DMG_FALL)
-	{
+  //set_user_team = cs_get_user_team(victim);
+  if(is_user_alive(victim) && iDamageType == DMG_FALL)
+  {
 
-	if (g_dayEnabled) 
-	{
-		if(cs_get_user_team(victim) == CS_TEAM_CT)
-		{
-			SetHamReturnInteger(0);
-			return HAM_SUPERCEDE;
-		}
-	}
-	}
-	
-	if(!is_user_alive(victim) || victim == attacker)
-		return HAM_IGNORED;
+  if (g_dayEnabled) 
+  {
+    if(cs_get_user_team(victim) == CS_TEAM_CT)
+    {
+      SetHamReturnInteger(0);
+      return HAM_SUPERCEDE;
+    }
+  }
+  }
+  
+  if(!is_user_alive(victim) || victim == attacker)
+    return HAM_IGNORED;
 
-		
-	if(cs_get_user_team(victim) == CS_TEAM_CT)
-	{
-		if(!task_exists(victim))
-		{
-			set_bit(g_HasBeenHit, victim);
-			set_task(1.5, "resetmodel", victim);
-		}
-	}
-		
-	return HAM_IGNORED;			
+    
+  if(cs_get_user_team(victim) == CS_TEAM_CT)
+  {
+    if(!task_exists(victim))
+    {
+      set_bit(g_HasBeenHit, victim);
+      set_task(1.5, "resetmodel", victim);
+    }
+  }
+    
+  return HAM_IGNORED;     
 
 }
-	
+  
 
 public resetmodel(playerID)
 {
-	clear_bit(g_HasBeenHit, playerID);
-	remove_task(playerID);
+  clear_bit(g_HasBeenHit, playerID);
+  remove_task(playerID);
 }
 
 
 public Fwd_PlayerKilled_Pre(victim, attacker, shouldgib)
 {
-	if (!is_user_alive(victim))
-		return HAM_IGNORED;
+  if (!is_user_alive(victim))
+    return HAM_IGNORED;
     
-	if (g_dayEnabled) 
-	{
-	cs_reset_user_model(victim);
-	emit_sound(victim, CHAN_VOICE, NightCrawlerSounds[0], 0.0, ATTN_NORM, SND_STOP, PITCH_NORM);
-	if(g_iRandom == victim)
-	g_iRandom = fnGetRandomPlayer();
-	}
+  if (g_dayEnabled) 
+  {
+  cs_reset_user_model(victim);
+  emit_sound(victim, CHAN_VOICE, NightCrawlerSounds[0], 0.0, ATTN_NORM, SND_STOP, PITCH_NORM);
+  if(g_iRandom == victim)
+  g_iRandom = fnGetRandomPlayer();
+  }
     
-	return HAM_IGNORED;
+  return HAM_IGNORED;
 }
 
 new const oldknife_sounds[][] =
 {
-	"weapons/knife_deploy1.wav",   
-	"weapons/knife_hit1.wav",   
-	"weapons/knife_hit2.wav",    
-	"weapons/knife_hit3.wav",    
-	"weapons/knife_hit4.wav",    
-	"weapons/knife_hitwall1.wav",  
-	"weapons/knife_slash1.wav",    
-	"weapons/knife_slash2.wav",    
-	"weapons/knife_stab.wav"    
+  "weapons/knife_deploy1.wav",   
+  "weapons/knife_hit1.wav",   
+  "weapons/knife_hit2.wav",    
+  "weapons/knife_hit3.wav",    
+  "weapons/knife_hit4.wav",    
+  "weapons/knife_hitwall1.wav",  
+  "weapons/knife_slash1.wav",    
+  "weapons/knife_slash2.wav",    
+  "weapons/knife_stab.wav"    
 };
 
 new const newknife_sounds[][] =
 {
-	"weapons/knife_deploy1.wav",   
-	"sword_strike1.wav",   
-	"sword_strike2.wav",    
-	"sword_strike3.wav",    
-	"sword_strike4.wav",    
-	"weapons/knife_hitwall1.wav",  
-	"weapons/knife_slash1.wav",    
-	"weapons/knife_slash2.wav",    
-	"weapons/knife_stab.wav"    
+  "weapons/knife_deploy1.wav",   
+  "sword_strike1.wav",   
+  "sword_strike2.wav",    
+  "sword_strike3.wav",    
+  "sword_strike4.wav",    
+  "weapons/knife_hitwall1.wav",  
+  "weapons/knife_slash1.wav",    
+  "weapons/knife_slash2.wav",    
+  "weapons/knife_stab.wav"    
 };
 
 public sound_emit(const playerID, const channel, const sample[])
 {
-	if(!is_user_connected(playerID) && is_user_alive(playerID))
-	{
-	static CsTeams:team;
-	team = cs_get_user_team(playerID);
+  if(!is_user_connected(playerID) && is_user_alive(playerID))
+  {
+  static CsTeams:team;
+  team = cs_get_user_team(playerID);
 
-	if (g_dayEnabled) 
-	{
-	if(team == CS_TEAM_CT)
-	{
-	for(new i = 2; i < sizeof newknife_sounds; i++)
-	{
-	if(equal(sample, oldknife_sounds[i]))
-	{
-	emit_sound(playerID, channel, newknife_sounds[i], 1.0, ATTN_NORM, 0, PITCH_NORM);
-	return FMRES_SUPERCEDE;
-	}
-	}
-	}
-	}
-	}
+  if (g_dayEnabled) 
+  {
+  if(team == CS_TEAM_CT)
+  {
+  for(new i = 2; i < sizeof newknife_sounds; i++)
+  {
+  if(equal(sample, oldknife_sounds[i]))
+  {
+  emit_sound(playerID, channel, newknife_sounds[i], 1.0, ATTN_NORM, 0, PITCH_NORM);
+  return FMRES_SUPERCEDE;
+  }
+  }
+  }
+  }
+  }
   
-	return FMRES_IGNORED;
+  return FMRES_IGNORED;
 }
 
 public Fwd_ItemDeploy2_Post(const weapon)
 {
-	// Get the owner of the weapon
-	new playerID = get_pdata_cbase(weapon, m_pPlayer, OFFSET_LINUX);
-	if(is_user_connected(playerID))
-	{
-	static CsTeams:team;
-	team = cs_get_user_team(playerID);
+  // Get the owner of the weapon
+  new playerID = get_pdata_cbase(weapon, m_pPlayer, OFFSET_LINUX);
+  if(is_user_connected(playerID))
+  {
+  static CsTeams:team;
+  team = cs_get_user_team(playerID);
    
-	if (g_dayEnabled) 
-	{
-	if(team == CS_TEAM_CT)
-	set_pev(playerID, pev_viewmodel2, NightCrawlerModels[0]);
-	}
-	}
+  if (g_dayEnabled) 
+  {
+  if(team == CS_TEAM_CT)
+  set_pev(playerID, pev_viewmodel2, NightCrawlerModels[0]);
+  }
+  }
 }
 
 
@@ -624,25 +624,25 @@ public resetteleport(playerID)
 
 public Fwd_PlayerPreThink(playerID)  
 { 
-	if(is_user_alive( playerID ))
-	{
-	static CsTeams:team;
-	team = cs_get_user_team(playerID);
-	if (g_dayEnabled) 
-	{
-	switch(team)
-	{
-	case CS_TEAM_CT:
-	{
-	new button = get_user_button(playerID); 
+  if(is_user_alive( playerID ))
+  {
+  static CsTeams:team;
+  team = cs_get_user_team(playerID);
+  if (g_dayEnabled) 
+  {
+  switch(team)
+  {
+  case CS_TEAM_CT:
+  {
+  new button = get_user_button(playerID); 
                
-	if(button & IN_USE || button & IN_RELOAD ) //Use button = climb 
-	wallclimb(playerID, button);  
-	}
-	case CS_TEAM_T: set_laser(playerID);
-	}
-	}
-	}
+  if(button & IN_USE || button & IN_RELOAD ) //Use button = climb 
+  wallclimb(playerID, button);  
+  }
+  case CS_TEAM_T: set_laser(playerID);
+  }
+  }
+  }
 }
 
 public set_laser(playerID)
@@ -693,67 +693,67 @@ public set_laser(playerID)
 
 
 stock bool:is_user_stuck(playerID) { 
-	new Float:g_origin[3]; 
-	pev(playerID, pev_origin, g_origin); 
-	if ( trace_hull(g_origin, HULL_HUMAN,playerID) != 0 ) 
-	{ 
-		return true; 
-	} 
-	return false; 
+  new Float:g_origin[3]; 
+  pev(playerID, pev_origin, g_origin); 
+  if ( trace_hull(g_origin, HULL_HUMAN,playerID) != 0 ) 
+  { 
+    return true; 
+  } 
+  return false; 
 }
 
 public ClientCommand_UnStuck(const playerID)
 {
-	new i_Value;
+  new i_Value;
 
-	if ((i_Value = UTIL_UnstuckPlayer(playerID, START_DISTANCE, MAX_ATTEMPTS)) != 1)
-		switch (i_Value)
-		{
-			case 0: uj_colorchat_print(playerID, playerID, "Could not find a free spot to move you to.");
+  if ((i_Value = UTIL_UnstuckPlayer(playerID, START_DISTANCE, MAX_ATTEMPTS)) != 1)
+    switch (i_Value)
+    {
+      case 0: uj_colorchat_print(playerID, playerID, "Could not find a free spot to move you to.");
 
-			case -1: uj_colorchat_print(playerID, playerID, "You cannot free yourself as dead player");
-		}
+      case -1: uj_colorchat_print(playerID, playerID, "You cannot free yourself as dead player");
+    }
 
-	return PLUGIN_CONTINUE;
+  return PLUGIN_CONTINUE;
 }
 
 UTIL_UnstuckPlayer(const playerID, const i_StartDistance, const i_MaxAttempts)
 {
-	// Is Not alive, ignore.
-	if(is_user_alive( playerID ))  return -1;
-	
-	static Float:vf_OriginalOrigin[Coord_e], Float:vf_NewOrigin[Coord_e];
-	static i_Attempts, i_Distance;
-	
-	// Get the current player's origin.
-	pev (playerID, pev_origin, vf_OriginalOrigin);
-	
-	i_Distance = i_StartDistance;
+  // Is Not alive, ignore.
+  if(is_user_alive( playerID ))  return -1;
+  
+  static Float:vf_OriginalOrigin[Coord_e], Float:vf_NewOrigin[Coord_e];
+  static i_Attempts, i_Distance;
+  
+  // Get the current player's origin.
+  pev (playerID, pev_origin, vf_OriginalOrigin);
+  
+  i_Distance = i_StartDistance;
 
-	while (i_Distance < 1000)
-	{
-		i_Attempts = i_MaxAttempts;
-	
-		while (i_Attempts--)
-		{
-			vf_NewOrigin[x] = random_float(vf_OriginalOrigin[ x ] - i_Distance, vf_OriginalOrigin[ x ] + i_Distance);
-			vf_NewOrigin[y] = random_float(vf_OriginalOrigin[ y ] - i_Distance, vf_OriginalOrigin[ y ] + i_Distance);
-			vf_NewOrigin[z] = random_float(vf_OriginalOrigin[ z ] - i_Distance, vf_OriginalOrigin[ z ] + i_Distance);
-		
-			engfunc (EngFunc_TraceHull, vf_NewOrigin, vf_NewOrigin, DONT_IGNORE_MONSTERS, GetPlayerHullSize (playerID), playerID, 0);
-		
-			// Free space found.
-			if (get_tr2 (0, TR_InOpen) && !get_tr2 (0, TR_AllSolid) && !get_tr2 (0, TR_StartSolid))
-			{
-				// Set the new origin .
-				engfunc (EngFunc_SetOrigin, playerID, vf_NewOrigin);
-				return 1;
-			}
-		}
-	
-		i_Distance += i_StartDistance;
-	}
+  while (i_Distance < 1000)
+  {
+    i_Attempts = i_MaxAttempts;
+  
+    while (i_Attempts--)
+    {
+      vf_NewOrigin[x] = random_float(vf_OriginalOrigin[ x ] - i_Distance, vf_OriginalOrigin[ x ] + i_Distance);
+      vf_NewOrigin[y] = random_float(vf_OriginalOrigin[ y ] - i_Distance, vf_OriginalOrigin[ y ] + i_Distance);
+      vf_NewOrigin[z] = random_float(vf_OriginalOrigin[ z ] - i_Distance, vf_OriginalOrigin[ z ] + i_Distance);
+    
+      engfunc (EngFunc_TraceHull, vf_NewOrigin, vf_NewOrigin, DONT_IGNORE_MONSTERS, GetPlayerHullSize (playerID), playerID, 0);
+    
+      // Free space found.
+      if (get_tr2 (0, TR_InOpen) && !get_tr2 (0, TR_AllSolid) && !get_tr2 (0, TR_StartSolid))
+      {
+        // Set the new origin .
+        engfunc (EngFunc_SetOrigin, playerID, vf_NewOrigin);
+        return 1;
+      }
+    }
+  
+    i_Distance += i_StartDistance;
+  }
 
-	// Could not be found.
-	return 0;
+  // Could not be found.
+  return 0;
 } 
