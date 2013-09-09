@@ -1,5 +1,7 @@
 #include <amxmodx>
 #include <cstrike>
+#include <uj_colorchat>
+#include <uj_core>
 #include <uj_menus>
 #include <uj_playermenu>
 
@@ -68,8 +70,24 @@ public uj_fw_playermenu_team_select(pluginID, playerID, teamID)
     case CS_TEAM_T:
       engclient_cmd(playerID, "jointeam", "1");
     case CS_TEAM_CT:
-      engclient_cmd(playerID, "jointeam", "2");
-    case CS_TEAM_SPECTATOR:
-      engclient_cmd(playerID, "jointeam", "3");
+      if (!is_guard_team_full()) {
+        engclient_cmd(playerID, "jointeam", "2");
+      }
+      else {
+        uj_colorchat_print(playerID, UJ_COLORCHAT_BLUE, "Sorry, there are already enough ^3Guards^1!");
+      }
+    case CS_TEAM_SPECTATOR: {
+      user_kill(playerID);
+      engclient_cmd(playerID, "jointeam", "6");
+    }
   }
+}
+
+is_guard_team_full()
+{
+  static guardCount, prisonerCount;
+  guardCount = uj_core_get_guard_count();
+  prisonerCount = uj_core_get_prisoner_count();
+
+  return ((guardCount > 0) && guardCount >= (prisonerCount*2));
 }

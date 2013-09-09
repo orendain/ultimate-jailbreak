@@ -223,11 +223,11 @@ public start_reactions()
 end_day()
 {
   // Reset count and actions
+  g_dayEnabled = false;
+  
   g_playersLeft = 0;
   g_playersIncluded = 0;
   g_playersActions = 0;
-
-  g_dayEnabled = false;
 }
 
 kill_player(playerID)
@@ -235,6 +235,15 @@ kill_player(playerID)
   uj_effects_rocket(playerID);
   g_kills++;
   uj_days_end();
+  //end_day();
+}
+
+announce_loser(playerID)
+{
+  new playerName[32];
+  get_user_name(playerID, playerName, charsmax(playerName));
+  uj_colorchat_print(0, UJ_COLORCHAT_RED, "Holy harmonics, Batman! The Reactions loser was: ^3%s^1!", playerName);
+  end_day();
 }
 
 //public FM_PlayerPreThink_Pre(plr) {}
@@ -244,28 +253,24 @@ public CmdStart(playerID, uc_handle)
     return PLUGIN_CONTINUE;
   }
 
-  // User has already been processed
-  if (get_bit(g_playersActions, playerID)) {
-    return PLUGIN_CONTINUE;
-  }
-
-  // This player isn't playing
-  if (!get_bit(g_playersIncluded, playerID)) {
+  // User has already been processed or isn't playing
+  if (get_bit(g_playersActions, playerID) || !get_bit(g_playersIncluded, playerID)) {
     return PLUGIN_CONTINUE;
   }
 
   static button;
   button = get_uc(uc_handle, UC_Buttons);
-  if ((g_reactionAction == REACTION_JUMP && button & IN_JUMP) ||
-      (g_reactionAction == REACTION_CROUCH && button & IN_DUCK)) {
-
-    set_bit(g_playersActions, playerID);
+  if ((g_reactionAction == REACTION_JUMP && (button & IN_JUMP)) ||
+      (g_reactionAction == REACTION_CROUCH && (button & IN_DUCK))) {
     
     // if user reacted first, or was the last to react
     if (g_reactionType == REACTION_FIRST) {
-      kill_player(playerID);
+      announce_loser(playerID);
+      return PLUGIN_CONTINUE;
+      //kill_player(playerID);
       //end_reactions();
     } else {
+      set_bit(g_playersActions, playerID);
       g_playersLeft--;
     }
 
@@ -274,7 +279,9 @@ public CmdStart(playerID, uc_handle)
       // find last player
       for(new i = 1; i <= 32; i++) {
         if (get_bit(g_playersIncluded, i) && !get_bit(g_playersActions, i)) {
-          kill_player(i);
+          announce_loser(playerID);
+          return PLUGIN_CONTINUE;
+          //kill_player(i);
         }
       }
     }

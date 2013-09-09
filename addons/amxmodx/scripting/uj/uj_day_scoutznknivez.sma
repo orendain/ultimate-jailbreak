@@ -78,8 +78,7 @@ public uj_fw_days_select_post(playerID, dayID)
 
   if (!g_dayEnabled) {
     start_day();
-  }
-  
+  } 
 }
 
 start_day()

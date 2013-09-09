@@ -3,8 +3,8 @@
 #endif
 #define _uj_colorchat_const_included
 
-#define UJ_COLORCHAT_PREFIX "^4[Allied Gamers]^1 "
-#define UJ_COLORCHAT_PREFIX_TEXT "[Allied Gamers]"
+#define UJ_COLORCHAT_PREFIX "^4[Factorial Gaming]^1 "
+#define UJ_COLORCHAT_PREFIX_TEXT "[Factorial Gaming]"
 
 enum
 {

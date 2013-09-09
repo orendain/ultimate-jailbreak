@@ -10,7 +10,7 @@ new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
 new const ITEM_NAME[] = "Silent Steps";
-new const ITEM_MESSAGE[] = "... ninja status ...";
+new const ITEM_MESSAGE[] = "Oh yeah ... ninja status.";
 new const ITEM_COST[] = "10";
 new const ITEM_REBEL[] = "0";
 

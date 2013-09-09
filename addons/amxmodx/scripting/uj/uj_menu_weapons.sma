@@ -122,10 +122,15 @@ public uj_fw_menus_select_pre(playerID, menuID, entryID)
     return UJ_MENU_DONT_SHOW;
   }
 
-  // Disable if weapon pickup is blocked
-  if (uj_core_get_weapon_pickup(playerID)) {
+  if (!is_user_alive(playerID)) {
     return UJ_MENU_NOT_AVAILABLE;
   }
+
+  // Commented out to allow CTs to have weapons during custom days (boxing inside the cage)
+  // Disable if weapon pickup is blocked
+  //if (uj_core_get_weapon_pickup(playerID)) {
+  //  return UJ_MENU_NOT_AVAILABLE;
+  //}
 
   return UJ_MENU_AVAILABLE;
 }

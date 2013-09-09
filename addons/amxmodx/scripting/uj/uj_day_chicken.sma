@@ -21,14 +21,14 @@ new const CHICKEN_HEALTH[] = "250";
 new const CHICKEN_SPEED[] = "1.5";
 new const CHICKEN_GRAVITY[] = "0.4";
 new const CHICKEN_PRIMARY_AMMO[] = "50";
-new const CHICKEN_SOUND_COOLDOWN[] = "1.0";
+//new const CHICKEN_SOUND_COOLDOWN[] = "2.0";
 
 new const CHICKEN_SOUNDS[][] =
 {
-  "ultimate_jailbreak/misc/chicken1.wav",
-  "ultimate_jailbreak/misc/chicken2.wav",
-  "ultimate_jailbreak/misc/chicken3.wav",
-  "ultimate_jailbreak/misc/chicken4.wav",
+  //"ultimate_jailbreak/misc/chicken1.wav",
+  //"ultimate_jailbreak/misc/chicken2.wav",
+  //"ultimate_jailbreak/misc/chicken3.wav",
+  //"ultimate_jailbreak/misc/chicken4.wav",
   "ultimate_jailbreak/misc/knife_hit1.wav",
   "ultimate_jailbreak/misc/knife_hit3.wav"
 };
@@ -45,7 +45,7 @@ new g_primaryAmmoPCVar;
 new g_healthPCVar;
 new g_speedPCVar;
 new g_gravityPCVar;
-new g_soundCooldown;
+//new g_soundCooldown;
 
 // Day specific variables
 new Float:g_lastChickenSound[33];
@@ -53,7 +53,7 @@ new Float:g_lastChickenSound[33];
 public plugin_precache()
 {
   // Register day
-  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
+  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND);
 
   // Precache models and sounds
   new path[64]
@@ -78,7 +78,7 @@ public plugin_init()
   g_healthPCVar = register_cvar("uj_day_chicken_health", CHICKEN_HEALTH);
   g_speedPCVar = register_cvar("uj_day_chicken_speed", CHICKEN_SPEED);
   g_gravityPCVar = register_cvar("uj_day_chicken_gravity", CHICKEN_GRAVITY);
-  g_soundCooldown = register_cvar("uj_day_chicken_sound_cooldown", CHICKEN_SOUND_COOLDOWN);
+  //g_soundCooldown = register_cvar("uj_day_chicken_sound_cooldown", CHICKEN_SOUND_COOLDOWN);
 
   register_forward(FM_EmitSound, "FwdEmitSound");
 }
@@ -212,7 +212,7 @@ public FwdEmitSound(id, iChannel, const szSound[], Float: flVolume, Float: iAttn
       new Float: flGametime = get_gametime();
       switch(szSound[15])
       {
-        case 'l': //slash
+        /*case 'l': //slash
         {
           if(g_lastChickenSound[id] + get_pcvar_float(g_soundCooldown) < flGametime)
           {
@@ -222,13 +222,13 @@ public FwdEmitSound(id, iChannel, const szSound[], Float: flVolume, Float: iAttn
           }
           
           return FMRES_SUPERCEDE;
-        }
+        }*/
         
         case 't': //stab
         {
           if(g_lastChickenSound[id] + 5.0 < flGametime)
           {
-            emit_sound(id, CHAN_WEAPON, CHICKEN_SOUNDS[4], 1.0, ATTN_NORM, 0, PITCH_NORM);
+            emit_sound(id, CHAN_WEAPON, CHICKEN_SOUNDS[0], 1.0, ATTN_NORM, 0, PITCH_NORM);
             g_lastChickenSound[id] = flGametime;
           }
           
@@ -242,7 +242,7 @@ public FwdEmitSound(id, iChannel, const szSound[], Float: flVolume, Float: iAttn
         { 
           if(g_lastChickenSound[id] + 5.0 < flGametime)
           {
-            emit_sound(id, CHAN_WEAPON, CHICKEN_SOUNDS[5], 1.0, ATTN_NORM, 0, PITCH_NORM);
+            emit_sound(id, CHAN_WEAPON, CHICKEN_SOUNDS[1], 1.0, ATTN_NORM, 0, PITCH_NORM);
             g_lastChickenSound[id] = flGametime;
           }
           
@@ -252,7 +252,7 @@ public FwdEmitSound(id, iChannel, const szSound[], Float: flVolume, Float: iAttn
         {
           if(g_lastChickenSound[id] + 5.0 < flGametime)
           {
-            emit_sound(id, CHAN_WEAPON, CHICKEN_SOUNDS[4], 1.0, ATTN_NORM, 0, PITCH_NORM);
+            emit_sound(id, CHAN_WEAPON, CHICKEN_SOUNDS[0], 1.0, ATTN_NORM, 0, PITCH_NORM);
             g_lastChickenSound[id] = flGametime;
           }
           

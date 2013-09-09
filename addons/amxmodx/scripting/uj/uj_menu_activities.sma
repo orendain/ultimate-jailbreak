@@ -1,5 +1,6 @@
 #include <amxmodx>
 #include <cstrike>
+#include <uj_freedays>
 #include <uj_menus>
 
 new const PLUGIN_NAME[] = "[UJ] Menu - Activities";
@@ -36,8 +37,13 @@ public uj_fw_menus_select_pre(playerID, menuID, entryID)
     return UJ_MENU_AVAILABLE;
   
   // Only display to Counter Terrorists
-  if (cs_get_user_team(playerID) != CS_TEAM_CT)
+  if (cs_get_user_team(playerID) != CS_TEAM_CT) {
     return UJ_MENU_DONT_SHOW;
+  }
+
+  if (!is_user_alive(playerID)) {
+    return UJ_MENU_NOT_AVAILABLE;
+  }
 
   // Do not show if it is not in this specific parent menu
   if (menuID != g_menuMain)

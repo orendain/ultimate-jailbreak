@@ -76,15 +76,17 @@ new gHealthIndex[33]
 public plugin_precache()
 {
   precache_model("models/rpgrocket.mdl")
-  precache_model("models/w_rpg.mdl")
+  //precache_model("models/w_rpg.mdl")
   precache_model("models/v_rpg.mdl")
   precache_model("models/p_rpg.mdl")
-  precache_sound("weapons/rocketfire1.wav")
-  precache_sound("items/gunpickup4.wav")
-  precache_sound("weapons/nuke_fly.wav")// <-- this is the only non-game sound file, make sure you have it
-  precache_sound("weapons/dryfire1.wav")
 
-  spr_blood_drop = precache_model("sprites/blood.spr")
+  precache_sound("weapons/rocketfire1.wav")
+  //precache_sound("items/gunpickup4.wav")
+  precache_sound("weapons/nuke_fly.wav")// <-- this is the only non-game sound file, make sure you have it
+  //precache_sound("weapons/dryfire1.wav")
+
+  // Also set g_gibPCVar to 0
+  /*spr_blood_drop = precache_model("sprites/blood.spr")
   spr_blood_spray = precache_model("sprites/bloodspray.spr")
   mdl_gib_flesh = precache_model("models/Fleshgibs.mdl")
   mdl_gib_head = precache_model("models/GIB_Skull.mdl")
@@ -92,6 +94,8 @@ public plugin_precache()
   mdl_gib_lung = precache_model("models/GIB_Lung.mdl")
   mdl_gib_meat = precache_model("models/GIB_B_Gib.mdl")
   mdl_gib_spine = precache_model("models/GIB_B_Bone.mdl")
+  */
+  
   g_sModelIndexFireball = precache_model("sprites/zerogxplode.spr")
   g_sModelIndexSmoke  = precache_model("sprites/steam1.spr")
   rocketsmoke = precache_model("sprites/smoke.spr")
@@ -112,7 +116,7 @@ public plugin_init()
   g_trailTimePCVar = register_cvar("uj_item_bazooka_trailtime", "30")// roughly 3 seconds
   g_velocityPCVar = register_cvar("uj_item_bazooka_velocity", "700")
   g_teamColorsPCVar = register_cvar("uj_item_bazooka_teamcolors", "1")// set to 1 for team colored trails
-  g_gibPCVar = register_cvar("uj_item_bazooka_gib", "1")// set to 1 for gib deaths (may cause lag on slower computers)
+  g_gibPCVar = register_cvar("uj_item_bazooka_gib", "0")// set to 1 for gib deaths (may cause lag on slower computers)
 
   // Register this item
   g_item = uj_items_register(ITEM_NAME, ITEM_MESSAGE, g_costCVar, g_rebelCVar);
@@ -217,7 +221,7 @@ public fire_rocket(playerID)
   if (cs_get_user_plant(playerID) != 1){
     set_task((rtime + 0.0), "rpg_reload", playerID+9477, data, 1)
     if (g_bazookaAmmo[playerID] <= 0) {
-      emit_sound(playerID, CHAN_WEAPON, "weapons/dryfire1.wav", VOL_NORM, ATTN_NORM, 0, PITCH_NORM)
+      //emit_sound(playerID, CHAN_WEAPON, "weapons/dryfire1.wav", VOL_NORM, ATTN_NORM, 0, PITCH_NORM)
       return PLUGIN_HANDLED
     }
     else{

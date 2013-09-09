@@ -5,6 +5,7 @@
 #include <hamsandwich>
 #include <uj_chargers>
 #include <uj_core>
+#include <uj_colorchat>
 #include <uj_effects>
 #include <uj_menus>
 #include <uj_days>
@@ -17,11 +18,9 @@ new const DAY_NAME[] = "Boxing";
 new const DAY_OBJECTIVE[] = "Punch out your competition!";
 new const DAY_SOUND[] = "ultimate_jailbreak/Boxingday_once.wav";
 
-new const BOXING_KNOCKBACK[] = "10";
+new const BOXING_KNOCKBACK[] = "3";
 
-new const g_szViewGlovesTerro[] = "models/ultimate_jailbreak/v_gloves_t.mdl";
-new const g_szViewGlovesCt[]    = "models/ultimate_jailbreak/v_gloves_ct.mdl";
-new const g_szPlayerFist[]      = "models/ultimate_jailbreak/p_bknuckles.mdl";
+new const g_szViewGloves[] = "models/ultimate_jailbreak/v_gloves_ct.mdl";
 
 new const g_szKnifeSounds[][] =
 {
@@ -41,12 +40,12 @@ new const g_szCustomKnifeSounds[][] =
   "ultimate_jailbreak/boxing_deploy1.wav",
   "ultimate_jailbreak/bknuckles/knife_hit1.wav",
   "ultimate_jailbreak/bknuckles/knife_hit2.wav",
-  "ultimate_jailbreak/bknuckles/knife_hit3.wav",
-  "ultimate_jailbreak/bknuckles/knife_hit4.wav",
-  "ultimate_jailbreak/bknuckles/knife_hit4.wav",
-  "weapons/knife_slash1.wav",
-  "weapons/knife_slash2.wav",
-  "ultimate_jailbreak/bknuckles/knife_stab.wav"
+  //"ultimate_jailbreak/bknuckles/knife_hit3.wav",
+  //"ultimate_jailbreak/bknuckles/knife_hit4.wav",
+  "ultimate_jailbreak/bknuckles/knife_hit4.wav"
+  //"weapons/knife_slash1.wav",
+  //"weapons/knife_slash2.wav",
+  //"ultimate_jailbreak/bknuckles/knife_stab.wav"
 };
 
 // Day variables
@@ -65,10 +64,7 @@ public plugin_precache()
     precache_sound(g_szCustomKnifeSounds[i]);
   }
   precache_sound(DAY_SOUND);
-    
-  precache_model(g_szViewGlovesTerro);
-  precache_model(g_szViewGlovesCt);
-  precache_model(g_szPlayerFist);
+  precache_model(g_szViewGloves);
 }
 
 public plugin_init()
@@ -133,16 +129,11 @@ start_day()
 
     // Set models for all players
     new players[32], playerID;
-    new playerCount = uj_core_get_players(players, false);
+    new playerCount = uj_core_get_players(players, true);
     for (new i = 0; i < playerCount; ++i) {
       playerID = players[i];
       uj_core_strip_weapons(playerID);
-      switch(cs_get_user_team(playerID)) {
-        case CS_TEAM_T:
-          uj_effects_set_view_model(playerID, CSW_KNIFE, g_szViewGlovesTerro);
-        case CS_TEAM_CT:
-          uj_effects_set_view_model(playerID, CSW_KNIFE, g_szViewGlovesCt);
-      }
+      uj_effects_set_view_model(playerID, CSW_KNIFE, g_szViewGloves);
     }
 
     uj_core_set_friendly_fire(true);
@@ -196,14 +187,24 @@ public FwdPlayerTakeDamagePre(iVictim, iInflictor, iAttacker, Float: flDamage, i
 
 public FwdEmitSound(id, iChannel, const szSound[], Float: flVolume, Float: iAttn, iFlags, iPitch)
 {
-  if(g_dayEnabled && is_user_alive(id))
-  {
-    for(new i = 0; i < sizeof(g_szKnifeSounds); i++)
-    {
-      if(equal(szSound, g_szKnifeSounds[i]))
-      {
-        emit_sound(id, iChannel, g_szCustomKnifeSounds[i], flVolume, iAttn, iFlags, iPitch);
-        return FMRES_SUPERCEDE;
+  if(g_dayEnabled && is_user_alive(id)) {
+    for(new i = 0; i < sizeof(g_szKnifeSounds); i++) {
+      if(equal(szSound, g_szKnifeSounds[i])) {
+        switch (i) {
+          case 3: i = 1;
+          case 4: i = 3;
+          case 5: i = 3;
+          case 6: i = -1;
+          case 7: i = -1;
+          case 8: i = 1;
+        }
+        if (i != -1) {
+          emit_sound(id, iChannel, g_szCustomKnifeSounds[i], flVolume, iAttn, iFlags, iPitch);
+          return FMRES_SUPERCEDE;
+        }
+        else {
+          return FMRES_IGNORED;
+        }
       }
     }
   }

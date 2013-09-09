@@ -38,11 +38,6 @@ public plugin_init()
 
 public uj_fw_days_select_pre(id, dayID, menuID)
 {
-  // If this day is enabled, disable all other days
-  if (g_dayEnabled && (menuID == g_menuSpecial)) {
-    return UJ_DAY_NOT_AVAILABLE;
-  }
-
   // This is not our day - do not block
   if (dayID != g_day) {
     return UJ_DAY_AVAILABLE;

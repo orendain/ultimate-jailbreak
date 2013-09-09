@@ -104,8 +104,8 @@ start_request(playerID, targetID)
     set_pev(targetID, pev_health, 100.0);
 
     // Give armor
-    cs_set_user_armor(playerID, 100, CS_ARMOR_VESTHELM)
-    cs_set_user_armor(targetID, 100, CS_ARMOR_VESTHELM)
+    cs_set_user_armor(playerID, 100, CS_ARMOR_VESTHELM);
+    cs_set_user_armor(targetID, 100, CS_ARMOR_VESTHELM);
 
     // Find gravity setting
     new Float:gravity = get_pcvar_float(g_gravityPCVar);

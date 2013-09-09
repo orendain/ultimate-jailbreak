@@ -68,6 +68,10 @@ public uj_fw_menus_select_pre(playerID, menuID, entryID)
     return UJ_MENU_DONT_SHOW;
   }
 
+  if (!is_user_alive(playerID)) {
+    return UJ_MENU_NOT_AVAILABLE;
+  }
+
   return UJ_MENU_AVAILABLE;
 }
 

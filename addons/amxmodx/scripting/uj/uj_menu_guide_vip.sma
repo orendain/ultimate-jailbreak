@@ -7,12 +7,12 @@ new const PLUGIN_VERS[] = "v0.1";
 
 new const MENU_NAME[] = "VIP Guide";
 
-new const GUIDE_VIP_URL[] = "http://allied-gamers.com/JB/AG_guide_vip.html";
+new const GUIDE_VIP_URL[] = "http://www.factorialgaming.com/files/jailbreak/vip_guide.html";
 new const GUIDE_VIP_FLAG = ADMIN_LEVEL_E;
 new const GUIDE_ADMIN_FLAG = ADMIN_LEVEL_A;
 
 new g_menuEntry;
-new g_mainMain;
+new g_menuMain;
 
 public plugin_init()
 {
@@ -22,7 +22,7 @@ public plugin_init()
   g_menuEntry = uj_menus_register_entry(MENU_NAME)
 
   // Find the menu this should appear under
-  g_mainMain = uj_menus_get_menu_id("Main Menu")
+  g_menuMain = uj_menus_get_menu_id("Main Menu")
 }
 
 public uj_fw_menus_select_pre(playerID, menuID, entryID)
@@ -32,7 +32,7 @@ public uj_fw_menus_select_pre(playerID, menuID, entryID)
     return UJ_MENU_AVAILABLE;
 
   // Do not show if it is not in this specific parent menu
-  if (menuID != g_mainMain)
+  if (menuID != g_menuMain)
     return UJ_MENU_DONT_SHOW;
 
   // If user is missing the necessary flags

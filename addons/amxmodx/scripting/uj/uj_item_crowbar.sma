@@ -26,16 +26,16 @@ new const CROWBAR_MODEL_VIEW[] = "models/v_crowbar.mdl";
 
 new const CROWBAR_SOUNDS[][] = {
   "weapons/cbar_hitbod2.wav",
-  "weapons/cbar_hit1.wav",
-  "weapons/cbar_miss1.wav",
-  "weapons/bullet_hit2.wav",
+  //"weapons/cbar_hit1.wav",
+  "weapons/cbar_miss1.wav"
+  //"weapons/bullet_hit2.wav"
 
   // These are currently unused
-  "weapons/cbar_hitbod1.wav",
-  "weapons/bullet_hit1.wav",
-  "weapons/knife_slash1.wav",
-  "debris/metal2.wav",
-  "items/gunpickup2.wav"
+  //"weapons/cbar_hitbod1.wav",
+  //"weapons/bullet_hit1.wav",
+  //"weapons/knife_slash1.wav",
+  //"debris/metal2.wav",
+  //"items/gunpickup2.wav"
 };
 
 // Menu variables
@@ -54,8 +54,9 @@ new g_hasCrowbar;
 
 public plugin_precache()
 {
-  for(new i = 0; i < sizeof(CROWBAR_SOUNDS); i++)
+  for(new i = 0; i < sizeof(CROWBAR_SOUNDS); i++) {
     precache_sound(CROWBAR_SOUNDS[i]);
+  }
 
   precache_model(CROWBAR_MODEL_WEAP);
   precache_model(CROWBAR_MODEL_VIEW);
@@ -157,13 +158,15 @@ remove_crowbar(playerID)
 
 public FwdEmitSound(playerID, iChannel, const szSound[], Float: flVolume, Float: iAttn, iFlags, iPitch)
 {
-  if(is_user_alive(playerID) && get_bit(g_hasCrowbar, playerID) && equal(szSound, "weapons/knife_", 14)) {
+  if(get_bit(g_hasCrowbar, playerID) && is_user_alive(playerID) && equal(szSound, "weapons/knife_", 14)) {
     switch(szSound[17])
     {
       case('b'): emit_sound(playerID, CHAN_WEAPON, CROWBAR_SOUNDS[0], 1.0, ATTN_NORM, 0, PITCH_NORM);
-      case('w'): emit_sound(playerID, CHAN_WEAPON,CROWBAR_SOUNDS[1], 1.0, ATTN_NORM, 0, PITCH_LOW);
-      case('1', '2'): emit_sound(playerID, CHAN_WEAPON, CROWBAR_SOUNDS[3], random_float(0.5, 1.0), ATTN_NORM, 0, PITCH_NORM);
-      case('s'): emit_sound(playerID, CHAN_WEAPON, CROWBAR_SOUNDS[2], 1.0, ATTN_NORM, 0, PITCH_NORM);
+      //case('w'): emit_sound(playerID, CHAN_WEAPON,CROWBAR_SOUNDS[1], 1.0, ATTN_NORM, 0, PITCH_LOW);
+      case('w'): emit_sound(playerID, CHAN_WEAPON,CROWBAR_SOUNDS[0], 1.0, ATTN_NORM, 0, PITCH_LOW);
+      //case('1', '2'): emit_sound(playerID, CHAN_WEAPON, CROWBAR_SOUNDS[3], random_float(0.5, 1.0), ATTN_NORM, 0, PITCH_NORM);
+      case('1', '2'): emit_sound(playerID, CHAN_WEAPON, CROWBAR_SOUNDS[0], random_float(0.5, 1.0), ATTN_NORM, 0, PITCH_NORM);
+      case('s'): emit_sound(playerID, CHAN_WEAPON, CROWBAR_SOUNDS[1], 1.0, ATTN_NORM, 0, PITCH_NORM);
     }
     return FMRES_SUPERCEDE;
   }

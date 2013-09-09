@@ -7,7 +7,7 @@ new const PLUGIN_VERS[] = "v0.1";
 
 new const MENU_NAME[] = "Read the Rules";
 
-new const RULES_URL[] = "http://allied-gamers.com/JB/AG_rules.html";
+new const RULES_URL[] = "http://www.factorialgaming.com/files/jailbreak/jailbreak_rules.html";
 
 new g_menuEntry;
 new g_mainMain;
@@ -20,7 +20,7 @@ public plugin_init()
   g_menuEntry = uj_menus_register_entry(MENU_NAME)
 
   // Find the menu this should appear under
-  g_mainMain = uj_menus_get_menu_id("Main Menu")
+  g_mainMain = uj_menus_get_menu_id("Main Menu");
 }
 
 public uj_fw_menus_select_pre(playerID, menuID, entryID)

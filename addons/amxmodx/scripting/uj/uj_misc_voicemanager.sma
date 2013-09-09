@@ -13,11 +13,10 @@ new const PLUGIN_NAME[] = "[UJ] Misc - VoiceManager";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
-#define ADMIN_VOICE ADMIN_MENU
+#define ADMIN_VOICE ADMIN_LEVEL_E
 
 new bool:g_connected[33];
 new g_max_clients;
-
 
 public plugin_init() {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
