@@ -3,13 +3,13 @@
 #include <fakemeta>
 #include <fun>
 #include <hamsandwich>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_effects>
 #include <uj_menus>
 #include <uj_requests>
 
-new const PLUGIN_NAME[] = "[UJ] Request - Boxing Duel";
+new const PLUGIN_NAME[] = "UJ | Request - Boxing Duel";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 

@@ -2,14 +2,14 @@
 #include <cstrike>
 #include <fakemeta>
 #include <fun>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_days>
 #include <uj_effects>
 #include <uj_freedays>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Day - Reactions";
+new const PLUGIN_NAME[] = "UJ | Day - Reactions";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -17,47 +17,71 @@ new const DAY_NAME[] = "Reactions";
 new const DAY_OBJECTIVE[] = "Get those quick fingers ready!";
 new const DAY_SOUND[] = "";
 
-new const KILL_LIMIT = 2;
-new const MINIMUM_PRISONERS = 2;
+//new const MINIMUM_PRISONERS = 2;
 
 #define MAX_PLAYERS 32
 
 new g_day;
 new g_menuActivities;
 
-new g_kills;
+//new g_kills;
 new g_playersIncluded;
 new g_playersActions;
-new g_playersLeft
-new bool: g_dayEnabled
+new g_playersLeft;
+new bool: g_dayEnabled;
 
 // Reaction menus
-new g_menuTypes
-new g_menuReactions
+new g_menuTypes;
+new g_menuReactions;
 
 // Reaction variables
 enum _:REACTION_TYPE
 {
   REACTION_FIRST = 0,
   REACTION_LAST,
+  REACTION_TYPE_SIZE
 }
 enum _:REACTION_ACTION
 {
   REACTION_JUMP = 0,
   REACTION_CROUCH,
+  REACTION_ATTACK,
+  REACTION_ATTACK2,
+  REACTION_USE,
+  REACTION_RELOAD,
+  REACTION_FORWARD,
+  REACTION_BACK,
+  REACTION_LEFT,
+  REACTION_RIGHT,
+  REACTION_MOVELEFT,
+  REACTION_MOVERIGHT,
+  REACTION_ACTION_SIZE
 }
+
 new const g_reactionTypeStrings[][] =
 {
   "First reaction",
   "Last reaction"
 }
+
 new const g_reactionActionStrings[][] =
 {
   "Jump",
-  "Crouch"
+  "Crouch",
+  "Attack",
+  "Secondary Attack",
+  "Use",
+  "Reload",
+  "Move Forward",
+  "Move Back",
+  "Turn Left (with keyboard)",
+  "Turn Right (with keyboard)",
+  "Strafe Left",
+  "Strafe Right"
 }
-new g_reactionType
-new g_reactionAction
+
+new g_reactionType;
+new g_reactionAction;
 
 public plugin_init()
 {
@@ -87,6 +111,7 @@ public uj_fw_days_select_pre(playerID, dayID, menuID)
     return UJ_DAY_DONT_SHOW
   }
 
+  /*
   // Disable if we have reached the kill limit for the round
   if (g_kills >= KILL_LIMIT) {
     return UJ_DAY_NOT_AVAILABLE;
@@ -96,6 +121,7 @@ public uj_fw_days_select_pre(playerID, dayID, menuID)
   if (!are_enough_prisoners()) {
     return UJ_DAY_NOT_AVAILABLE;
   }
+  */
 
   return UJ_DAY_AVAILABLE;
 }
@@ -117,27 +143,31 @@ public uj_fw_days_end(dayID)
   }
 }
 
+/*
 public uj_fw_core_round_new()
 {
   // Reset kill count on each new round
   g_kills = 0;
 }
-
+*/
+/*
 are_enough_prisoners()
 {
   return (uj_core_get_live_prisoner_count() >= MINIMUM_PRISONERS);
-}
+}*/
 
 build_menu()
 {
-  g_menuTypes = menu_create("Select a reaction type", "menu_type_handle")
-  g_menuReactions = menu_create( "Select a reaction", "menu_reaction_handle" )
+  g_menuTypes = menu_create("Select a reaction type", "menu_type_handle");
+  g_menuReactions = menu_create("Select a reaction", "menu_reaction_handle");
 
-  menu_additem(g_menuTypes, "First Reaction", "", 0)
-  menu_additem(g_menuTypes, "Last Reaction", "", 0)
+  for (new i = 0; i < REACTION_TYPE_SIZE; ++i) {
+    menu_additem(g_menuTypes, g_reactionTypeStrings[i], "", 0);
+  }
 
-  menu_additem(g_menuReactions, "Jump", "", 0)
-  menu_additem(g_menuReactions, "Crouch", "", 0)
+  for (new i = 0; i < REACTION_ACTION_SIZE; ++i) {
+    menu_additem(g_menuReactions, g_reactionActionStrings[i], "", 0);
+  }
 }
 
 public menu_type_handle(playerID, menu, item)
@@ -147,19 +177,20 @@ public menu_type_handle(playerID, menu, item)
   }
 
   switch (item) {
-    case 0: {
+    /*case 0: {
       g_reactionType = REACTION_FIRST;
-      //say(0, "TYPE set to FIRST - case 0")
       display_reaction_action_menu(playerID);
     }
     case 1: {
       g_reactionType = REACTION_LAST;
-      //say(0, "TYPE set to LAST - case 1")
       display_reaction_action_menu(playerID);
-    }
+    }*/
     case MENU_EXIT: {
-      //uj_colorchat_print(0, playerID, "MENU_EXIT ON TYPES");
       uj_days_end();
+    }
+    default: {
+      g_reactionType = item;
+      display_reaction_action_menu(playerID);
     }
   }
 
@@ -172,21 +203,27 @@ public menu_reaction_handle(playerID, menu, item) {
   }
 
   switch (item) {
-    case 0: {
+    /*case 0: {
       g_reactionAction = REACTION_JUMP;
     }
     case 1: {
       g_reactionAction = REACTION_CROUCH;
     }
+    case 2: {
+      g_reactionAction = REACTION_ATTACK;
+    }*/
     case MENU_EXIT: {
       // Back to first menu
-      //uj_colorchat_print(0, playerID, "MENU_EXIT ON ACTIONS");
+      //fg_colorchat_print(0, playerID, "MENU_EXIT ON ACTIONS");
       display_reaction_action_menu(playerID);
       return PLUGIN_HANDLED;
     }
+    default: {
+      g_reactionAction = item;
+    }
   }
 
-  uj_colorchat_print(0, playerID, "Reactions will begin in 5 seconds!")
+  fg_colorchat_print(0, playerID, "Reactions will begin in 5 seconds!")
   set_task(5.0,"start_reactions")
 
   return PLUGIN_HANDLED;
@@ -217,7 +254,7 @@ public start_reactions()
     }
   }
 
-  uj_colorchat_print(0, UJ_COLORCHAT_RED, "%s: ^3%s^1!", g_reactionTypeStrings[g_reactionType], g_reactionActionStrings[g_reactionAction]);
+  fg_colorchat_print(0, FG_COLORCHAT_RED, "%s: ^3%s^1!", g_reactionTypeStrings[g_reactionType], g_reactionActionStrings[g_reactionAction]);
 }
 
 end_day()
@@ -230,19 +267,12 @@ end_day()
   g_playersActions = 0;
 }
 
-kill_player(playerID)
-{
-  uj_effects_rocket(playerID);
-  g_kills++;
-  uj_days_end();
-  //end_day();
-}
-
 announce_loser(playerID)
 {
   new playerName[32];
   get_user_name(playerID, playerName, charsmax(playerName));
-  uj_colorchat_print(0, UJ_COLORCHAT_RED, "Holy harmonics, Batman! The Reactions loser was: ^3%s^1!", playerName);
+  fg_colorchat_print(0, FG_COLORCHAT_RED, "Holy harmonics, Batman! The Reactions loser was: ^3%s^1!", playerName);
+  uj_effects_glow_player(playerID, 180, 75, 255, 16);
   end_day();
 }
 
@@ -261,13 +291,22 @@ public CmdStart(playerID, uc_handle)
   static button;
   button = get_uc(uc_handle, UC_Buttons);
   if ((g_reactionAction == REACTION_JUMP && (button & IN_JUMP)) ||
-      (g_reactionAction == REACTION_CROUCH && (button & IN_DUCK))) {
+      (g_reactionAction == REACTION_CROUCH && (button & IN_DUCK)) ||
+      (g_reactionAction == REACTION_ATTACK && (button & IN_ATTACK)) ||
+      (g_reactionAction == REACTION_ATTACK2 && (button & IN_ATTACK2)) ||
+      (g_reactionAction == REACTION_USE && (button & IN_USE)) ||
+      (g_reactionAction == REACTION_RELOAD && (button & IN_RELOAD)) ||
+      (g_reactionAction == REACTION_FORWARD && (button & IN_FORWARD)) ||
+      (g_reactionAction == REACTION_BACK && (button & IN_BACK)) ||
+      (g_reactionAction == REACTION_LEFT && (button & IN_LEFT)) ||
+      (g_reactionAction == REACTION_RIGHT && (button & IN_RIGHT)) ||
+      (g_reactionAction == REACTION_MOVELEFT && (button & IN_MOVELEFT)) ||
+      (g_reactionAction == REACTION_MOVERIGHT && (button & IN_MOVERIGHT))) {
     
     // if user reacted first, or was the last to react
     if (g_reactionType == REACTION_FIRST) {
       announce_loser(playerID);
       return PLUGIN_CONTINUE;
-      //kill_player(playerID);
       //end_reactions();
     } else {
       set_bit(g_playersActions, playerID);
@@ -279,9 +318,8 @@ public CmdStart(playerID, uc_handle)
       // find last player
       for(new i = 1; i <= 32; i++) {
         if (get_bit(g_playersIncluded, i) && !get_bit(g_playersActions, i)) {
-          announce_loser(playerID);
+          announce_loser(i);
           return PLUGIN_CONTINUE;
-          //kill_player(i);
         }
       }
     }

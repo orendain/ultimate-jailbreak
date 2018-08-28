@@ -1,13 +1,13 @@
 #include <amxmodx>
 #include <cstrike>
-#include <uj_core>
+#include <uj_cells>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Menu Entry - Toggle Cells";
+new const PLUGIN_NAME[] = "UJ | Menu Entry - Cells Doors";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
-new const MENU_NAME[] = "Toggle Cell Doors";
+new const MENU_NAME[] = "Cell Doors";
 
 new g_menuEntry
 new g_mainMain
@@ -47,5 +47,5 @@ public uj_fw_menus_select_post(playerID, menuID, entryID)
     return;
   
   // Open up cells
-  uj_core_open_cell_doors(playerID);
+  uj_cells_open_doors(playerID);
 }

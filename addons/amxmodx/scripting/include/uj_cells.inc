@@ -3,8 +3,6 @@
 #endif
 #define _uj_cells_included
 
-#include <uj_cells_const>
-
 #if AMXX_VERSION_NUM >= 175 
   #pragma reqlib uj_cells
   #if !defined AMXMODX_NOAUTOLOAD

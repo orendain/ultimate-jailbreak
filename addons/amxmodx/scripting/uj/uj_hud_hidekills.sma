@@ -1,9 +1,9 @@
 #include <amxmodx>
 #include <cstrike>
 #include <engine>
-#include <uj_colorchat>
+#include <fg_colorchat>
 
-new const PLUGIN_NAME[] = "[UJ] HUD - Hide Kills";
+new const PLUGIN_NAME[] = "UJ | HUD - Hide Kills";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -32,7 +32,7 @@ public MessageDeathMsg(msg, dest, receiver)
     set_msg_arg_int(1, 0, victim);
     set_msg_arg_string(4, "world");
 
-    //uj_colorchat_print(0,1, "wep: %s", weaponName);
+    //fg_colorchat_print(0,1, "wep: %s", weaponName);
   }/*
 
   

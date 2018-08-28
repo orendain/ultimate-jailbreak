@@ -1,11 +1,11 @@
 #include <amxmodx>
 #include <cstrike>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_gangs>
 #include <uj_logs>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Menu - Gang Disband";
+new const PLUGIN_NAME[] = "UJ | Menu - Gang Disband";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -64,14 +64,14 @@ public uj_fw_menus_select_post(playerID, menuID, entryID)
   new gangName[32];
   uj_gangs_get_name(gangID, gangName, charsmax(gangName));
 
-  uj_colorchat_print(0, playerID, "Oh, snap! ^3%s^1 has been disbanded! Peace out!", gangName);
+  fg_colorchat_print(0, playerID, "Oh, snap! ^3%s^1 has been disbanded! Peace out!", gangName);
   uj_logs_log("[uj_menu_gang_manage_disband] Gang %s was disbanded.", gangName);
 
   // Display announcement to online members of the gang
   /*new players[32];
   new playerCount = uj_gangs_get_online_members(gangID, players, sizeof(players));
   for (new i = 0; i < playerCount; ++i) {
-    uj_colorchat_print(players[i], playerID, "Your gang leader, ^3%s^1, has decided to disband ^3%s^1! Peace out!", playerName, gangName);
+    fg_colorchat_print(players[i], playerID, "Your gang leader, ^3%s^1, has decided to disband ^3%s^1! Peace out!", playerName, gangName);
   }*/
 
   // Disband the gang

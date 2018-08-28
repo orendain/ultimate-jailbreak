@@ -1,11 +1,11 @@
 #include <amxmodx>
 #include <fakemeta>
 #include <cstrike>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_effects>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Menu - Glow";
+new const PLUGIN_NAME[] = "UJ | Menu - Glow";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -16,12 +16,13 @@ new const GLOW_COLORS[][][] =
   {"Red", 255, 0, 0, 16},
   {"Green", 0, 255, 0, 16},
   {"Blue", 0, 0, 255, 16},
-  {"Orange", 255, 63, 0, 16}
+  {"Orange", 255, 63, 0, 16},
+  {"Pink", 255, 152, 144, 16},
+  {"Brown", 102, 83, 0, 16}
 };
 
-
 // CS Player PData Offsets (win32)
-new const OFFSET_CSMENUCODE = 205
+new const OFFSET_CSMENUCODE = 205;
 
 new g_menuEntry;
 new g_mainMain;
@@ -146,7 +147,7 @@ public menu_handler(playerID, menuID, entrySelected)
   // First item on the list - unglow
   if (entrySelected == 0) {
     uj_effects_glow_reset(targetID);
-    uj_colorchat_print(0, playerID, "^3%s^1 has removed the glow from ^3%s^1!", playerName, targetName);
+    fg_colorchat_print(0, playerID, "^3%s^1 has removed the glow from ^3%s^1!", playerName, targetName);
   }
   else {
     // If they didn't select the first entry (unglow),
@@ -160,7 +161,7 @@ public menu_handler(playerID, menuID, entrySelected)
     new alpha = GLOW_COLORS[entrySelected][4][0];
 
     uj_effects_glow_player(targetID, red, green, blue, alpha);
-    uj_colorchat_print(0, playerID, "^3%s^1 has made ^3%s^1 glow ^4%s^1!", playerName, targetName, GLOW_COLORS[entrySelected][0]);
+    fg_colorchat_print(0, playerID, "^3%s^1 has made ^3%s^1 glow ^4%s^1!", playerName, targetName, GLOW_COLORS[entrySelected][0]);
   }
 
   // Only destroy when the user exits on their own.

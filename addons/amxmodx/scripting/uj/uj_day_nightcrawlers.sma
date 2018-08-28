@@ -10,20 +10,23 @@
 #include <uj_menus>
 #include <uj_days>
 
-new const PLUGIN_NAME[] = "[UJ] Day - Nightcrawlers";
+new const PLUGIN_NAME[] = "UJ | Day - Nightcrawlers";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
 new const DAY_NAME[] = "Nightcrawlers";
-new const DAY_OBJECTIVE[] = "They're around here ... somwhere ...";
-new const DAY_SOUND[] = "ultimate_jailbreak/nightcrawlerday.wav";
+new const DAY_OBJECTIVE[] = "They're around here ... somewhere ...";
+//new const DAY_SOUND[] = "ultimate_jailbreak/nightcrawlerday.wav";
+new const DAY_SOUND[] = "";
 
 new const NIGHTCRAWLERS_KNIFE_MODEL[] = "models/ultimate_jailbreak/v_nightcrawler-sword.mdl";
-new const NIGHTCRAWLERS_TELEPORT_SOUND[] = "ultimate_jailbreak/teleport.wav";
+//new const NIGHTCRAWLERS_TELEPORT_SOUND[] = "ultimate_jailbreak/teleport.wav";
 
 new const NIGHTCRAWLERS_PRIMARY_AMMO[] = "200";
 new const NIGHTCRAWLERS_SECONDARY_AMMO[] = "50";
-new const NIGHTCRAWLERS_SPEED[] = "1.2";
+new const NIGHTCRAWLERS_SPEED[] = "1.3";
+new const NIGHTCRAWLERS_HEALTH[] = "200";
+//new const NIGHTCRAWLERS_GRAVITY[] = "0.5";
 
 // Day variables
 new g_day = UJ_DAY_INVALID;
@@ -36,6 +39,8 @@ new g_menuSpecial;
 new g_primaryAmmoPCVar;
 new g_secondaryAmmoPCVar;
 new g_speedPCVar;
+new g_healthPCVar;
+//new g_gravityPCVar;
 
 new g_iMsgFog;
 
@@ -44,7 +49,7 @@ new g_iLaserSprite;
 
 public plugin_precache()
 {
-  precache_sound(DAY_SOUND);
+  //precache_sound(DAY_SOUND);
   precache_model(NIGHTCRAWLERS_KNIFE_MODEL);
 
   g_iLaserSprite = precache_model(g_szLaserSprite);
@@ -57,7 +62,9 @@ public plugin_init()
   // CVars
   g_primaryAmmoPCVar = register_cvar("uj_day_nightcrawlers_primary_ammo", NIGHTCRAWLERS_PRIMARY_AMMO);
   g_secondaryAmmoPCVar = register_cvar("uj_day_nightcrawlers_secondary_ammo", NIGHTCRAWLERS_SECONDARY_AMMO);
-  g_speedPCVar = register_cvar("uj_day_chicken_speed", NIGHTCRAWLERS_SPEED);
+  g_speedPCVar = register_cvar("uj_day_nightcrawlers_speed", NIGHTCRAWLERS_SPEED);
+  g_healthPCVar = register_cvar("uj_day_nightcrawlers_health", NIGHTCRAWLERS_HEALTH);
+  //g_gravityPCVar = register_cvar("uj_day_nightcrawlers_gravity", NIGHTCRAWLERS_GRAVITY);
 
   // Register this day
   g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND);
@@ -65,7 +72,10 @@ public plugin_init()
   // Find all menus to allow this day to display in
   g_menuSpecial = uj_menus_get_menu_id("Special Days");
 
+  // For wallclimbing
   register_forward(FM_PlayerPreThink, "Fwd_PlayerPreThink");
+  register_forward(FM_Touch, "Fwd_Touch");
+
   g_iMsgFog = get_user_msgid("Fog");
 }
 
@@ -111,9 +121,11 @@ start_day()
   if (!g_dayEnabled) {
     g_dayEnabled = true;
 
-    // Find ammo counts
+    // Find settings
     new primaryAmmoCount = get_pcvar_num(g_primaryAmmoPCVar);
     new secondaryAmmoCount = get_pcvar_num(g_secondaryAmmoPCVar);
+    //new Float:gravity = get_pcvar_float(g_gravityPCVar);
+    new Float:health = float(get_pcvar_num(g_healthPCVar));
 
     // Set models for all players
     new players[32], playerID;
@@ -138,6 +150,8 @@ start_day()
       uj_effects_set_view_model(playerID, CSW_KNIFE, NIGHTCRAWLERS_KNIFE_MODEL);
       set_user_footsteps(playerID, 1);
       uj_effects_reset_max_speed(playerID);
+      //set_user_gravity(playerID, gravity);
+      set_pev(playerID, pev_health, health);
     }
 
     set_lights("d");
@@ -159,6 +173,7 @@ end_day()
       uj_effects_reset_view_model(players[i], CSW_KNIFE);
       uj_effects_reset_visibility(players[i]);
       set_user_footsteps(players[i], 0);
+      //set_user_gravity(playerID, 1.0);
     }
 
     set_lights("m");
@@ -218,6 +233,23 @@ public set_fog(bool:fogOn)
 
 new Float:g_wallorigin[32][3];
 
+public Fwd_Touch(id, world)
+{
+  if(!g_dayEnabled || (!is_user_connected(id) && !is_user_alive(id)))
+    return FMRES_IGNORED;
+    
+  static classname[32];
+  pev(world, pev_classname, classname, 31);
+  
+  if((cs_get_user_team(id) == CS_TEAM_CT) &&
+    (equal(classname, "worldspawn") ||
+      equal(classname, "func_wall") ||
+      equal(classname, "func_breakable"))) {
+        pev(id, pev_origin, g_wallorigin[id]);
+  }
+  return FMRES_IGNORED;
+}
+
 public wallclimb(playerID, button)
 {
   static Float:origin[3]; 
@@ -226,7 +258,7 @@ public wallclimb(playerID, button)
   /*if(button & IN_RELOAD && !get_bit(g_bTeleport, playerID) && g_bTeleportUsed[playerID] < 3)
   { 
     g_bTeleportUsed[playerID]++;
-    uj_colorchat_print(playerID, UJ_COLORCHAT_BLUE, "You have ^4%d^1 teleports left!", (3-g_bTeleportUsed[playerID]));
+    fg_colorchat_print(playerID, FG_COLORCHAT_BLUE, "You have ^4%d^1 teleports left!", (3-g_bTeleportUsed[playerID]));
 
     emit_sound(playerID, CHAN_AUTO, NIGHTCRAWLERS_TELEPORT_SOUND, 1.0, ATTN_NORM, 0, PITCH_NORM);
     set_bit(g_bTeleport, playerID);

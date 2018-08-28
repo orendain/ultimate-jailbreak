@@ -1,7 +1,7 @@
 #include <amxmodx>
 #include <amxmisc>
 #include <fakemeta>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_menus>
 
 #define PLUG_NAME     "HATS"
@@ -112,7 +112,7 @@ public ShowMenu(id) {
     ShowHats(id)
   } else {
     //client_print(id,print_chat,"[%s] %L", PLUG_TAG, id, "HATMENU_ADMIN_ONLY")
-    uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Sorry, this menu available to admins only!");
+    fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Sorry, this menu available to admins only!");
   }
   return PLUGIN_HANDLED
 }
@@ -178,19 +178,19 @@ public MenuCommand(id, key) {
         } else {
           if (HATREST[HatID] == HAT_TERROR && get_user_team(id) == 2) {
             //client_print(id,print_chat,"[%s] %L",PLUG_TAG, id, LANG_PLAYER, "HATS_T_ONLY")
-            uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "This hat is for ^4Prisoners^1 only!");
+            fg_colorchat_print(id, FG_COLORCHAT_BLUE, "This hat is for ^4Prisoners^1 only!");
           } else if (HATREST[HatID] == HAT_COUNTER && get_user_team(id) == 1) {
             //client_print(id,print_chat,"[%s] %L",PLUG_TAG, id, LANG_PLAYER, "HATS_CT_ONLY")
-            uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "This hat is for ^4Guards^1 only!");
+            fg_colorchat_print(id, FG_COLORCHAT_BLUE, "This hat is for ^4Guards^1 only!");
           } else if (HATREST[HatID] == HAT_VIP && get_user_team(id) == 1) {
             //client_print(id,print_chat,"[%s] %L",PLUG_TAG, id, LANG_PLAYER, "HATS_CT_ONLY")
-            uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "This hat is for ^4VIPs^1 only!");
+            fg_colorchat_print(id, FG_COLORCHAT_BLUE, "This hat is for ^4VIPs^1 only!");
           } else if (HATREST[HatID] == HAT_DONOR && get_user_team(id) == 1) {
             //client_print(id,print_chat,"[%s] %L",PLUG_TAG, id, LANG_PLAYER, "HATS_CT_ONLY")
-            uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "This hat is for ^4Donors^1 only!");
+            fg_colorchat_print(id, FG_COLORCHAT_BLUE, "This hat is for ^4Donors^1 only!");
           } else {
             //client_print(id,print_chat,"[%s] %L",PLUG_TAG, id, LANG_PLAYER, "HATS_ADMIN_ONLY")
-            uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "This hat is for ^4Admins^1 only!");
+            fg_colorchat_print(id, FG_COLORCHAT_BLUE, "This hat is for ^4Admins^1 only!");
           }
         }
       }
@@ -278,7 +278,7 @@ public Give_Hat(id, req_flag)
   new player = cmd_target(id,name,2)
   if (!player) {
     //client_print(id,print_chat,"[%s] %L", PLUG_TAG, id, "PLAYER_NOT_EXISTS")
-    uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "That player does not exist!");
+    fg_colorchat_print(id, FG_COLORCHAT_BLUE, "That player does not exist!");
     return PLUGIN_HANDLED
   }
   
@@ -301,7 +301,7 @@ public Remove_Hat(id, req_flag)
     }
   }
   //client_print(id,print_chat,"[%s] %L", PLUG_TAG, id, "HAT_REMOVED_ALL")
-  uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "All hats removed!");
+  fg_colorchat_print(id, FG_COLORCHAT_BLUE, "All hats removed!");
   return PLUGIN_CONTINUE
 }
 
@@ -335,7 +335,7 @@ public Set_Hat(player, imodelnum, targeter) {
     }
     if (targeter != 0) {
       //client_print(targeter, print_chat, "[%s] %L", PLUG_TAG, LANG_PLAYER, "REMOVED_HAT",name)
-      uj_colorchat_print(targeter, UJ_COLORCHAT_BLUE, "Hehe, you have removed your hat!");
+      fg_colorchat_print(targeter, FG_COLORCHAT_BLUE, "Hehe, you have removed your hat!");
     }
   } else if (file_exists(tmpfile)) {
     if(g_HatEnt[player] < 1) {
@@ -353,7 +353,7 @@ public Set_Hat(player, imodelnum, targeter) {
     CurrentHat[player] = imodelnum
     if (targeter != 0) {
       //client_print(targeter, print_chat, "[%s] %L", PLUG_TAG, LANG_PLAYER, "SET",HATNAME[imodelnum],name)
-      uj_colorchat_print(targeter, UJ_COLORCHAT_BLUE, "Sweet, nice ^4%s^1 hat!", HATNAME[imodelnum]);
+      fg_colorchat_print(targeter, FG_COLORCHAT_BLUE, "Sweet, nice ^4%s^1 hat!", HATNAME[imodelnum]);
     }
   }
 }

@@ -2,12 +2,12 @@
 #include <cstrike>
 #include <fakemeta>
 #include <fun>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_menus>
 #include <uj_requests>
 
-new const PLUGIN_NAME[] = "[UJ] Request - Shot For Shot";
+new const PLUGIN_NAME[] = "UJ | Request - Shot For Shot";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -222,17 +222,17 @@ public uj_fw_requests_end(requestID)
 
 public OnPlaybackEvent(flags, id, eventid)
 {
-  //uj_colorchat_print(0, 1, "PRE - Shots fired by user #%i", g_shooterID);
-  //uj_colorchat_print(0, 1, "PRE - playback ID is #%i", id);
+  //fg_colorchat_print(0, 1, "PRE - Shots fired by user #%i", g_shooterID);
+  //fg_colorchat_print(0, 1, "PRE - playback ID is #%i", id);
   if (!g_requestEnabled || (g_shooterID != id)) {
     return FMRES_IGNORED;
   }
 
-  //uj_colorchat_print(0, 1, "MID - Shots fired by user #%i", g_shooterID);
+  //fg_colorchat_print(0, 1, "MID - Shots fired by user #%i", g_shooterID);
   
   if(IsPlayer(id) && g_iGunsEventsIdBitSum & (1<<eventid)){
     // Gun fired
-    //uj_colorchat_print(0, 1, "INSIDE - Shots fired by user #%i", g_shooterID);
+    //fg_colorchat_print(0, 1, "INSIDE - Shots fired by user #%i", g_shooterID);
     g_shooterID = (g_shooterID == g_playerID) ? g_targetID : g_playerID;
     //cs_set_user_bpammo(g_shooterID, g_weaponValues[g_weaponIndex][1][0], 1);
     //cs_set_weapon_ammo(g_targetWeaponEntityID, 0);

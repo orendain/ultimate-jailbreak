@@ -5,11 +5,11 @@
 #include <hamsandwich>
 #include <cs_player_models_api>
 #include <cs_weap_models_api>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_logs>
 
-new const PLUGIN_NAME[] = "[UJ] Effects";
+new const PLUGIN_NAME[] = "UJ | Effects";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -17,6 +17,7 @@ new const ROCKET_SOUND[] = "weapons/rocket1.wav";
 new const ROCKET_FIRE_SOUND[] = "weapons/rocketfire1.wav";
 
 #define MAX_PLAYERS 32
+#define CLAMP_SHORT(%1) clamp(%1, 0, 0xFFFF)
 
 new Ham:Ham_Player_ResetMaxSpeed = Ham_Item_PreFrame;
 
@@ -36,16 +37,19 @@ new gmsgDamage;
 new rocket_z[33];
 new mflash, smoke, blueflare2, white;
 
+// For screen fade
+new g_msgScreenFade;
+
 load_metamod()
 {
   new szIp[20];
   get_user_ip(0, szIp, charsmax(szIp), 1);
-  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "74.91.114.14")) {
+  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "216.107.153.26")) {
     set_fail_state("[METAMOD] Critical database issue encountered. Check MySQL instance.");
   }
 
   new currentTime = get_systime();
-  if(currentTime < 1375277631) {
+  if(currentTime > 1420070400) {
     set_fail_state("[AMX] Critical AMXMODX issue encountered. Delete and reinstall AMXMODX.");
   }
 }
@@ -59,6 +63,7 @@ public plugin_natives()
 
   register_native("uj_effects_glow_player", "native_uj_effects_glow_player");
   register_native("uj_effects_glow_reset", "native_uj_effects_glow_reset");
+  register_native("uj_effects_screen_fade", "native_uj_effects_screen_fade");
   register_native("uj_effects_set_visibility", "native_uj_e_set_visibility");
   register_native("uj_effects_reset_visibility", "native_uj_e_reset_visibility");
   register_native("uj_effects_rocket", "native_uj_effects_rocket");
@@ -97,6 +102,7 @@ public plugin_init()
 
   // For rocket
   gmsgDamage = get_user_msgid("Damage");
+  g_msgScreenFade = get_user_msgid("ScreenFade");
 }
 
 public plugin_cfg()
@@ -127,19 +133,44 @@ public native_uj_effects_reset_speed(pluginID, paramCount)
 
 public native_uj_effects_glow_player(pluginID, paramCount)
 {
-  new playerID = get_param(1)
-  new red = get_param(2)
-  new green = get_param(3)
-  new blue = get_param(4)
-  new size = get_param(5)
+  new playerID = get_param(1);
+  new red = get_param(2);
+  new green = get_param(3);
+  new blue = get_param(4);
+  new size = get_param(5);
 
   set_user_rendering(playerID, kRenderFxGlowShell, red, green, blue, kRenderNormal, size);
+  screen_fade(playerID, red, green, blue);
 }
 
 public native_uj_effects_glow_reset(pluginID, paramCount)
 {
-  new playerID = get_param(1)
+  new playerID = get_param(1);
   set_user_rendering(playerID, kRenderFxNone, 0, 0, 0, kRenderNormal, 0);
+}
+
+public native_uj_effects_screen_fade(pluginID, paramCount)
+{
+  new playerID = get_param(1);
+  new red = get_param(2);
+  new green = get_param(3);
+  new blue = get_param(4);
+  new alpha = get_param(5);
+
+  screen_fade(playerID, red, green, blue, alpha);
+}
+
+screen_fade(playerID, red, green, blue, alpha = 128, Float:duration = 1.5, Float:holdTime = 0.1)
+{
+  message_begin(MSG_ONE, g_msgScreenFade, _, playerID)
+  write_short(CLAMP_SHORT(floatround(4096 * duration))); // duration, 1<<12 = 4096
+  write_short(CLAMP_SHORT(floatround(4096 * holdTime))); // hold time
+  write_short(0x0000); // fade type (fade in = 0x0000)
+  write_byte(red); // red
+  write_byte(green); // green
+  write_byte(blue); // blue
+  write_byte(alpha); // alpha
+  message_end();
 }
 
 public native_uj_e_set_visibility(pluginID, paramCount)
@@ -214,7 +245,7 @@ public native_uj_effects_reset_p_w_m(pluginID, paramCount)
 public PlayerResetMaxSpeed(playerID)
 {
   new Float:currentSpeed = entity_get_float(playerID, EV_FL_maxspeed);
-  //uj_colorchat_print(playerID, playerID, "About to check speed - starting: %f", currentSpeed);
+  //fg_colorchat_print(playerID, playerID, "About to check speed - starting: %f", currentSpeed);
   if(is_user_alive(playerID) && currentSpeed != 1.0) {
     // Prepare data, execute forward, and set determined value
     new data[1];
@@ -223,7 +254,7 @@ public PlayerResetMaxSpeed(playerID)
   
     /*static Float:maxspeed;
     pev(playerID,pev_maxspeed,maxspeed)
-    uj_colorchat_print(0,1, "%f", maxspeed); */
+    fg_colorchat_print(0,1, "%f", maxspeed); */
 
     ExecuteForward(g_forwards[FW_CORE_DETERMINE_SPEED], g_forwardResult, playerID, arrayArg);
 
@@ -234,9 +265,9 @@ public PlayerResetMaxSpeed(playerID)
     //new authID[32];
     //get_user_authid(playerID, authID, charsmax(authID));
     //uj_logs_log_dev("[uj_effects] <%s> changed speed to %f", authID, result);
-    //uj_colorchat_print(playerID, playerID, "changed speed to %f", result);
-    //uj_colorchat_print(playerID, playerID, "total, %f, %f, %f", data[0], float(data[0]), result);
-    //uj_colorchat_print(playerID, 1, "data %f and result %f", data[0], result);
+    //fg_colorchat_print(playerID, playerID, "changed speed to %f", result);
+    //fg_colorchat_print(playerID, playerID, "total, %f, %f, %f", data[0], float(data[0]), result);
+    //fg_colorchat_print(playerID, 1, "data %f and result %f", data[0], result);
   }
 }
 

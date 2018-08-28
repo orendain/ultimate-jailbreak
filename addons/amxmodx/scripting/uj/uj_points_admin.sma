@@ -1,12 +1,12 @@
 #include <amxmodx>
 #include <amxmisc>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_logs>
 #include <uj_points>
 
-#define PLUGIN_NAME "[UJ] Points - Admin"
-#define PLUGIN_AUTH "eDeloa"
-#define PLUGIN_VERS "v0.1"
+new const PLUGIN_NAME[] = "UJ | Points - Admin";
+new const PLUGIN_AUTH[] = "eDeloa";
+new const PLUGIN_VERS[] = "v0.1";
 
 #define FLAG_ADMIN ADMIN_LEVEL_C
 #define FLAG_USER ADMIN_ALL
@@ -27,7 +27,7 @@ public plugin_init()
   register_concmd("uj_points_remove", "cmd_points_remove", FLAG_ADMIN, "<target> <amount>");
   register_concmd("uj_points_set", "cmd_points_set", FLAG_ADMIN, "<target> <amount>");
   register_concmd("uj_points_donate", "cmd_points_donate", FLAG_USER, "<target> <amount>");
-  register_concmd("uj_points_list", "cmd_points_list", FLAG_ADMIN, "<target> <amount>");
+  register_concmd("uj_points_list", "cmd_points_list", FLAG_ADMIN);
 }
 
 public cmd_points_add(id, level, cid)
@@ -47,7 +47,7 @@ public cmd_points_add(id, level, cid)
   }
 
   if (amount <= 0) {
-    uj_colorchat_print(id, id, "Negative points? Are you crazy?!");
+    fg_colorchat_print(id, id, "Negative points? Are you crazy?!");
     return PLUGIN_HANDLED;
   }
 
@@ -74,7 +74,7 @@ public cmd_points_remove(id, level, cid)
   }
 
   if (amount <= 0) {
-    uj_colorchat_print(id, id, "Negative points? Are you crazy?!");
+    fg_colorchat_print(id, id, "Negative points? Are you crazy?!");
     return PLUGIN_HANDLED;
   }
 
@@ -101,7 +101,7 @@ public cmd_points_set(id, level, cid)
   }
 
   if (amount <= 0) {
-    uj_colorchat_print(id, id, "Negative points? Are you crazy?!");
+    fg_colorchat_print(id, id, "Negative points? Are you crazy?!");
     return PLUGIN_HANDLED;
   }
 
@@ -127,12 +127,12 @@ public cmd_points_donate(id, level, cid)
   }
 
   if (amount <= 0) {
-    uj_colorchat_print(id, id, "Negative points? Are you crazy?!");
+    fg_colorchat_print(id, id, "Whoops, that's not a valid point value!");
     return PLUGIN_HANDLED;
   }
 
   if (amount > uj_points_get(id)) {
-    uj_colorchat_print(id, id, "You don't have enough points for that!");
+    fg_colorchat_print(id, id, "You don't have enough points for that!");
     return PLUGIN_HANDLED;
   }
 
@@ -149,8 +149,8 @@ public cmd_points_list(playerID, level, cid)
   if(!cmd_access(playerID, level, cid, 1))
     return PLUGIN_HANDLED;
 
-  client_print(playerID, print_console, "%-35s%20s", "Player", "Points")
-  client_print(playerID, print_console, "==================================")
+  client_print(playerID, print_console, "%33s %15s", "Player", "Points")
+  client_print(playerID, print_console, "===============================================")
 
   new playerName[32], points;
   new maxPlayers = get_maxplayers();
@@ -158,7 +158,7 @@ public cmd_points_list(playerID, level, cid)
     if (is_user_connected(targetID)) {
       get_user_name(targetID, playerName, charsmax(playerName));
       points = uj_points_get(targetID);
-      client_print(playerID, print_console, "%-.20s %15i", playerName, points)
+      client_print(playerID, print_console, "%33s %15i", playerName, points)
     }
   }
 
@@ -197,6 +197,6 @@ print_message(receiverid, giverid, amount, POINTS_TYPE: type)
     }
   }
 
-  uj_colorchat_print(0, giverid, text);
+  fg_colorchat_print(0, giverid, text);
   uj_logs_log("[uj_points_admin] %s", logText);
 }

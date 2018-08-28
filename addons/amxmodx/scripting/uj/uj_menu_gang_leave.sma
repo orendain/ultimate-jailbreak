@@ -1,11 +1,11 @@
 #include <amxmodx>
 #include <cstrike>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_gangs>
 #include <uj_logs>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Menu - Gang Leave";
+new const PLUGIN_NAME[] = "UJ | Menu - Gang Leave";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -72,7 +72,7 @@ public uj_fw_menus_select_post(playerID, menuID, entryID)
     get_user_name(playerID, playerName, charsmax(playerName));
     uj_gangs_get_name(gangID, gangName, charsmax(gangName));
     uj_gangs_remove_member(playerID, gangID);
-    uj_colorchat_print(0, playerID, "^3%s^1 has left ^3%s^1! Watch your back, homie!", playerName, gangName);
+    fg_colorchat_print(0, playerID, "^3%s^1 has left ^3%s^1! Watch your back, homie!", playerName, gangName);
     uj_logs_log("[uj_menu_gang_leave] %s has left the gang %s.", playerName, gangName);
   }
 }

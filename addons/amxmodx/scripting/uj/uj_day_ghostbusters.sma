@@ -7,7 +7,7 @@
 #include <uj_days>
 #include <uj_effects>
 
-new const PLUGIN_NAME[] = "[UJ] Day - Ghostbusters";
+new const PLUGIN_NAME[] = "UJ | Day - Ghostbusters";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -29,12 +29,6 @@ new g_menuSpecial
 new g_primaryAmmoPCVar;
 new g_healthPCVar;
 
-public plugin_precache()
-{
-  // Register day
-  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
-}
-
 public plugin_init()
 {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
@@ -45,6 +39,9 @@ public plugin_init()
   // CVars
   g_primaryAmmoPCVar = register_cvar("uj_day_ghostbusters_ammo", GHOSTBUSTERS_AMMO);
   g_healthPCVar = register_cvar("uj_day_ghostbusters_health", GHOSTBUSTERS_HEALTH);
+
+  // Register day
+  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
 }
 
 public uj_fw_days_select_pre(playerID, dayID, menuID)
@@ -97,7 +94,7 @@ start_day()
     new playerCount = uj_core_get_players(players, true, CS_TEAM_T);
     for (new i = 0; i < playerCount; ++i) {
       playerID = players[i];
-      
+
       // Give user items
       uj_core_strip_weapons(playerID);
       give_item(playerID, "weapon_m249");
@@ -109,7 +106,7 @@ start_day()
     playerCount = uj_core_get_players(players, true, CS_TEAM_CT);
     for (new i = 0; i < playerCount; ++i) {
       playerID = players[i];
-      
+
       // Set user up with noclip
       uj_core_strip_weapons(playerID);
       set_user_noclip(playerID, 1);

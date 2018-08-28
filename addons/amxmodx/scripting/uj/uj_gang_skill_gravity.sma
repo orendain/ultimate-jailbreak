@@ -1,11 +1,12 @@
 #include <amxmodx>
 #include <cstrike>
 #include <fun>
+#include <hamsandwich>
 #include <uj_gangs>
 #include <uj_gang_skill_db>
 #include <uj_gang_skills>
 
-new const PLUGIN_NAME[] = "[UJ] Gang Skill - Gravity";
+new const PLUGIN_NAME[] = "UJ | Gang Skill - Gravity";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -32,6 +33,9 @@ public plugin_init()
 
   // Register a new gang skill
   g_skill = uj_gang_skills_register(SKILL_NAME, g_skillCost, g_skillMax);
+
+  // Player spawn
+  RegisterHam(Ham_Spawn, "player", "fwHamPlayerSpawnPost", 1);
 }
 
 /*
@@ -62,17 +66,25 @@ public uj_fw_gang_skill_menus_s_post(playerID, menuID, skillEntryID)
 }*/
 
 // Set a user's gravity whenever s/he spawns
-public uj_fw_core_player_spawn(playerID)
+public fwHamPlayerSpawnPost(playerID)
 {
-  // Only affect prisoners
-  if (cs_get_user_team(playerID) == CS_TEAM_T) {
-    new gangID = uj_gangs_get_gang(playerID);
-    new skillLevel = uj_gang_skill_db_get_level(gangID, g_skill);
+  if(is_user_alive(playerID)) {
+    // Only affect prisoners
+    if (cs_get_user_team(playerID) == CS_TEAM_T) {
+      new gangID = uj_gangs_get_gang(playerID);
+      new skillLevel = uj_gang_skill_db_get_level(gangID, g_skill);
 
-    if (skillLevel > 0) {
-      new Float:per = get_pcvar_float(g_skillPer);
-      new Float:gravity = 1.0 - (per*skillLevel);
-      set_user_gravity(playerID, gravity);
+      if (skillLevel > 0) {
+        new Float:per = get_pcvar_float(g_skillPer);
+        new Float:gravity = 1.0 - (per*skillLevel);
+        set_user_gravity(playerID, gravity);
+      }
     }
   }
+}
+
+// When an LR event is selected, remove gang skill
+public uj_fw_requests_select_post(playerID, targetID, requestID)
+{
+  set_user_gravity(playerID, 1.0);
 }

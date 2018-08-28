@@ -17,18 +17,16 @@
 // radius of damage (required for fm_radius damage )
 #define EXPLODE_RADIUS 300.0
 
-new const PLUGIN_NAME[] = "[UJ] Request - Kamikaze";
+new const PLUGIN_NAME[] = "UJ | Request - Kamikaze";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
 new const REQUEST_NAME[] = "Kamikaze";
 new const REQUEST_OBJECTIVE[] = "Boom";
 
-//new g_iMaxPlayers;
 new explosion_sprite;     // Suicide bomber sprite
 new g_iMsgDeath;
 new g_iMsgScoreInfo;
-
 
 // Request variables
 new g_request;
@@ -37,110 +35,101 @@ new bool:g_requestEnabled;
 // Menu variables
 new g_menuLastRequests;
 
-// Player variables
-new g_playerID;
-new g_targetID;
-
-
 public plugin_precache()
 {
-// Register request
-g_request = uj_requests_register(REQUEST_NAME, REQUEST_OBJECTIVE);
+  // Register request
+  g_request = uj_requests_register(REQUEST_NAME, REQUEST_OBJECTIVE);
 }
 
 public plugin_init()
 {
-register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
+  register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
 
-// Find all valid menus to display this under
-g_menuLastRequests = uj_menus_get_menu_id("Last Request");
+  // Find all valid menus to display this under
+  g_menuLastRequests = uj_menus_get_menu_id("Last Request");
 
-//g_iMaxPlayers   = get_maxplayers();
-g_iMsgDeath   = get_user_msgid("DeathMsg");
-g_iMsgScoreInfo   = get_user_msgid("ScoreInfo");  
+  //g_iMaxPlayers   = get_maxplayers();
+  g_iMsgDeath   = get_user_msgid("DeathMsg");
+  g_iMsgScoreInfo   = get_user_msgid("ScoreInfo");  
 }
 
 public uj_fw_requests_select_pre(playerID, requestID, menuID)
 {
-// This is not our request - do not block
-if (requestID != g_request) {
-	return UJ_REQUEST_AVAILABLE;
-}
+  // This is not our request - do not block
+  if (requestID != g_request) {
+    return UJ_REQUEST_AVAILABLE;
+  }
 
-// Only display if in the parent menu we recognize
-if (menuID != g_menuLastRequests) {
-	return UJ_REQUEST_DONT_SHOW;
-}
+  // Only display if in the parent menu we recognize
+  if (menuID != g_menuLastRequests) {
+    return UJ_REQUEST_DONT_SHOW;
+  }
 
-// If we *can* show the menu, but it's already enabled,
-// then have it be unavailable
-if (g_requestEnabled) {
-	return UJ_REQUEST_NOT_AVAILABLE;
-}
+  // If we *can* show the menu, but it's already enabled,
+  // then have it be unavailable
+  if (g_requestEnabled) {
+    return UJ_REQUEST_NOT_AVAILABLE;
+  }
 
-return UJ_REQUEST_AVAILABLE;
+  return UJ_REQUEST_AVAILABLE;
 }
 
 public uj_fw_requests_select_post(playerID, targetID, requestID)
 {
-// This is not our request
-if (requestID != g_request)
-	return;
-	
-start_request(playerID, targetID);
+  // This is not our request
+  if (requestID != g_request)
+    return;
+    
+  start_request(playerID, targetID);
 }
 
 start_request(playerID, targetID)
 {
-if(!g_requestEnabled) {
-	g_requestEnabled = true;
-
-	
-	
-	// Strip users of weapons, and give out scourts and knives
-	uj_core_strip_weapons(playerID);
-	uj_core_strip_weapons(targetID);
-	explode_me(playerID);
-	// cs_set_user_bpammo(playerID, CSW_SCOUT, ammoCount);
-	// cs_set_user_bpammo(targetID, CSW_SCOUT, ammoCount);
-	
-	// Do not allow participants to pick up any guns
-	uj_core_block_weapon_pickup(playerID, true);
-	uj_core_block_weapon_pickup(targetID, true);
-	
-	// Set health
-	set_pev(playerID, pev_health, 100.0);
-	set_pev(targetID, pev_health, 100.0);
-	
-	// Give armor
-	cs_set_user_armor(playerID, 100, CS_ARMOR_VESTHELM)
-	cs_set_user_armor(targetID, 100, CS_ARMOR_VESTHELM)
-	
-	// Find gravity setting
-	
-	// Set low gravity
-	
-	g_playerID = playerID;
-	g_targetID = targetID;
-}
+  if(!g_requestEnabled) {
+    g_requestEnabled = true;
+  
+  // Strip users of weapons, and give out scourts and knives
+  uj_core_strip_weapons(playerID);
+  uj_core_strip_weapons(targetID);
+  explode_me(playerID);
+  // cs_set_user_bpammo(playerID, CSW_SCOUT, ammoCount);
+  // cs_set_user_bpammo(targetID, CSW_SCOUT, ammoCount);
+  
+  // Do not allow participants to pick up any guns
+  uj_core_block_weapon_pickup(playerID, true);
+  uj_core_block_weapon_pickup(targetID, true);
+  
+  // Set health
+  set_pev(playerID, pev_health, 100.0);
+  set_pev(targetID, pev_health, 100.0);
+  
+  // Give armor
+  cs_set_user_armor(playerID, 100, CS_ARMOR_VESTHELM)
+  cs_set_user_armor(targetID, 100, CS_ARMOR_VESTHELM)
+  
+  // Find gravity setting
+  
+  // Set low gravity
+  
+  g_playerID = playerID;
+  g_targetID = targetID;
 }
 
 public uj_fw_requests_end(requestID)
 {
 // If requestID refers to our request and our request is enabled
-if(requestID == g_request && g_requestEnabled) {
-	g_requestEnabled = false;
-	
-	uj_core_strip_weapons(g_playerID);
-	uj_core_strip_weapons(g_targetID);
-	
-	set_user_gravity(g_playerID, 1.0);
-	set_user_gravity(g_targetID, 1.0);
-	
-	uj_core_block_weapon_pickup(g_playerID, false);
-	uj_core_block_weapon_pickup(g_targetID, false);
-	
-	}
+  if(requestID == g_request && g_requestEnabled) {
+    g_requestEnabled = false;
+    
+    uj_core_strip_weapons(g_playerID);
+    uj_core_strip_weapons(g_targetID);
+    
+    set_user_gravity(g_playerID, 1.0);
+    set_user_gravity(g_targetID, 1.0);
+    
+    uj_core_block_weapon_pickup(g_playerID, false);
+    uj_core_block_weapon_pickup(g_targetID, false);
+  }
 }
 
 /*================================================================================
@@ -267,6 +256,3 @@ stock logKill(id, victim, weaponDescription[] ) {
     log_message("^"%s<%d><%s><%s>^" committed suicide with ^"%s^"",
     namea,get_user_userid(id),authida,teama, weaponDescription );
 }
-/* AMXX-Studio Notes - DO NOT MODIFY BELOW HERE
-*{\\ rtf1\\ ansi\\ deff0{\\ fonttbl{\\ f0\\ fnil Tahoma;}}\n\\ viewkind4\\ uc1\\ pard\\ lang1033\\ f0\\ fs16 \n\\ par }
-*/

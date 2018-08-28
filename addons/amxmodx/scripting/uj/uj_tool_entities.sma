@@ -2,9 +2,9 @@
 #include <engine>
 #include <fakemeta>
 #include <hamsandwich>
-#include <uj_colorchat>
+#include <fg_colorchat>
 
-new const PLUGIN_NAME[] = "[UJ] Tool - Entities";
+new const PLUGIN_NAME[] = "UJ | Tool - Entities";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -62,7 +62,7 @@ public hook_entity_use_pre(iButton, iCaller, iActivator, iUseType, Float: flValu
     return HAM_IGNORED;
   }
 
-  uj_colorchat_print(0, 1, "button: %i, caller: %i, activator: %i, usetype: %i, flvalue: %f", iButton, iCaller, iActivator, iUseType, flValue);
+  fg_colorchat_print(0, 1, "button: %i, caller: %i, activator: %i, usetype: %i, flvalue: %f", iButton, iCaller, iActivator, iUseType, flValue);
   return HAM_HANDLED;
 }
 
@@ -110,7 +110,7 @@ public find_button(playerID)
   
   if(pev_valid(szTempEnt)) {
     entity_get_string(szTempEnt, EV_SZ_classname, szTempClass, charsmax(szTempClass));
-    uj_colorchat_print(playerID, playerID, "ID: %i, classname: %s", szTempEnt, szTempClass);
+    fg_colorchat_print(playerID, playerID, "ID: %i, classname: %s", szTempEnt, szTempClass);
   }
 
   return PLUGIN_HANDLED;

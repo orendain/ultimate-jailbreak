@@ -16,10 +16,10 @@
 ================================================================================*/
 
 // Delay between model changes (increase if getting SVC_BAD kicks)
-#define MODELCHANGE_DELAY 0.2
+#define MODELCHANGE_DELAY 0.4
 
 // Delay after roundstart (increase if getting kicks at round start)
-#define ROUNDSTART_DELAY 2.0
+#define ROUNDSTART_DELAY 3.0
 
 // Enable custom hitboxes (experimental, might lag your server badly with some models)
 //#define SET_MODELINDEX_OFFSET

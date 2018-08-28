@@ -1,8 +1,8 @@
 #include <amxmodx>
 #include <sqlvault_ex>
-#include <uj_colorchat>
+#include <fg_colorchat>
 
-new const PLUGIN_NAME[] = "[UJ] Points - Update 1";
+new const PLUGIN_NAME[] = "UJ | Points - Update 1";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 

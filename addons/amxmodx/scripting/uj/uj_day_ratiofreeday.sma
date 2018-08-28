@@ -7,7 +7,7 @@
 #include <uj_menus>
 #include <uj_days>
 
-new const PLUGIN_NAME[] = "[UJ] Day - Ratio Freeday";
+new const PLUGIN_NAME[] = "UJ | Day - Ratio Freeday";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -22,15 +22,12 @@ new bool: g_dayEnabled
 // Menu variables
 new g_menuSpecial;
 
-public plugin_precache()
-{
-  // Register day
-  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
-}
-
 public plugin_init()
 {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
+
+  // Register day
+  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
 
   // Find the menus we want to restrict
   g_menuSpecial = uj_menus_get_menu_id("Special Days")

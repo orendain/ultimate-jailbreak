@@ -2,9 +2,9 @@
 #include <engine>
 #include <fakemeta>
 #include <hamsandwich>
-#include <uj_colorchat>
+#include <fg_colorchat>
 
-new const PLUGIN_NAME[] = "[UJ] Map - Oasis 1";
+new const PLUGIN_NAME[] = "UJ | Map - Oasis 1";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 

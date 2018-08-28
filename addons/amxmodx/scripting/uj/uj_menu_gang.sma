@@ -3,7 +3,7 @@
 #include <uj_gangs>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Menu - Gang";
+new const PLUGIN_NAME[] = "UJ | Menu - Gang";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 

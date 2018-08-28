@@ -1,18 +1,22 @@
 #include <amxmodx>
+#include <amxmisc>
 #include <engine>
 #include <fakemeta>
 #include <hamsandwich>
 #include <cstrike>
 #include <dhudmessage>
-#include <uj_colorchat>
+#include <fg_colorchat>
 
 #define MAX_NETS 2
 
-new const PLUGIN_NAME[] = "Soccer"
-new const PLUGIN_AUTHOR[] = "CreePs & lolz123 & @f0rce"
-new const PLUGIN_VERSION[] = "2.0"
+#define FLAG_ADMIN_SETTINGS ADMIN_RCON
+#define FLAG_ADMIN ADMIN_LEVEL_A
 
-static const g_szBallBounce[] = "kickball/bounce.wav"
+new const PLUGIN_NAME[] = "UJ | Misc - Soccer"
+new const PLUGIN_AUTHOR[] = "eDeloa"
+new const PLUGIN_VERSION[] = "v0.1"
+
+static const g_szBallBounce[] = "ultimate_jailbreak/bounce.wav"
 static const g_szBallModel[] = "models/ultimate_jailbreak/soccerball.mdl"
 new BALL_KICKED[][] = { "weapons/xbow_hitbod1.wav", "weapons/xbow_hitbod2.wav" }
 static const g_szBallName[] = "ball"
@@ -21,8 +25,7 @@ new headshot
 new g_Trail
 new Float:modFeet = 35.00
 
-enum
-{
+enum {
   FIRST_POINT = 0,
   SECOND_POINT
 }
@@ -80,13 +83,14 @@ public plugin_init()
     "func_illusionary", "func_button", "func_rot_button", "func_rotating"
   }
   
-  for(new i; i < sizeof(szEntity); i++)
+  for(new i; i < sizeof(szEntity); i++) {
     register_touch(g_szBallName, szEntity[i], "FwdTouchWorld")
+  }
       
   CreateMenus()
   
-  register_clcmd("say /ball", "ShowMainMenu")
-  register_clcmd("say /resetball", "UpdateBall")
+  register_clcmd("say /ball", "ShowAdminMenu", FLAG_ADMIN_SETTINGS);
+  register_clcmd("say /resetball", "UpdateBall");
   
   engfunc( EngFunc_PrecacheSound, BALL_KICKED[0])
   engfunc( EngFunc_PrecacheSound, BALL_KICKED[1])    
@@ -101,6 +105,16 @@ public CreateMenus()
   register_menucmd(g_iMainMenu, 1023, "HandleMainMenu")
   register_menucmd(g_iBallMenu, 1023, "HandleBallMenu")
   register_menucmd(g_iNetMenu, 1023, "HandleNetMenu")
+}
+
+public ShowAdminMenu(id, level, cid)
+{
+  if(!cmd_access(id, level, cid, 1)) {
+    return PLUGIN_HANDLED;
+  }
+
+  ShowMainMenu(id);
+  return PLUGIN_HANDLED;
 }
 
 public ShowMainMenu(id)
@@ -164,24 +178,23 @@ public ShowNetMenu(id)
 }
 public PlayerPreThink(id)
 {
-  if(!is_user_alive(id))
+  if(!is_user_alive(id)) {
     return PLUGIN_CONTINUE
+  }
     
   if(pev(id, pev_button) & IN_USE && !(pev(id, pev_oldbuttons) & IN_USE) && g_buildingNet[id]) {
     new Float:fOrigin[3], fOriginn[3]
     get_user_origin(id, fOriginn, 3)
 
     IVecFVec(fOriginn, fOrigin)
-    if(g_buildingstage[id] == FIRST_POINT)
-    {
+    if(g_buildingstage[id] == FIRST_POINT) {
       g_buildingstage[id] = SECOND_POINT
       
       g_fOriginBox[id][FIRST_POINT] = fOrigin
       
-      uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Now set the origin for the bottom left corner of the box.")
+      fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Now set the origin for the bottom left corner of the box.")
     }
-    else
-    {
+    else {
       g_buildingstage[id] = FIRST_POINT
       g_buildingNet[id] = false
       
@@ -189,22 +202,17 @@ public PlayerPreThink(id)
       
       CreateNet(g_fOriginBox[id][FIRST_POINT], g_fOriginBox[id][SECOND_POINT])
       
-      uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Successfully created net #%d", ++countnets)
+      fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Successfully created net #%d", ++countnets)
     }
   }
               
-  
   return PLUGIN_HANDLED
 }
 
-
-
 public UpdateBall(id)
 {
-  if(!id || cs_get_user_team(id) == CS_TEAM_CT || get_user_flags(id) & ADMIN_KICK)
-  {
-    if(is_valid_ent(gBall))
-    {
+  if(!id || cs_get_user_team(id) == CS_TEAM_CT || get_user_flags(id) & FLAG_ADMIN) {
+    if(is_valid_ent(gBall)) {
       entity_set_vector(gBall, EV_VEC_velocity, Float:{ 0.0, 0.0, 0.0 })
       entity_set_origin(gBall, g_vOrigin)
       
@@ -212,28 +220,33 @@ public UpdateBall(id)
       entity_set_size(gBall, Float:{ -15.0, -15.0, 0.0 }, Float:{ 15.0, 15.0, 12.0 })
       entity_set_int(gBall, EV_INT_iuser1, 0)
     }
-  }
   
-  return PLUGIN_HANDLED
+    if (1 <= g_Owner <= 32) {
+      remove_sprite(g_Owner);
+      remove_beam(g_Owner);
+    }
+
+    set_task(0.1, "MoveBall", 1);
+  }
+  return PLUGIN_HANDLED;
 }
 
 public MoveBall(where)
 {
-  if(!is_valid_ent(gBall))
+  if(!is_valid_ent(gBall)) {
     return PLUGIN_HANDLED
+  }
   
-  switch(where)
-  {
-    case 0:
-    {
+  switch(where) {
+    case 0: {
       new Float:orig[3]
 
-      for(new x=0;x<3;x++)
+      for(new x=0;x<3;x++) {
         orig[x] = -9999.9
+      }
       entity_set_origin(gBall,orig)
     }
-    case 1:
-    {
+    case 1: {
       if(is_valid_ent(gBall)) {
         new vOrigin[3]
         
@@ -258,9 +271,9 @@ public plugin_precache()
   precache_model(g_szBallModel)
   precache_sound(g_szBallBounce)
  
-  headshot = precache_model("sprites/ultimate_jailbreak/headsprite1.spr")   
-  g_iTrailSprite = precache_model("sprites/ultimate_jailbreak/aeroblast.spr")
-  g_Trail = precache_model("sprites/ultimate_jailbreak/psybeam.spr")
+  headshot = precache_model("sprites/ultimate_jailbreak/headsprite1.spr");
+  g_iTrailSprite = precache_model("sprites/ultimate_jailbreak/aeroblast.spr");
+  g_Trail = precache_model("sprites/ultimate_jailbreak/psybeam.spr");
   
   get_mapname(g_szMapname, 31)
   strtolower(g_szMapname )
@@ -270,13 +283,13 @@ public plugin_precache()
   
   formatex(szDatadir, charsmax( szDatadir ), "%s", szDatadir)
   
-  if(!dir_exists( szDatadir))
+  if(!dir_exists( szDatadir)) {
     mkdir(szDatadir)
+  }
   
   formatex(g_szFile, charsmax(g_szFile), "%s/uj_misc_soccer.ini", szDatadir)
   
-  if(!file_exists(g_szFile))
-  {
+  if(!file_exists(g_szFile)) {
     write_file(g_szFile, "// Soccerjam Ball/Nets Spawn Editor", -1)
     write_file(g_szFile, "// Credits to us ", -1)
     
@@ -294,12 +307,12 @@ public LoadAll(id)
   new szfPoint[2][3][16], szlPoint[2][3][16]
   new iFile = fopen(g_szFile, "rt")
   
-  while(!feof(iFile))
-  {
+  while(!feof(iFile)) {
     fgets(iFile, szData, charsmax(szData))
     
-    if(!szData[0] || szData[0] == ';' || szData[0] == ' ' || ( szData[0] == '/' && szData[1] == '/' ))
+    if(!szData[0] || szData[0] == ';' || szData[0] == ' ' || ( szData[0] == '/' && szData[1] == '/' )) {
       continue
+    }
 
     parse(szData, szMap, 31, szOrigin[0], 15, szOrigin[1], 15, szOrigin[2], 15,\
       szfPoint[0][0], 15, szfPoint[0][1], 15, szfPoint[0][2], 15,\
@@ -307,8 +320,7 @@ public LoadAll(id)
       szfPoint[1][0], 15, szfPoint[1][1], 15, szfPoint[1][2], 15,\
       szlPoint[1][0], 15, szlPoint[1][1], 15, szlPoint[1][2], 15)
     
-    if(equal(szMap, g_szMapname))
-    {
+    if(equal(szMap, g_szMapname)) {
       new Float:vOrigin[3]
       new Float:fPoint[2][3]
       new Float:lPoint[2][3]
@@ -317,10 +329,8 @@ public LoadAll(id)
       vOrigin[1] = str_to_float(szOrigin[1])
       vOrigin[2] = str_to_float(szOrigin[2])
       
-      for(new i = 0; i < 2; i++)
-      {
-        for(new j = 0; j < 3; j++)
-        {
+      for(new i = 0; i < 2; i++) {
+        for(new j = 0; j < 3; j++) {
           fPoint[i][j] = str_to_float(szfPoint[i][j])
           lPoint[i][j] = str_to_float(szlPoint[i][j])
         }
@@ -350,35 +360,36 @@ public SaveAll(id)
   new Float:vfPoint[2][3]
   new Float:vlPoint[2][3]
   
-  while((ent = find_ent_by_class(ent, g_szBallName)) > 0)
+  while((ent = find_ent_by_class(ent, g_szBallName)) > 0) {
     iBall = ent
+  }
         
-  while((ent = find_ent_by_class(ent, "JailNet")) > 0)
+  while((ent = find_ent_by_class(ent, "JailNet")) > 0) {
     iNets[i++] = ent
+  }
       
-  if(iBall > 0 && iNets[0] > 0 && iNets[1] > 0 && countnets == 2)
-  {
+  if(iBall > 0 && iNets[0] > 0 && iNets[1] > 0 && countnets == 2){
     entity_get_vector(iBall, EV_VEC_origin, vOrigin)
     
-    for(new i = 0; i < 2; i++)
-    {
+    for(new i = 0; i < 2; i++) {
       entity_get_vector(iNets[i], EV_VEC_origin, fOrigin)
       entity_get_vector(iNets[i], EV_VEC_maxs, fMaxs)
       
-      for(new j = 0; j < 3; j++)
-      {
+      for(new j = 0; j < 3; j++) {
         vfPoint[i][j] = fOrigin[j] + fMaxs[j]
         vlPoint[i][j] = fOrigin[j] - fMaxs[j]
       }
     }
   }
-  else
-    return PLUGIN_HANDLED
+  else {
+    return PLUGIN_HANDLED;
+  }
       
   new bool:bFound, iPos, szData[32], iFile = fopen(g_szFile, "r+")
           
-  if(!iFile)
-      return PLUGIN_HANDLED
+  if(!iFile) {
+    return PLUGIN_HANDLED
+  }
           
   while(!feof(iFile)) {
     fgets(iFile, szData, 31)
@@ -400,13 +411,14 @@ public SaveAll(id)
     }
   }
           
-  if(!bFound)
+  if(!bFound) {
     fprintf(iFile, "%s %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f^n", g_szMapname, vOrigin[0], vOrigin[1], vOrigin[2],\
         vfPoint[0][0], vfPoint[0][1], vfPoint[0][2], vlPoint[0][0], vlPoint[0][1], vlPoint[0][2],\
         vfPoint[1][0], vfPoint[1][1], vfPoint[1][2], vlPoint[1][0], vlPoint[1][1], vlPoint[1][2])
+  }
   fclose(iFile)
           
-  uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Successfully saved ball & nets!")
+  fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Successfully saved ball & nets!")
   
   return PLUGIN_HANDLED
 }
@@ -420,19 +432,15 @@ public HandleMainMenu(id, key)
   
   switch(key)
   {
-    case 0:
-    {
+    case 0: {
       ShowBallMenu(id)
       return PLUGIN_HANDLED
-
     }
-    case 1:
-    {
+    case 1: {
       ShowNetMenu(id)
       return PLUGIN_HANDLED
     }
-    case 2:
-    {
+    case 2: {
       if(is_valid_ent(gBall)) {
         entity_set_vector(gBall, EV_VEC_velocity, Float:{ 0.0, 0.0, 0.0 })
         entity_set_origin(gBall, g_vOrigin )
@@ -441,30 +449,31 @@ public HandleMainMenu(id, key)
         entity_set_size(gBall, Float:{ -15.0, -15.0, 0.0 }, Float:{ 15.0, 15.0, 12.0 })
         entity_set_int(gBall, EV_INT_iuser1, 0)
         
-        uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Successfully loaded entity!")
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Successfully loaded entity!")
       }
     }
-    case 3:
-    {
+    case 3: {
       new ent
       new ball, net
-      while((ent = find_ent_by_class(ent, g_szBallName)) > 0)
-      {
+      while((ent = find_ent_by_class(ent, g_szBallName)) > 0) {
         remove_entity(ent)
         ball++
       }
           
-      while((ent = find_ent_by_class(ent, "JailNet")) > 0)
-      {
+      while((ent = find_ent_by_class(ent, "JailNet")) > 0) {
         remove_entity(ent)
         countnets--
         net++
       }
           
-      uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Successfully removed^x03 %d^x01 ball and^x03 %d^x01 nets", ball, net)
+      fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Successfully removed^x03 %d^x01 ball and^x03 %d^x01 nets", ball, net)
     }
-    case 4: SaveAll(id)
-    case 9: return PLUGIN_HANDLED
+    case 4: {
+      SaveAll(id)
+    }
+    case 9: {
+      return PLUGIN_HANDLED
+    }
   }
   
   ShowMainMenu(id)
@@ -481,54 +490,54 @@ public HandleBallMenu(id, key)
   
   switch(key)
   {
-    case 0:
-    {
-      if(pev_valid(gBall))
+    case 0: {
+      if(pev_valid(gBall)) {
         return PLUGIN_CONTINUE
+      }
           
       new ball
       ball = CreateBall(id)
       
-      if(pev_valid(ball))
-        uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Successfully created ball!")
-      else
-        uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Failled to create ball!")
+      if(pev_valid(ball)) {
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Successfully created ball!")
+      }
+      else {
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Failled to create ball!")
+      }
     }
-    case 1:
-    {
-      if(!g_bHighlight[id][1])
-      {
+    case 1: {
+      if(!g_bHighlight[id][1]) {
         set_rendering(gBall, kRenderFxGlowShell, 0, 0, 255, kRenderNormal, 255)
         entity_set_float(gBall, EV_FL_renderamt, 1.0)
         
         g_bHighlight[id][1] = true
         
-        uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Ball highlight has been^x04 Enabled^x01.")
-      } else {
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Ball highlight has been^x04 Enabled^x01.")
+      }
+      else {
         set_rendering(gBall, kRenderFxNone, 0, 0, 255, kRenderNormal, 255)
         entity_set_float(gBall, EV_FL_renderamt, 1.0)
         
         g_bHighlight[id][1] = false
         
-        uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Ball highlight has been^x03 Disabled^x01.")
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Ball highlight has been^x03 Disabled^x01.")
       }
     }
-    case 2:
-    {
+    case 2: {
       new ent
       new bool:bFound
-      while((ent = find_ent_by_class(ent, g_szBallName)) > 0)
-      {
+      while((ent = find_ent_by_class(ent, g_szBallName)) > 0) {
         remove_entity(ent)
         bFound = true
       }
-      if(bFound)
-        uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Successfully removed ball!")
-      else
-        uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "No ball was found to remove")
+      if(bFound) {
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Successfully removed ball!")
+      }
+      else {
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "No ball was found to remove")
+      }
     }
-    case 9:
-    {
+    case 9: {
       ShowMainMenu(id)
       return PLUGIN_HANDLED
     }
@@ -547,18 +556,15 @@ public HandleNetMenu(id, key)
   
   switch(key)
   {
-    case 0:
-    {
-      if(g_buildingNet[id])
-      {
-        uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Already in building net mod.")
+    case 0: {
+      if(g_buildingNet[id]) {
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Already in building net mod.")
         ShowNetMenu(id)
         
         return PLUGIN_HANDLED
       }
-      if(countnets >= MAX_NETS)
-      {
-        uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Sorry, limit of nets reached (%d).", countnets)
+      if(countnets >= MAX_NETS) {
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Sorry, limit of nets reached (%d).", countnets)
         ShowNetMenu(id)
         
         return PLUGIN_HANDLED
@@ -566,25 +572,23 @@ public HandleNetMenu(id, key)
       
       g_buildingNet[id] = true
       
-      uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Set the origin for the top right corner of the box.")
+      fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Set the origin for the top right corner of the box.")
     }
-    case 1:
-    {
-      if(!g_bHighlight[id][0])
-      {
+    case 1: {
+      if(!g_bHighlight[id][0]) {
         set_task(1.0, "taskShowNet", 1000 + id, "", 0, "b", 0)
         g_bHighlight[id][0] = true
         
-        uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Net highlight has been^x04 Enabled^x01.")
-      } else {
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Net highlight has been^x04 Enabled^x01.")
+      }
+      else {
         remove_task(1000+id)
         g_bHighlight[id][0] = false
         
-        uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Net highlight has been^x03 Disabled^x01.")
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Net highlight has been^x03 Disabled^x01.")
       }
     }
-    case 2:
-    {
+    case 2: {
       new ent, body
       new bool:bFound
       static classname[32]
@@ -592,46 +596,44 @@ public HandleNetMenu(id, key)
       get_user_aiming(id, ent, body, 9999)
       entity_get_string(ent, EV_SZ_classname, classname, charsmax(classname))
       
-      if(is_valid_ent(ent) && equal(classname, "JailNet"))
-      {
+      if(is_valid_ent(ent) && equal(classname, "JailNet")) {
         remove_entity(ent)
         countnets--
             
         bFound = true
-      } else {
+      }
+      else {
         new Float:fPlrOrigin[3], Float:fNearestDist = 9999.0, iNearestEnt
         new Float:fOrigin[3], Float:fCurDist
 
         pev(id, pev_origin, fPlrOrigin)
 
         new ent = -1
-        while((ent = engfunc(EngFunc_FindEntityByString, ent, "classname", "JailNet")) != 0)
-        {
+        while((ent = engfunc(EngFunc_FindEntityByString, ent, "classname", "JailNet")) != 0) {
           pev(ent, pev_origin, fOrigin)
 
           fCurDist = vector_distance(fPlrOrigin, fOrigin)
 
-          if(fCurDist < fNearestDist)
-          {
+          if(fCurDist < fNearestDist) {
             iNearestEnt = ent
             fNearestDist = fCurDist
           }
         }
-        if(iNearestEnt > 0 && is_valid_ent(iNearestEnt))
-        {
+        if(iNearestEnt > 0 && is_valid_ent(iNearestEnt)) {
           remove_entity(iNearestEnt)
           countnets--
         }
         
         bFound = true
       }
-      if(bFound)
-          uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Successfully removed net!")
-      else
-          uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "No net was found to remove")
+      if(bFound) {
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Successfully removed net!")
+      }
+      else {
+        fg_colorchat_print(id, FG_COLORCHAT_BLUE, "No net was found to remove")
+      }
     }
-    case 9:
-    {
+    case 9: {
       ShowMainMenu(id)
       return PLUGIN_HANDLED
     }
@@ -643,11 +645,13 @@ public HandleNetMenu(id, key)
         
 public EventRoundStart()
 {
-  if(!g_bNeedBall)
-  return
+  if(!g_bNeedBall) {
+    return
+  }
     
-  if(!is_valid_ent(gBall))
+  if(!is_valid_ent(gBall)) {
     CreateBall(0, g_vOrigin)
+  }
   else {
     entity_set_vector(gBall, EV_VEC_velocity, Float:{ 0.0, 0.0, 0.0 })
     entity_set_origin(gBall, g_vOrigin)
@@ -664,8 +668,7 @@ public EventRoundStart()
         
   new iPlayer;
         
-  for( new i = 0; i < iNum; i++ )
-  {
+  for( new i = 0; i < iNum; i++ ){
     iPlayer = iPlayers[ i ];
         
     remove_sprite(iPlayer)
@@ -675,27 +678,16 @@ public EventRoundStart()
 
 public FwdHamObjectCaps(id)
 {
-  if(pev_valid(gBall) && is_user_alive(id)) {
-    static iOwner
-    
-    iOwner = pev(gBall, pev_iuser1)
-    
-    if(iOwner == id)
-    {
-      KickBall(id)
-      g_Owner = iOwner
-      remove_sprite(iOwner)
-      remove_beam(iOwner)
-      emit_sound(iOwner, CHAN_WEAPON, BALL_KICKED[random_num(0,1)], 1.0, ATTN_NORM, 0, PITCH_NORM)
-            
-      get_user_origin(id, g_OwnerOrigin)
-    }
+  // If this player has the ball
+  if(pev_valid(gBall) && is_user_alive(id) && pev(gBall, pev_iuser1) == id) {
+    KickBall(id);
   }
 }
 
 public FwdThinkBall(ent) {
-  if(!is_valid_ent(gBall))
+  if(!is_valid_ent(gBall)) {
     return PLUGIN_HANDLED
+  }
   
   static Float:vOrigin[3], Float:vBallVelocity[3]
   
@@ -713,8 +705,8 @@ public FwdThinkBall(ent) {
   flGametime = get_gametime()
   
   if(flLastThink < flGametime) {
-    if(floatround(vector_length(vBallVelocity)) > 10)
-    {
+
+    if(floatround(vector_length(vBallVelocity)) > 10) {
       message_begin(MSG_BROADCAST, SVC_TEMPENTITY)
       write_byte(TE_KILLBEAM)
       write_short(gBall)
@@ -736,16 +728,14 @@ public FwdThinkBall(ent) {
     flLastThink = flGametime + 3.0
   }
       
-  if(iOwner > 0)
-  {
+  if(iOwner > 0) {
     static Float:vOwnerOrigin[3]
     static const Float:vVelocity[3] = { 1.0, 1.0, 0.0 }
     //new name[32]
     entity_get_vector( iOwner, EV_VEC_origin, vOwnerOrigin )
     //get_user_name(g_Owner, name,31)
     
-    if(!is_user_alive(iOwner))
-    {
+    if(!is_user_alive(iOwner)) {
       vOwnerOrigin[ 2 ] += 5.0
                 
       entity_set_int(ent, EV_INT_iuser1, 0)
@@ -757,8 +747,7 @@ public FwdThinkBall(ent) {
       return PLUGIN_CONTINUE
     }
       
-    if(iSolid != SOLID_NOT)
-    {
+    if(iSolid != SOLID_NOT) {
       set_pev(ent, pev_solid, SOLID_NOT)
       set_dhudmessage(255, 255, 255, -1.0, 0.4, 0, 0.75, 3.0, 0.75, 0.75)
       show_dhudmessage(iOwner, "YOU HAVE THE BALL!")
@@ -787,33 +776,35 @@ public FwdThinkBall(ent) {
     
     entity_set_vector(ent, EV_VEC_velocity, vVelocity)
     entity_set_origin(ent, vReturn)
-  } else {
-
-    if(iSolid != SOLID_BBOX )
+  }
+  else {
+    if(iSolid != SOLID_BBOX ) {
       set_pev(ent, pev_solid, SOLID_BBOX)
+    }
     
     remove_beam(iOwner)
     remove_sprite(iOwner)
     static Float:flLastVerticalOrigin
   
-    if(vBallVelocity[2] == 0.0)
-    {
+    if(vBallVelocity[2] == 0.0) {
       static iCounts
       
-      if(flLastVerticalOrigin > vOrigin[2])
-      {
+      // My Guess:
+      // If there is no owner, this checks to see if the ball has changed (moved vertically?)
+      // over 10 times.  If so, reset the ball (update(0)).
+      if(flLastVerticalOrigin > vOrigin[2]) {
         iCounts++
         
-        if( iCounts > 10 && !g_bScored)
-        {
+        if( iCounts > 10 && !g_bScored) {
           iCounts = 0
           UpdateBall(0)
         }
       } else {
         iCounts = 0
         
-        if(PointContents(vOrigin) != CONTENTS_EMPTY && !g_bScored)
-            UpdateBall(0)
+        if(PointContents(vOrigin) != CONTENTS_EMPTY && !g_bScored) {
+          UpdateBall(0)
+        }
       }
       
       flLastVerticalOrigin = vOrigin[2]
@@ -825,7 +816,6 @@ public FwdThinkBall(ent) {
 
 public remove_beam(iOwner)
 {
-  
   //new name[32]
   //get_user_name(g_Owner, name,31)       
         
@@ -837,29 +827,37 @@ public remove_beam(iOwner)
   
   //set_hudmessage(255, 0, 0, 0.66,0.07, 0, 0.75, 0.75, 0.75, 0.75, 3)
   //show_hudmessage(0, "%s had the ball last!", name)
-  //uj_colorchat_print(iOwner, "%s had the ball last!", name)
+  //fg_colorchat_print(iOwner, "%s had the ball last!", name)
 }
-
 
 KickBall(id)
 {
+  // Save kicker and kicking spot
+  g_Owner = id;
+  get_user_origin(id, g_OwnerOrigin)
+
+  // Remove sprites from kicker, and play sound
+  remove_sprite(g_Owner)
+  remove_beam(g_Owner)
+  emit_sound(g_Owner, CHAN_WEAPON, BALL_KICKED[random_num(0,1)], 1.0, ATTN_NORM, 0, PITCH_NORM)
+  
   static Float:vOrigin[3]
   entity_get_vector(gBall, EV_VEC_origin, vOrigin)
-  
-  if(PointContents(vOrigin) != CONTENTS_EMPTY)
-      return PLUGIN_HANDLED
+
+  if(PointContents(vOrigin) != CONTENTS_EMPTY) {
+    return PLUGIN_HANDLED
+  }
 
   new Float:vVelocity[3]
   new num = random_num(500, 900) 
-  velocity_by_aim( id, num, vVelocity)
+  velocity_by_aim(id, num, vVelocity)
       
   set_pev(gBall, pev_solid, SOLID_BBOX)
   entity_set_size(gBall, Float:{ -15.0, -15.0, 0.0 }, Float:{ 15.0, 15.0, 12.0 })
   entity_set_int(gBall, EV_INT_iuser1, 0)
   entity_set_vector(gBall, EV_VEC_velocity, vVelocity)
-  //uj_colorchat_print(id, UJ_COLORCHAT_BLUE, "Kick Velocity: ^x04%i^x01", num)
+  //fg_colorchat_print(id, FG_COLORCHAT_BLUE, "Kick Velocity: ^x04%i^x01", num)
   
-      
   return PLUGIN_CONTINUE
 }
 
@@ -876,15 +874,12 @@ public Goal()
   fdistance = get_distance(Origin, g_OwnerOrigin)
   set_dhudmessage(0, 255, 0, -1.0, 0.54, 0, 6.0, 4.0)
   
-  if(g_Owner != 0)
-  {
+  if(g_Owner != 0) {
     show_dhudmessage(0, "GOAL! %s scored a goal^nfrom %d feet away!", name, floatround( fdistance/modFeet ))
-    uj_colorchat_print(0, UJ_COLORCHAT_BLUE, "^x04%s^x01 scored a goal from^x04 %d^x01 feet away!", name, floatround( fdistance/modFeet ))
+    fg_colorchat_print(0, FG_COLORCHAT_BLUE, "^x04%s^x01 scored a goal from^x04 %d^x01 feet away!", name, floatround( fdistance/modFeet ))
     remove_beam(g_Owner)
     remove_sprite(g_Owner)
-    
   }
-
   
   flameWave(Origin, 0, 0, 255, 4)
   
@@ -893,18 +888,18 @@ public Goal()
   MoveBall(0)
   
   set_task(5.0, "MoveBall", 1)
-  uj_colorchat_print(0, UJ_COLORCHAT_BLUE, "The ball will respawn in 5 seconds.")
+  fg_colorchat_print(0, FG_COLORCHAT_BLUE, "The ball will respawn in 5 seconds.")
 }
    
 public FwdTouchPlayer(Ball, id)
 {
-  if(is_user_bot(id))
+  if(is_user_bot(id)) {
     return PLUGIN_CONTINUE
+  }
   
   static iOwner
   iOwner = pev(Ball, pev_iuser1)
-  if( iOwner == 0 )
-  {
+  if( iOwner == 0 ) {
     entity_set_int(Ball, EV_INT_iuser1, id)
     //uj_effects_reset_max_speed(id);
     //entity_set_float(id, EV_FL_maxspeed, get_pcvar_float(ball_speed))
@@ -918,8 +913,7 @@ public FwdTouchWorld(Ball, World)
   static Float:vVelocity[3]
   entity_get_vector(Ball, EV_VEC_velocity, vVelocity)
   
-  if(floatround(vector_length(vVelocity)) > 8 )
-  {
+  if(floatround(vector_length(vVelocity)) > 8 ) {
     vVelocity[0] *= 0.85
     vVelocity[1] *= 0.85
     vVelocity[2] *= 0.85
@@ -934,6 +928,10 @@ public FwdTouchWorld(Ball, World)
 
 public FwdTouch(ent, id)
 {
+  if(!is_valid_ent(id)) {
+    return;
+  }
+
   static szNameEnt[32], szNameId[32]
   pev(ent, pev_classname, szNameEnt, sizeof szNameEnt - 1)
   pev(id, pev_classname, szNameId, sizeof szNameId - 1)
@@ -941,8 +939,7 @@ public FwdTouch(ent, id)
   static Float:fGameTime
   fGameTime = get_gametime()
   
-  if(equal(szNameEnt, "JailNet") && equal(szNameId, g_szBallName) && (fGameTime - g_fLastTouch) > 0.1)
-  {
+  if(equal(szNameEnt, "JailNet") && equal(szNameId, g_szBallName) && (fGameTime - g_fLastTouch) > 0.1) {
     Goal()
     g_fLastTouch = fGameTime
   }
@@ -950,15 +947,15 @@ public FwdTouch(ent, id)
 
 CreateBall(id, Float:vOrigin[ 3 ] = { 0.0, 0.0, 0.0 })
 {
-  if(!id && vOrigin[0] == 0.0 && vOrigin[1] == 0.0 && vOrigin[2] == 0.0)
-      return 0
+  if(!id && vOrigin[0] == 0.0 && vOrigin[1] == 0.0 && vOrigin[2] == 0.0) {
+    return 0
+  }
   
   g_bNeedBall = true
   
   gBall = create_entity("info_target")
   
-  if(is_valid_ent(gBall))
-  {
+  if(is_valid_ent(gBall)) {
     entity_set_string(gBall, EV_SZ_classname, g_szBallName)
     entity_set_int(gBall, EV_INT_solid, SOLID_BBOX)
     entity_set_int(gBall, EV_INT_movetype, MOVETYPE_BOUNCE)
@@ -978,11 +975,11 @@ CreateBall(id, Float:vOrigin[ 3 ] = { 0.0, 0.0, 0.0 })
       vOrigin[2] += 5.0
       
       entity_set_origin(gBall, vOrigin)
-    } else
+    } else {
       entity_set_origin(gBall, vOrigin)
+    }
     
     g_vOrigin = vOrigin
-    
     return gBall
   }
   
@@ -995,8 +992,7 @@ CreateNet(Float:firstPoint[3], Float:lastPoint[3])
   new Float:fCenter[3], Float:fSize[3]
   new Float:fMins[3], Float:fMaxs[3]
       
-  for ( new i = 0; i < 3; i++ )
-  {
+  for ( new i = 0; i < 3; i++ ) {
     fCenter[i] = (firstPoint[i] + lastPoint[i]) / 2.0
             
     fSize[i] = get_float_difference(firstPoint[i], lastPoint[i])
@@ -1021,15 +1017,12 @@ CreateNet(Float:firstPoint[3], Float:lastPoint[3])
   }
 }
 
-
-
 public sqrt(num)
 {        
   new div = num
   new result = 1
   
-  while (div > result)
-  {
+  while (div > result) {
     div = (div + result) / 2
     result = num / div
   }
@@ -1039,10 +1032,12 @@ public sqrt(num)
 
 stock Float:get_float_difference(Float:num1, Float:num2)
 {
-  if(num1 > num2)
-      return (num1-num2)
-  else if(num2 > num1)
-      return (num2-num1)
+  if(num1 > num2) {
+    return (num1-num2)
+  }
+  else if(num2 > num1) {
+    return (num2-num1)
+  }
   
   return 0.0
 }
@@ -1051,10 +1046,9 @@ public taskShowNet(id)
 {
   id -= 1000
   
-  if(!is_user_connected(id))
-  {
-      remove_task(1000 + id)
-      return
+  if(!is_user_connected(id)) {
+    remove_task(1000 + id)
+    return
   }
   
   new ent
@@ -1062,8 +1056,7 @@ public taskShowNet(id)
   new vMaxs[3], vMins[3]
   new iColor[3] = { 255, 0, 0 }
   
-  while((ent = find_ent_by_class(ent, "JailNet")) > 0)
-  {
+  while((ent = find_ent_by_class(ent, "JailNet")) > 0) {
     pev(ent, pev_mins, fMins)
     pev(ent, pev_maxs, fMaxs)
     pev(ent, pev_origin, fOrigin)
@@ -1149,14 +1142,12 @@ stock fm_draw_line(id, x1, y1, z1, x2, y2, z2, g_iColor[3])
 
 public show_sprite(iOwner, sprite)
 { 
-  if(!is_user_connected(iOwner))
+  if(!is_user_connected(iOwner)) {
     return PLUGIN_CONTINUE;
-
-
+  }
 
   static origin[3]
   get_user_origin(iOwner, origin)
-  
   
   message_begin(MSG_ALL,SVC_TEMPENTITY)
   write_byte(124)
@@ -1165,22 +1156,7 @@ public show_sprite(iOwner, sprite)
   write_short(sprite)
   write_short(4000)
   message_end()
-  
-  
-  /*
-        message_begin(MSG_PVS, SVC_TEMPENTITY, origin)
-  write_byte(TE_SPRITE)
-  write_coord(origin[0])
-  write_coord(origin[1])
-  write_coord(origin[2]+65)
-  write_short(sprite)
-  write_byte(15)
-  write_byte(999)
-  message_end()
-  */
-  
-  
-        
+
   return PLUGIN_CONTINUE
 }
 
@@ -1190,44 +1166,4 @@ public remove_sprite(iOwner)
   write_byte(125)
   write_byte(iOwner)
   message_end()
-  
 }
-
-
-/*
-
-public CurWeapon(id)
-{
-    if(!is_user_alive(id))
-        return PLUGIN_CONTINUE
-    if(is_valid_ent(gBall)) {
-        static iOwner
-        
-        iOwner = pev(gBall, pev_iuser1)
-
-        if(iOwner == id)
-        {
-           entity_set_float(id, EV_FL_maxspeed, get_pcvar_float(ball_speed))
-        }
-        else{
-           entity_set_float(id, EV_FL_maxspeed, get_pcvar_float(ball_speed))
-        }
-    
-    }
-    
-    return PLUGIN_HANDLED
-}
-
-public uj_effects_determine_max_speed(playerID, data[])
-{
-  if (is_valid_ent(gBall)) {
-    static iOwner
-    iOwner = pev(gBall, pev_iuser1);
-    if (iOwner = playerID) {
-      new Float:result = float(data[0]);
-      result = get_pcvar_float(ball_speed);
-      data[0] = floatround(result);
-    }
-  }
-}
-*/

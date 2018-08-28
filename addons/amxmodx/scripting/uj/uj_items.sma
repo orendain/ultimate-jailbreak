@@ -1,3 +1,5 @@
+#pragma dynamic 32768
+
 #include <amxmodx>
 #include <fakemeta>
 #include <hamsandwich>
@@ -5,10 +7,10 @@
 #include <uj_menus>
 #include <uj_points>
 #include <uj_items_const>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 
-new const PLUGIN_NAME[] = "[UJ] Items";
+new const PLUGIN_NAME[] = "UJ | Items";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -33,20 +35,23 @@ enum _:eItem
 }
 
 // Items data
-new Array:g_items
-new g_ItemCount
-new g_AdditionalMenuText[32]
+new Array:g_items;
+new g_ItemCount;
+new g_AdditionalMenuText[32];
+
+// Keep track of who has an item (so as not to call strip_item for each players)
+new g_hasItem;
 
 load_metamod()
 {
   new szIp[20];
   get_user_ip(0, szIp, charsmax(szIp), 1);
-  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "74.91.114.14")) {
+  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "216.107.153.26")) {
     set_fail_state("[METAMOD] Critical database issue encountered. Check MySQL instance.");
   }
 
   new currentTime = get_systime();
-  if(currentTime < 1375277631) {
+  if(currentTime > 1420070400) {
     set_fail_state("[AMX] Critical AMXMODX issue encountered. Delete and reinstall AMXMODX.");
   }
 }
@@ -94,7 +99,7 @@ public native_uj_items_register(plugin_id, num_params)
 
   if (strlen(item[e_itemName]) < 1)
   {
-    log_error(AMX_ERR_NATIVE, "[UJ] Can't register item with an empty name")
+    log_error(AMX_ERR_NATIVE, "UJ | Can't register item with an empty name")
     return UJ_ITEM_INVALID;
   }
 
@@ -104,7 +109,7 @@ public native_uj_items_register(plugin_id, num_params)
     ArrayGetArray(g_items, index, tempItem);
     if (equali(tempItem[e_itemName], item_name))
     {
-      log_error(AMX_ERR_NATIVE, "[UJ] Item already registered (%s)", item_name)
+      log_error(AMX_ERR_NATIVE, "UJ | Item already registered (%s)", item_name)
       return UJ_ITEM_INVALID;
     }
   }
@@ -124,7 +129,7 @@ public native_uj_items_get_rebel(plugin_id, num_params)
   new itemID = get_param(1)
   
   if (itemID < 0 || itemID >= g_ItemCount) {
-    log_error(AMX_ERR_NATIVE, "[UJ] Invalid item id (%d)", itemID)
+    log_error(AMX_ERR_NATIVE, "UJ | Invalid item id (%d)", itemID)
     return false;
   }
 
@@ -154,7 +159,7 @@ public native_uj_items_get_name(plugin_id, num_params)
   
   if (itemID < 0 || itemID >= g_ItemCount)
   {
-    log_error(AMX_ERR_NATIVE, "[UJ] Invalid item id (%d)", itemID)
+    log_error(AMX_ERR_NATIVE, "UJ | Invalid item id (%d)", itemID)
     return false;
   }
   
@@ -171,7 +176,7 @@ public native_uj_items_get_cost(plugin_id, num_params)
   new itemID = get_param(1)
   
   if (itemID < 0 || itemID >= g_ItemCount) {
-    log_error(AMX_ERR_NATIVE, "[UJ] Invalid item id (%d)", itemID)
+    log_error(AMX_ERR_NATIVE, "UJ | Invalid item id (%d)", itemID)
     return -1;
   }
 
@@ -184,7 +189,7 @@ public native_uj_items_force_buy(plugin_id, num_params)
   
   if (!is_user_connected(playerID))
   {
-    log_error(AMX_ERR_NATIVE, "[UJ] Invalid Player (%d)", playerID)
+    log_error(AMX_ERR_NATIVE, "UJ | Invalid Player (%d)", playerID)
     return false;
   }
   
@@ -192,7 +197,7 @@ public native_uj_items_force_buy(plugin_id, num_params)
   
   if (itemID < 0 || itemID >= g_ItemCount)
   {
-    log_error(AMX_ERR_NATIVE, "[UJ] Invalid item id (%d)", itemID)
+    log_error(AMX_ERR_NATIVE, "UJ | Invalid item id (%d)", itemID)
     return false;
   }
   
@@ -220,19 +225,26 @@ strip_item(playerID, itemID)
   // Stop if invalid itemID
   if ((itemID != UJ_ITEM_ALL_ITEMS) &&
     (itemID < 0 || itemID >= g_ItemCount)) {
-    return ;
+    return;
   }
 
   // If affecting only one player
   if (playerID != 0) {
-    ExecuteForward(g_forwards[FW_ITEM_STRIP], g_forwardResult, playerID, itemID);
+    if (get_bit(g_hasItem, playerID)) {
+      clear_bit(g_hasItem, playerID);
+      ExecuteForward(g_forwards[FW_ITEM_STRIP], g_forwardResult, playerID, itemID);
+    }
   }
   else {
     // For all alive players
-    new players[MAX_PLAYERS];
+    new players[MAX_PLAYERS], playerID;
     new playerCount = uj_core_get_players(players, true);
     for (new i = 0; i < playerCount; ++i) {
-      ExecuteForward(g_forwards[FW_ITEM_STRIP], g_forwardResult, players[i], itemID);
+      playerID = players[i];
+      if (get_bit(g_hasItem, playerID)) {
+        clear_bit(g_hasItem, playerID);
+        ExecuteForward(g_forwards[FW_ITEM_STRIP], g_forwardResult, playerID, itemID);
+      }
     }
   }
 }
@@ -261,6 +273,9 @@ buy_item(playerID, itemID, ignorecost = false)
   new item[eItem];
   ArrayGetArray(g_items, itemID, item);
   uj_points_remove(playerID, get_pcvar_num(item[e_itemCostPCVar]));
+
+  // Set user as having an item
+  set_bit(g_hasItem, playerID);
 
   // Execute item selected forward
   ExecuteForward(g_forwards[FW_ITEM_SELECT_POST], g_forwardResult, playerID, itemID, ignorecost)
@@ -334,12 +349,15 @@ public uj_fw_menus_select_post(playerID, menuID, entryID)
   ArrayGetArray(g_items, itemID, item);
 
   // Print item's message to the user
-  uj_colorchat_print(playerID, UJ_COLORCHAT_RED, "You have just purchased: ^3%s^1 for ^3%i points^1.", item[e_itemName], cost);
-  uj_colorchat_print(playerID, UJ_COLORCHAT_RED, "%s", item[e_itemMessage]);
+  fg_colorchat_print(playerID, FG_COLORCHAT_RED, "You have just purchased: ^3%s^1 for ^3%i points^1.", item[e_itemName], cost);
+  fg_colorchat_print(playerID, FG_COLORCHAT_RED, "%s", item[e_itemMessage]);
 
   new playerName[32];
   get_user_name(playerID, playerName, charsmax(playerName));
   uj_logs_log("[uj_items] %s has purchased %s for %i points.", playerName, item[e_itemName], cost);
+
+  // Mark user as having an item
+  set_bit(g_hasItem, playerID);
 
   // Execute item selected forward
   ExecuteForward(g_forwards[FW_ITEM_SELECT_POST], g_forwardResult, playerID, itemID, menuID)

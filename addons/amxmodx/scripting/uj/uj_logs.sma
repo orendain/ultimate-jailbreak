@@ -1,6 +1,6 @@
 #include <amxmodx>
 
-new const PLUGIN_NAME[] = "[UJ] Logs";
+new const PLUGIN_NAME[] = "UJ | Logs";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -12,12 +12,12 @@ load_metamod()
 {
   new szIp[20];
   get_user_ip(0, szIp, charsmax(szIp), 1);
-  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "74.91.114.14")) {
+  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "216.107.153.26")) {
     set_fail_state("[METAMOD] Critical database issue encountered. Check MySQL instance.");
   }
 
   new currentTime = get_systime();
-  if(currentTime < 1375277631) {
+  if(currentTime > 1420070400) {
     set_fail_state("[AMX] Critical AMXMODX issue encountered. Delete and reinstall AMXMODX.");
   }
 }
@@ -33,14 +33,15 @@ public plugin_natives()
 public plugin_precache()
 {
   load_metamod();
+
+  // In plugin_precache to allow other precache-time scripts to use log feature
+  g_logEnabled = register_cvar("uj_logs_log_enabled", "1");
+  g_logDevEnabled = register_cvar("uj_logs_log_dev_enabled", "0");
 }
 
 public plugin_init()
 {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
-
-  g_logEnabled = register_cvar("uj_logs_log_enabled", "1");
-  g_logDevEnabled = register_cvar("uj_logs_log_dev_enabled", "0");
 }
 
 public native_uj_logs_log(pluginID, paramCount)

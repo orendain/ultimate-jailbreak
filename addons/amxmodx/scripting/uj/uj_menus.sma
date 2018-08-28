@@ -1,9 +1,11 @@
+#pragma dynamic 32768
+
 #include <amxmodx>
 #include <fakemeta>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_menus_const>
 
-new const PLUGIN_NAME[] = "[UJ] Menus";
+new const PLUGIN_NAME[] = "UJ | Menus";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -34,12 +36,12 @@ load_metamod()
 {
   new szIp[20];
   get_user_ip(0, szIp, charsmax(szIp), 1);
-  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "74.91.114.14")) {
+  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "216.107.153.26")) {
     set_fail_state("[METAMOD] Critical database issue encountered. Check MySQL instance.");
   }
 
   new currentTime = get_systime();
-  if(currentTime < 1375277631) {
+  if(currentTime > 1420070400) {
     set_fail_state("[AMX] Critical AMXMODX issue encountered. Delete and reinstall AMXMODX.");
   }
 }
@@ -80,7 +82,7 @@ public native_uj_menus_register_menu(pluginID, paramCount)
   
   if (strlen(name) < 1)
   {
-    log_error(AMX_ERR_NATIVE, "[UJ] Can't register menu with an empty name")
+    log_error(AMX_ERR_NATIVE, "UJ | Can't register menu with an empty name")
     return UJ_MENU_INVALID;
   }
   
@@ -90,7 +92,7 @@ public native_uj_menus_register_menu(pluginID, paramCount)
     ArrayGetString(g_MenuName, menuID, other_name, charsmax(other_name))
     if (equali(name, other_name))
     {
-      log_error(AMX_ERR_NATIVE, "[UJ] Menu already registered (%s)", name)
+      log_error(AMX_ERR_NATIVE, "UJ | Menu already registered (%s)", name)
       return UJ_MENU_INVALID;
     }
   }
@@ -109,7 +111,7 @@ public native_uj_menus_register_entry(pluginID, paramCount)
   
   if (strlen(name) < 1)
   {
-    log_error(AMX_ERR_NATIVE, "[UJ] Can't register menu entry with an empty name")
+    log_error(AMX_ERR_NATIVE, "UJ | Can't register menu entry with an empty name")
     return UJ_MENU_INVALID;
   }
 
@@ -119,7 +121,7 @@ public native_uj_menus_register_entry(pluginID, paramCount)
     ArrayGetString(g_entryNames, entryID, other_name, charsmax(other_name))
     if (equali(name, other_name))
     {
-      log_error(AMX_ERR_NATIVE, "[UJ] Menu entry already registered (%s)", name)
+      log_error(AMX_ERR_NATIVE, "UJ | Menu entry already registered (%s)", name)
       return UJ_MENU_INVALID;
     }
   }
@@ -184,13 +186,13 @@ public native_uj_menus_show_menu(pluginID, paramCount)
 
   if (menuID < 0 || menuID >= g_MenuCount)
   {
-    log_error(AMX_ERR_NATIVE, "[UJ] Invalid menu ID")
+    log_error(AMX_ERR_NATIVE, "UJ | Invalid menu ID")
     return UJ_MENU_INVALID;
   }
   
   if (!is_user_connected(playerID))
   {
-    log_error(AMX_ERR_NATIVE, "[UJ] Invalid Player (%d)", playerID)
+    log_error(AMX_ERR_NATIVE, "UJ | Invalid Player (%d)", playerID)
     return false;
   }
   

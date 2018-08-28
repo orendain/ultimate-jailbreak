@@ -7,7 +7,7 @@
 #include <uj_days>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Day - Scoutz N Knivez";
+new const PLUGIN_NAME[] = "UJ | Day - Scoutz N Knivez";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -30,12 +30,6 @@ new g_gravityPCVar;
 new g_customGravityPCVar;
 new g_ammoPCVar;
 
-public plugin_precache()
-{
-  // Register day
-  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
-}
-
 public plugin_init()
 {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
@@ -47,6 +41,9 @@ public plugin_init()
   g_customGravityPCVar = register_cvar("uj_day_scoutznknivez_gravity", GRAVITY_GRAVITY);
   g_ammoPCVar = register_cvar("uj_day_scoutznknivez_ammo", GRAVITY_AMMO_COUNT);
   g_gravityPCVar = get_cvar_pointer("sv_gravity");
+
+  // Register day
+  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
 }
 
 public uj_fw_days_select_pre(playerID, dayID, menuID)
@@ -78,7 +75,7 @@ public uj_fw_days_select_post(playerID, dayID)
 
   if (!g_dayEnabled) {
     start_day();
-  } 
+  }
 }
 
 start_day()

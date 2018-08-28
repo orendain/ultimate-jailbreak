@@ -119,17 +119,15 @@ native uj_gangs_remove_member(playerID, gangID);
 native uj_gangs_remove_member_auth(const authID[], gangID);
 
 /**
- * Return a Trie of all members, and their rank, in a gang
+ * Return a list of all members in a gang
  *
- * Possible ranks include:
- *  - UJ_GANG_RANK_MEMBER
- *  - UJ_GANG_RANK_ADMIN
- *  - UJ_GANG_RANK_LEADER
+ * @param gangID             The gang to look for members of
+ * @param memberAuthIDs[]    The 2D array to store memberAuthIDs in (must pass in array[0] [notice the 0 index])
+ * @param memberCount        The number of memberAuthIDs retrieved (initially a limit to how many members to return)
  *
- * @return        A Trie structure where a player's authID is the key
- *                and the player's rank is the value.
+ * @noreturn
  */
-native uj_gangs_get_membership(gangID);
+native uj_gangs_get_membership(gangID, memberAuthIDs[], &memberCount);
 
 /**
  * Return a list of all members in a gang

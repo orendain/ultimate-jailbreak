@@ -1,12 +1,12 @@
 #include <amxmodx>
 #include <cstrike>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_gangs>
 #include <uj_gang_skill_db>
 #include <uj_logs>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Menu - Gang List";
+new const PLUGIN_NAME[] = "UJ | Menu - Gang List";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 

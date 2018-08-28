@@ -1,13 +1,13 @@
 #include <amxmodx>
 #include <cstrike>
 #include <fun>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_days>
 #include <uj_items>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Menu - Weapons";
+new const PLUGIN_NAME[] = "UJ | Menu - Weapons";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -17,11 +17,11 @@ new const WEAPON_MESSAGE[] = "Weapons locked and loaded!";
 new const WEAPON_COST[] = "0";
 new const WEAPON_REBEL[] = "false";
 
-new const AMMO_COUNT_PRIMARY = 100;
-new const AMMO_COUNT_SECONDARY = 50;
+#define AMMO_COUNT_PRIMARY 100
+#define AMMO_COUNT_SECONDARY 50
 
-new const ADMIN_WEAPON_INDEX = 7;
-new const ADMIN_FLAG = ADMIN_LEVEL_A;
+#define ADMIN_FLAG ADMIN_LEVEL_H
+#define ADMIN_WEAPON_INDEX 7
 
 // Menu variables
 new g_menu
@@ -43,7 +43,7 @@ new const g_weaponNames[][] =
   "SWAT Team (M3, P228)",
   "Israeli Police (MAC10, Deagle)",
   "Kommando (Bullpup, P228)",
-  "Reinforcements (Shield, USP)", // admin only, ADMIN_WEAPON_INDEX = 7;
+  "Reinforcements (Shield, USP)", // donor only, ADMIN_WEAPON_INDEX = 7;
   "Heavy Duty (M249, Elites)",
   "Defender (Galil, Deagle)"
 }

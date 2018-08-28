@@ -1,11 +1,13 @@
 #include <amxmodx>
 #include <cstrike>
-#include <uj_colorchat>
+#include <fg_colorchat>
+#include <uj_core>
 #include <uj_gangs>
 #include <uj_gang_skill_db>
 #include <uj_gang_skills>
+#include <uj_requests>
 
-new const PLUGIN_NAME[] = "[UJ] Gang Skill - Health";
+new const PLUGIN_NAME[] = "UJ | Gang Skill - Health";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -74,7 +76,7 @@ public uj_fw_gang_skills_select_post(playerID, menuID, skillEntryID)
 public uj_fw_core_get_max_health(playerID, dataArray[])
 {
   // Only affect prisoners
-  if (cs_get_user_team(playerID) == CS_TEAM_T) {
+  if (cs_get_user_team(playerID) == CS_TEAM_T && (uj_requests_get_current() == UJ_REQUEST_INVALID)) {
     // Find user's gang and the gang's skill level
     new gangID = uj_gangs_get_gang(playerID);
     new skillLevel = uj_gang_skill_db_get_level(gangID, g_skill);
@@ -84,11 +86,20 @@ public uj_fw_core_get_max_health(playerID, dataArray[])
       new Float:totalHealth = 100.0 + (skillLevel * get_pcvar_float(g_skillPer));
       new Float:currentHealth = float(dataArray[0]);
 
-      //uj_colorchat_print(playerID, playerID, "data[0]_int = %i, data[0]_float = %f, currentHealth = %f", dataArray[0], float(dataArray[0]), currentHealth);
+      //fg_colorchat_print(playerID, playerID, "data[0]_int = %i, data[0]_float = %f, currentHealth = %f", dataArray[0], float(dataArray[0]), currentHealth);
 
       if (currentHealth < totalHealth) {
         dataArray[0] = floatround(totalHealth);
       }
     }
   }
+}
+
+// When an LR event is selected, remove gang skill
+public uj_fw_requests_select_post(playerID, targetID, requestID)
+{
+  // Re-traverse through modules implementing uj_fw_core_get_max_health().
+  // Ours will be skipped due to the uj_requests_get_current() check.
+  new health;
+  uj_core_determine_max_health(playerID, health);
 }

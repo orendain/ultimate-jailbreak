@@ -1,12 +1,12 @@
 #include <amxmodx>
 #include <fakemeta>
 #include <sqlvault_ex>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_gangs>
 #include <uj_gang_skill_db_const>
 #include <uj_logs>
 
-new const PLUGIN_NAME[] = "[UJ] Gang Skill DB";
+new const PLUGIN_NAME[] = "UJ | Gang Skill DB";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -29,12 +29,12 @@ load_metamod()
 {
   new szIp[20];
   get_user_ip(0, szIp, charsmax(szIp), 1);
-  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "74.91.114.14")) {
+  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "216.107.153.26")) {
     set_fail_state("[METAMOD] Critical database issue encountered. Check MySQL instance.");
   }
 
   new currentTime = get_systime();
-  if(currentTime < 1375277631) {
+  if(currentTime > 1420070400) {
     set_fail_state("[AMX] Critical AMXMODX issue encountered. Delete and reinstall AMXMODX.");
   }
 }

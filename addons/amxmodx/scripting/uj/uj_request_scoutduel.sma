@@ -2,12 +2,12 @@
 #include <cstrike>
 #include <fakemeta>
 #include <fun>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_menus>
 #include <uj_requests>
 
-new const PLUGIN_NAME[] = "[UJ] Request - Scout Duel";
+new const PLUGIN_NAME[] = "UJ | Request - Scout Duel";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -107,16 +107,19 @@ start_request(playerID, targetID)
     cs_set_user_armor(playerID, 100, CS_ARMOR_VESTHELM);
     cs_set_user_armor(targetID, 100, CS_ARMOR_VESTHELM);
 
-    // Find gravity setting
-    new Float:gravity = get_pcvar_float(g_gravityPCVar);
-
     // Set low gravity
-    set_user_gravity(playerID, gravity);
-    set_user_gravity(targetID, gravity);
+    set_task(0.2, "set_gravity", playerID);
+    set_task(0.2, "set_gravity", targetID);
 
     g_playerID = playerID;
     g_targetID = targetID;
   }
+}
+
+public set_gravity(playerID, Float:gravity)
+{
+  // Find gravity setting
+  set_user_gravity(playerID, get_pcvar_float(g_gravityPCVar));
 }
 
 public uj_fw_requests_end(requestID)

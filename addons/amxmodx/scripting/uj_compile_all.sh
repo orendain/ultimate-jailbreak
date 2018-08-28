@@ -8,11 +8,12 @@ declare -a scripts=(
 # Dependencies
 "cs_player_models_api"
 "cs_weap_models_api"
-"colorchat"
+#"colorchat"
 
 # Core
 "uj_base"
-"uj_colorchat"
+"uj_cells"
+#"uj_colorchat"
 "uj_core"
 "uj_effects"
 "uj_freedays"
@@ -20,6 +21,7 @@ declare -a scripts=(
 "uj_chargers"
 "uj_logs"
 "uj_guardban"
+"uj_player_stats"
 
 # Days
 "uj_days"
@@ -37,6 +39,8 @@ declare -a scripts=(
 "uj_day_survival"
 "uj_day_swat"
 "uj_day_timebombs"
+"uj_day_nadewar"
+"uj_day_oneinthechamber"
 
 # Requests
 "uj_requests"
@@ -46,6 +50,10 @@ declare -a scripts=(
 "uj_request_shotgunduel"
 "uj_request_spraycontest"
 "uj_request_boxingduel"
+"uj_request_kamikaze"
+"uj_request_guntoss"
+"uj_request_rambo"
+"uj_request_assassin"
 
 # Gang Core
 "uj_gangs"
@@ -59,7 +67,7 @@ declare -a scripts=(
 "uj_gang_skill_disarm"
 "uj_gang_skill_speed"
 
-# Gagng Menu
+# Gang Menu
 "uj_menu_gang_create"
 "uj_menu_gang_list"
 "uj_menu_gang_invite"
@@ -68,6 +76,7 @@ declare -a scripts=(
 "uj_menu_gang_skill_upgrade"
 "uj_menu_gang_manage"
 "uj_menu_gang_manage_disband"
+"uj_menu_gang_manage_kick"
 
 # Points
 "uj_points"
@@ -86,7 +95,8 @@ declare -a scripts=(
 "uj_menu_main"
 "uj_menu_shop"
 "uj_menu_special"
-"uj_menu_weapons"
+#"uj_menu_weapons"
+"uj_menu_weapons_v2"
 
 # Menu Entries
 "uj_menu_celldoors"
@@ -109,6 +119,7 @@ declare -a scripts=(
 "uj_item_bazooka"
 "uj_item_emp"
 "uj_item_cutpower"
+"uj_item_kamikaze"
 
 # Guardban
 "uj_guardban_admin"
@@ -116,6 +127,10 @@ declare -a scripts=(
 # Fun
 "uj_fun_blackjack"
 "uj_fun_hats"
+"uj_fun_pointraffle"
+
+# Activities
+"uj_activity_push"
 
 # HUD
 "uj_hud_overview"
@@ -123,11 +138,12 @@ declare -a scripts=(
 
 # Misc
 #"uj_misc_autojoin"
-"uj_misc_vips"
+#"uj_misc_vips"
 "uj_misc_soccer"
 "uj_misc_voicemanager"
 "uj_misc_control"
 #"uj_misc_control_2"
+"uj_misc_fists"
 
 # Maps
 "uj_map_apocalypse_1"
@@ -137,6 +153,7 @@ declare -a scripts=(
 # Fixes and Updates
 #"uj_gang_skill_db_update_1"
 #"uj_gangs_fix_1"
+"uj_gangs_fix_2"
 #"uj_points_update_1"
 
 # Tools
@@ -149,8 +166,9 @@ do
   ./amxxpc $SMA_DIR$script$SMA_EXT
 done
 
-# Move all scripts to plugin folder
+# Move all scripts to plugin folder AND jailbreak folder
 for script in ${scripts[@]}
 do
-  mv -f $script$AMXX_EXT /home/steamcmd/steamcmd/cstrike/cstrike/addons/amxmodx/plugins/
+  cp $script$AMXX_EXT /home/steamcmd/steamcmd/cstrike/cstrike/addons/amxmodx/plugins/
+  mv -f $script$AMXX_EXT /home/edgar/Projects/factorialgaming/jailbreak/addons/amxmodx/plugins/
 done

@@ -34,6 +34,13 @@ native uj_requests_register(const name[], const objective[]);
 native uj_requests_get_id(const name[]);
 
 /**
+ * Returns the playerID of the current requester.
+ *
+ * @return        A playerID, or 0 if none.
+ */
+native uj_requests_get_player();
+
+/**
  * Starts a request.
  *
  * @param playerID      The player who is starting the request
@@ -43,6 +50,12 @@ native uj_requests_get_id(const name[]);
  * @noreturn
  */
 native uj_requests_start(playerID, targetID, requestID);
+
+/**
+ * Tells the uj_requests module to not interfere for the rest of the day.
+ * This will disable glowing request participants and auto-ending requests.
+ */
+native uj_requests_set_endless();
 
 /**
  * Returns the request that is currently in progress.

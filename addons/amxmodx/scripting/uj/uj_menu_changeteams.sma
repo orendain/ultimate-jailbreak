@@ -1,11 +1,11 @@
 #include <amxmodx>
 #include <cstrike>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_menus>
 #include <uj_playermenu>
 
-new const PLUGIN_NAME[] = "[UJ] Menu - Change Teams";
+new const PLUGIN_NAME[] = "UJ | Menu - Change Teams";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -74,7 +74,7 @@ public uj_fw_playermenu_team_select(pluginID, playerID, teamID)
         engclient_cmd(playerID, "jointeam", "2");
       }
       else {
-        uj_colorchat_print(playerID, UJ_COLORCHAT_BLUE, "Sorry, there are already enough ^3Guards^1!");
+        fg_colorchat_print(playerID, FG_COLORCHAT_BLUE, "Sorry, there are already enough ^3Guards^1!");
       }
     case CS_TEAM_SPECTATOR: {
       user_kill(playerID);

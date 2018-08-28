@@ -4,8 +4,9 @@
 #include <uj_gangs>
 #include <uj_gang_skill_db>
 #include <uj_gang_skills>
+#include <uj_requests>
 
-new const PLUGIN_NAME[] = "[UJ] Gang Skill - Disarm";
+new const PLUGIN_NAME[] = "UJ | Gang Skill - Disarm";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -39,7 +40,8 @@ public uj_fw_core_get_damage_taken(victimID, inflictorID, attackerID, float:orig
   if ((1<=attackerID<=32) &&
       (cs_get_user_team(attackerID) == CS_TEAM_T) &&
       (cs_get_user_team(victimID) == CS_TEAM_CT) &&
-      (get_user_weapon(attackerID) == CSW_KNIFE)) {
+      (get_user_weapon(attackerID) == CSW_KNIFE) &&
+      (uj_requests_get_current() == UJ_REQUEST_INVALID)) {
     new gangID = uj_gangs_get_gang(attackerID);
     new skillLevel = uj_gang_skill_db_get_level(gangID, g_skill);
     if (skillLevel) {

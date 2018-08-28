@@ -46,6 +46,19 @@ native uj_effects_glow_player(playerID, red, green, blue, size);
 native uj_effects_glow_reset(playerID);
 
 /**
+ * Glow a player with the parameters specified.
+ *
+ * @param playerID  Player index
+ * @param red       Redness of the fade (0-255)
+ * @param green     Greeness of the fade (0-255)
+ * @param blue      Blueness of the fade (0-255)
+ * @param alpha     Transparency (0 = invisible, 255 = visible)
+ *
+ * @noreturn
+ */
+native uj_effects_screen_fade(playerID, red, green, blue, alpha);
+
+/**
  * Set a player's visibility.
  *
  * @param playerID        Player index

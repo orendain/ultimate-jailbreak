@@ -3,19 +3,21 @@
 #include <engine>
 #include <fakemeta>
 #include <fun>
+#include <hamsandwich>
+#include <uj_cells>
 #include <uj_core>
 #include <uj_days>
 #include <uj_items>
 #include <uj_menus>
 #include <uj_requests>
-#include <uj_colorchat>
+#include <fg_colorchat>
 
-new const PLUGIN_NAME[] = "[UJ] Base";
+new const PLUGIN_NAME[] = "UJ | Base";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
 // Menus
-new g_menuWeapons;
+//new g_menuWeapons;
 new g_menuLastRequest;
 
 // Days
@@ -42,22 +44,29 @@ public plugin_init()
   g_roundTime = get_cvar_pointer("mp_roundtime");
 
   // Menus
-  g_menuWeapons = uj_menus_get_menu_id("Weapons");
+  //g_menuWeapons = uj_menus_get_menu_id("Weapons");
   g_menuLastRequest = uj_menus_get_menu_id("Last Request");
 
   // Days
   g_dayFreeday = uj_days_get_id("Freeday");
   g_dayRatioFreeday = uj_days_get_id("Ratio Freeday");
+
+  // New round
+  register_event("HLTV", "event_new_round", "a", "1=0", "2=0");
+  // Player spawn
+  RegisterHam(Ham_Spawn, "player", "fwHamPlayerSpawnPost", 1);
+  // Round end
+  register_logevent("LogeventRoundEnd",   2, "1=Round_End");
 }
 
-public uj_fw_core_round_new()
+public event_new_round()
 {
   // Find round time
   new Float:roundTime = get_pcvar_float(g_roundTime);
   g_cellDoorsOpened = false;
 
   if (is_ratio_off()) {
-    uj_colorchat_print(0, UJ_COLORCHAT_RED, "^3Ratio Warning!^1 Guards have^4 30 seconds^1 to fix ratio before a Ratio Freeday begins!");
+    fg_colorchat_print(0, FG_COLORCHAT_RED, "^3Ratio Warning!^1 Guards have^4 30 seconds^1 to fix ratio before a Ratio Freeday begins!");
     set_task(30.0, "declare_ratio_freeday");
   }
   else {
@@ -72,67 +81,70 @@ public uj_fw_core_round_new()
   set_task((roundTime*60.0), "declare_roundend_freeday", Task_RoundEndFreeday);
 }
 
-public uj_fw_core_player_spawn(playerID)
+public fwHamPlayerSpawnPost(playerID)
 {
-  // Reset
-  uj_core_strip_weapons(playerID);
+  if(is_user_alive(playerID)) {
+    // Reset
+    uj_core_strip_weapons(playerID);
 
-  // Gun menu
-  if (cs_get_user_team(playerID) == CS_TEAM_CT) {
-    uj_menus_show_menu(playerID, g_menuWeapons);
+    // Gun menu
+    //if (cs_get_user_team(playerID) == CS_TEAM_CT) {
+    //  uj_menus_show_menu(playerID, g_menuWeapons);
+    //}
+
+    // On player spawn, determine a player's max health and set that health
+    new health;
+    uj_core_determine_max_health(playerID, health);
+    set_pev(playerID, pev_health, float(health));
   }
-
-  // On player spawn, determine a player's max health and set that health
-  // uj_core_determine_max_health already sets health.
-  new health;
-  uj_core_determine_max_health(playerID, health);
-  set_pev(playerID, pev_health, float(health));
 }
 
-public uj_fw_core_round_start()
-{
-  //
-}
-
-public uj_fw_core_round_end()
+public LogeventRoundEnd()
 {
   // End current day
   uj_days_end();
 
-  // Strip all users of all items
-  uj_items_strip_item(0, UJ_ITEM_ALL_ITEMS);
-
   // Remove tasks
   remove_task(Task_InactivityFreeday);
   remove_task(Task_RoundEndFreeday);
+
+  // Strip all users of all items
+  //uj_items_strip_item(0, UJ_ITEM_ALL_ITEMS);
 }
 
-public uj_fw_core_cell_doors_opened(activatorID)
+public uj_fw_cells_doors_opened(activatorID)
 {
   // Cell doors were opened, cancel freeday timer
   remove_task(Task_InactivityFreeday);
 
-  if (!g_cellDoorsOpened && (1 <= activatorID <= 32)) {
-    new playerName[32];
-    get_user_name(activatorID, playerName, charsmax(playerName));
+  if (!g_cellDoorsOpened) {
 
-    switch (cs_get_user_team(activatorID))
-    {
-      case CS_TEAM_T: {
-        uj_colorchat_print(0, UJ_COLORCHAT_RED, "A prisoner, ^3%s^1, has opened the cell doors! RUN FOR IT!", playerName);
-      }
-      case CS_TEAM_CT: {
-        uj_colorchat_print(0, UJ_COLORCHAT_BLUE, "A guard, ^3%s^1, has opened the cell doors! Time to plot out an escape!", playerName);
+    g_cellDoorsOpened = true;
+
+    if (1 <= activatorID <= 32) {
+      new playerName[32];
+      get_user_name(activatorID, playerName, charsmax(playerName));
+
+      switch (cs_get_user_team(activatorID))
+      {
+        case CS_TEAM_T: {
+          //uj_days_start(activatorID, g_dayFreeday);
+          fg_colorchat_print(0, FG_COLORCHAT_RED, "A prisoner, ^3%s^1, has opened the cell doors! RUN FOR IT!", playerName);
+        }
+        case CS_TEAM_CT: {
+          fg_colorchat_print(0, FG_COLORCHAT_BLUE, "A guard, ^3%s^1, has opened the cell doors! Time to plot out an escape!", playerName);
+        }
       }
     }
   }
-  g_cellDoorsOpened = true;
 }
 
 public uj_fw_requests_reached(playerID)
 {
-  // End any current day and display the LR menu
+  // End any current day
   uj_days_end();
+
+  // Show LR menu
   uj_menus_show_menu(playerID, g_menuLastRequest);
 }
 
@@ -155,16 +167,19 @@ public declare_ratio_freeday()
 
 public declare_inactivity_freeday()
 {
-  uj_colorchat_print(0, UJ_COLORCHAT_RED, "Cells were not opened before^4 8:00^1. It's now a ^3Freeday^1!");
+  fg_colorchat_print(0, FG_COLORCHAT_RED, "Cells were not opened before^4 8:00^1. It's now a ^3Freeday^1!");
   uj_days_start(0, g_dayFreeday);
 }
 
 public declare_roundend_freeday()
 {
   // If an LR is not in effect, make today a freeday
+  //new prisonerCount = uj_core_get_prisoner_count();
+
   if (uj_requests_get_current() == UJ_REQUEST_INVALID) {
+  //if (prisonerCount > 1) {
     uj_days_end();
-    uj_colorchat_print(0, UJ_COLORCHAT_RED, "Round time is up! It's now a ^4Freeday^1!");
+    fg_colorchat_print(0, FG_COLORCHAT_RED, "Round time is up! It's now a ^4Freeday^1!");
     uj_days_start(0, g_dayFreeday);
   }
 }

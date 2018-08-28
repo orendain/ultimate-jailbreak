@@ -8,9 +8,9 @@
 #include <uj_gangs>
 #include <uj_gang_skill_db>
 #include <uj_gang_skills>
-#include <uj_colorchat>
+#include <fg_colorchat>
 
-new const PLUGIN_NAME[] = "[UJ] Gang Skill Menus";
+new const PLUGIN_NAME[] = "UJ | Gang Skill Menus";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -43,12 +43,12 @@ load_metamod()
 {
   new szIp[20];
   get_user_ip(0, szIp, charsmax(szIp), 1);
-  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "74.91.114.14")) {
+  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "216.107.153.26")) {
     set_fail_state("[METAMOD] Critical database issue encountered. Check MySQL instance.");
   }
 
   new currentTime = get_systime();
-  if(currentTime < 1375277631) {
+  if(currentTime > 1420070400) {
     set_fail_state("[AMX] Critical AMXMODX issue encountered. Delete and reinstall AMXMODX.");
   }
 }
@@ -124,14 +124,14 @@ public native_uj_gang_s_a_upgrade(pluginID, paramCount)
   uj_gang_skill_db_get_name(skillID, skillName, charsmax(skillName));
   uj_gangs_get_name(gangID, gangName, charsmax(gangName));
 
-  uj_colorchat_print(0, playerID, "^3%s^1 has just upgraded ^4%s^1 (^4Level %i^1) for ^3%s^1!", playerName, skillName, skillLevel, gangName);
+  fg_colorchat_print(0, playerID, "^3%s^1 has just upgraded ^4%s^1 (^4Level %i^1) for ^3%s^1!", playerName, skillName, skillLevel, gangName);
   uj_logs_log("[uj_gang_skills] %s has upgraded %s (Level %i) for the gang %s.", playerName, skillName, skillLevel, gangName);
 
   /*// Find all gang members and announce
   new members[32];
   new memberCount = uj_gangs_get_online_members(gangID, members, sizeof(members));
   for (new i = 0; i < memberCount; ++i) {
-    uj_colorchat_print(members[i], playerID, "^3%s^1 has just upgraded the gang's ^4%s^1 to ^4level %i^1!", playerName, skillName, skillLevel);
+    fg_colorchat_print(members[i], playerID, "^3%s^1 has just upgraded the gang's ^4%s^1 to ^4level %i^1!", playerName, skillName, skillLevel);
   }*/
 }
 
@@ -168,13 +168,13 @@ public native_uj_gang_skills_upgrade(pluginID, paramCount)
   new currentLevel = uj_gang_skill_db_get_level(gangID, skillID);
   new maxLevel = get_pcvar_num(maxLevelPCVar);
   if (currentLevel >= maxLevel) {
-    uj_colorchat_print(playerID, playerID, "That skill is already maxed out!");
+    fg_colorchat_print(playerID, playerID, "That skill is already maxed out!");
     return PLUGIN_HANDLED;
   }
 
   new cost = get_pcvar_num(costPCVar);
   if (cost > uj_points_get(playerID)) {
-    uj_colorchat_print(playerID, playerID, "Hah!  You can't afford that, yet!");
+    fg_colorchat_print(playerID, playerID, "Hah!  You can't afford that, yet!");
     return PLUGIN_HANDLED;
   }
 
@@ -191,7 +191,7 @@ public native_uj_gang_skills_upgrade(pluginID, paramCount)
   new players[32];
   new playerCount = uj_gangs_get_online_members(gangID, players);
   for (new i = 0; i < playerCount; ++i) {
-    uj_colorchat_print(players[i], playerID, "%s has just upgraded the gang's %s!", playerName, skillName);
+    fg_colorchat_print(players[i], playerID, "%s has just upgraded the gang's %s!", playerName, skillName);
   }
 
   return PLUGIN_HANDLED;
@@ -218,7 +218,7 @@ public native_uj_gang_skills_downgrade(pluginID, paramCount)
   new players[32];
   new playerCount = uj_gangs_get_online_members(gangID, players);
   for (new i = 0; i < playerCount; ++i) {
-    uj_colorchat_print(players[i], playerID, "%s has just downgraded the gang's %s!", playerName, skillName);
+    fg_colorchat_print(players[i], playerID, "%s has just downgraded the gang's %s!", playerName, skillName);
   }
 
   return PLUGIN_HANDLED;

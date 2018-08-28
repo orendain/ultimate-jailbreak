@@ -1,6 +1,6 @@
 #include <amxmodx>
 #include <cstrike>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_gangs>
 #include <uj_logs>
@@ -8,7 +8,7 @@
 #include <uj_playermenu>
 #include <uj_points>
 
-new const PLUGIN_NAME[] = "[UJ] Menu - Gang Invite";
+new const PLUGIN_NAME[] = "UJ | Menu - Gang Invite";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -120,7 +120,7 @@ public uj_fw_playermenu_player_select(pluginID, playerID, targetID)
 
   // Player selected him/herself (stop name from even displaying?)
   if  (targetID == playerID) {
-    uj_colorchat_print(targetID, playerID, "Inviting yourself to your own gang?  ^3Like a BOSS!");
+    fg_colorchat_print(targetID, playerID, "Inviting yourself to your own gang?  ^3Like a BOSS!");
     return;
   }
 
@@ -132,40 +132,42 @@ public uj_fw_playermenu_player_select(pluginID, playerID, targetID)
   g_gangInvites[targetID] = uj_gangs_get_gang(playerID);
 
   // Display invite message
-  new playerName[32], gangName[32];
+  new playerName[32], targetName[32], gangName[32];
   get_user_name(playerID, playerName, charsmax(playerName));
+  get_user_name(playerID, targetName, charsmax(targetName));
   uj_gangs_get_name(g_gangInvites[targetID], gangName, charsmax(gangName));
-  uj_colorchat_print(targetID, playerID, "^3%s^1 invites you to join the gang: ^3%s^1.  ^4Say /acceptGang^1 to accept!", playerName, gangName);
+  fg_colorchat_print(playerID, playerID, "Your invite has been sent!  Have ^3%s^1 say ^4/acceptGang^1 to join your ranks!", targetName);
+  fg_colorchat_print(targetID, playerID, "^3%s^1 invites you to join the gang: ^3%s^1.  ^4Say /acceptGang^1 to accept!", playerName, gangName);
   uj_logs_log("[uj_menu_gang_invite] %s invited a player to join %s", playerName, gangName);
 }
 
 public accept_gang_invitation(playerID)
 {
   if (cs_get_user_team(playerID) != CS_TEAM_T) {
-    uj_colorchat_print(playerID, playerID, "Wha?! Guards can't join gangs, man!");
+    fg_colorchat_print(playerID, playerID, "Wha?! Guards can't join gangs, man!");
     return PLUGIN_HANDLED;
   }
   
   new gangID = g_gangInvites[playerID];
   if (gangID < 0) {
-    uj_colorchat_print(playerID, playerID, "Pfft, you don't have an invite, homie!");
+    fg_colorchat_print(playerID, playerID, "Pfft, you don't have an invite, homie!");
     return PLUGIN_HANDLED;
   }
 
   if (uj_gangs_get_gang(playerID) != UJ_GANG_INVALID) {
-    uj_colorchat_print(playerID, playerID, "You're already in a gang!  Leave your current one first!");
+    fg_colorchat_print(playerID, playerID, "You're already in a gang!  Leave your current one first!");
     return PLUGIN_HANDLED;
   }
 
   new gangName[32];
   uj_gangs_add_member(playerID, gangID);
   uj_gangs_get_name(gangID, gangName, charsmax(gangName));
-  uj_colorchat_print(playerID, playerID, "Gang joined!  Welcome to ^3%s^1, ese!", gangName);
+  fg_colorchat_print(playerID, playerID, "Gang joined!  Welcome to ^3%s^1, ese!", gangName);
 
   // Announce to all users
   new playerName[32];
   get_user_name(playerID, playerName, charsmax(playerName));
-  uj_colorchat_print(0, playerID, "Yo, vato locos! ^3%s^1 has just joined ^3%s^1!", playerName, gangName);
+  fg_colorchat_print(0, playerID, "Yo, vato locos! ^3%s^1 has just joined ^3%s^1!", playerName, gangName);
   uj_logs_log("[uj_menu_gang_invite] %s has joined gang %s", playerName, gangName);
   
   return PLUGIN_HANDLED;

@@ -1,7 +1,7 @@
 #include <amxmodx>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Menu Entry - VIP Guide";
+new const PLUGIN_NAME[] = "UJ | Menu Entry - VIP Guide";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 

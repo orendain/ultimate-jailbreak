@@ -4,12 +4,12 @@
 #include <fakemeta>
 #include <fun>
 #include <hamsandwich>
-#include <cs_player_models_api>
-#include <cs_weap_models_api>
-#include <uj_colorchat>
+//#include <cs_player_models_api>
+//#include <cs_weap_models_api>
+#include <fg_colorchat>
 #include <uj_core_const>
 
-new const PLUGIN_NAME[] = "[UJ] Core";
+new const PLUGIN_NAME[] = "UJ | Core";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -23,7 +23,6 @@ enum _:TOTAL_FORWARDS
   FW_CORE_ROUND_END,
   FW_CORE_MAX_HEALTH,
   FW_CORE_DAMAGE_TAKEN,
-  FW_CORE_CELLS_OPENED
 };
 new g_forwards[TOTAL_FORWARDS];
 new g_forwardResult;
@@ -33,21 +32,28 @@ new bool:g_weaponPickupBlocked;
 new g_hasPickupBlocked;
 
 // For uj_core_set_friendly_fire()
-new g_friendlyFire;
+#define TEAM_T 1
+#define TEAM_CT 2
+#define XO_PLAYER    5
+#define m_iTeam    114
+#define cs_get_user_team_index(%1)        get_pdata_int(%1, m_iTeam, XO_PLAYER)
+#define cs_set_user_team_index(%1,%2)    set_pdata_int(%1, m_iTeam, %2, XO_PLAYER)
 
-// For uj_core_open_cells()
-new g_buttons[10];
+new g_friendlyFire;
+new g_iVictimTeam;
+new HamHook:g_iHhTakeDamagePost;
+new maxPlayers;
 
 load_metamod()
 {
   new szIp[20];
   get_user_ip(0, szIp, charsmax(szIp), 1);
-  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "74.91.114.14")) {
+  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "216.107.153.26")) {
     set_fail_state("[METAMOD] Critical database issue encountered. Check MySQL instance.");
   }
 
   new currentTime = get_systime();
-  if(currentTime < 1375277631) {
+  if(currentTime > 1420070400) {
     set_fail_state("[AMX] Critical AMXMODX issue encountered. Delete and reinstall AMXMODX.");
   }
 }
@@ -60,7 +66,6 @@ public plugin_precache()
 public plugin_natives()
 {
   register_library("uj_core")
-  register_native("uj_core_open_cell_doors", "native_uj_core_open_cell_doors");
   register_native("uj_core_block_weapon_pickup", "native_uj_core_block_w_pickup");
   register_native("uj_core_get_weapon_pickup", "native_uj_core_get_w_pickup");
   register_native("uj_core_set_friendly_fire", "native_uj_core_set_friend_fire");
@@ -77,7 +82,7 @@ public plugin_init()
 {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
 
-  // New round
+  /*// New round
   register_event("HLTV", "event_new_round", "a", "1=0", "2=0");
   // Player spawn
   RegisterHam(Ham_Spawn, "player", "fwHamPlayerSpawnPost", 1);
@@ -85,6 +90,7 @@ public plugin_init()
   register_logevent("LogeventRoundStart", 2, "1=Round_Start");  
   // Round end
   register_logevent("LogeventRoundEnd",   2, "1=Round_End");
+  */
 
   // For blocking pickups
   RegisterHam(Ham_Touch, "armoury_entity", "FwdWeaponTouchPre", 0);
@@ -92,8 +98,12 @@ public plugin_init()
   RegisterHam(Ham_Touch, "weapon_shield", "FwdWeaponTouchPre", 0);
   //RegisterHam(Ham_AddPlayerItem, "player", "FwdAddPlayerItemPre", 0);
 
-  // Damage taken
+  // Damage taken (also used to control friendly fire)
   RegisterHam(Ham_TakeDamage, "player", "TakeDamage"); // add ", 1" for post
+  g_iHhTakeDamagePost = RegisterHam(Ham_TakeDamage, "player", "TakeDamagePost", 1);
+  DisableHamForward(g_iHhTakeDamagePost);
+
+  maxPlayers = get_maxplayers();
 
   // Forwards
   g_forwards[FW_CORE_ROUND_NEW] = CreateMultiForward("uj_fw_core_round_new", ET_IGNORE);
@@ -102,30 +112,15 @@ public plugin_init()
   g_forwards[FW_CORE_ROUND_END] = CreateMultiForward("uj_fw_core_round_end", ET_IGNORE);
   g_forwards[FW_CORE_MAX_HEALTH] = CreateMultiForward("uj_fw_core_get_max_health", ET_IGNORE, FP_CELL, FP_ARRAY);
   g_forwards[FW_CORE_DAMAGE_TAKEN] = CreateMultiForward("uj_fw_core_get_damage_taken", ET_IGNORE, FP_CELL, FP_CELL, FP_CELL, FP_CELL, FP_CELL, FP_ARRAY);
-  g_forwards[FW_CORE_CELLS_OPENED] = CreateMultiForward("uj_fw_core_cell_doors_opened", ET_IGNORE, FP_CELL);
 
   // CVars
   g_friendlyFire = get_cvar_pointer("mp_friendlyfire");
-
-  // Setup for uj_core_open_cell_doors
-  setup_open_cell_doors_buttons();
 }
 
 
 /*
  * Natives
  */
-public native_uj_core_open_cell_doors(pluginID, paramCount)
-{
-  new playerID = get_param(1);
-  for(new i = 0; i < sizeof(g_buttons); i++) {
-    if(g_buttons[i]) {
-      ExecuteHamB(Ham_Use, g_buttons[i], playerID, playerID, 1, 1.0);
-      entity_set_float(g_buttons[i], EV_FL_frame, 0.0);
-    }
-  }
-}
-
 public native_uj_core_block_w_pickup(pluginID, paramCount)
 {
   new playerID = get_param(1);
@@ -165,12 +160,17 @@ public native_uj_core_set_friend_fire(pluginID, paramCount)
 public native_uj_core_strip_weapons(pluginID, paramCount)
 {
   new playerID = get_param(1);
-  new bool:give_knife = (get_param(2) ? true : false);
 
+  if (!is_user_alive(playerID)) {
+    return;
+  }
+
+  new bool:give_knife = (get_param(2) ? true : false);
   strip_user_weapons(playerID);
   
-  if(give_knife)
+  if(give_knife) {
     give_item(playerID, "weapon_knife");
+  }
     
   set_pdata_int(playerID, OFFSET_PRIMARYWEAPON, 0);
 }
@@ -187,7 +187,7 @@ public native_uj_core_d_max_health(pluginID, paramCount)
   new Float:health = float(data[0]);
   set_pev(playerID, pev_max_health, health);
   set_param_byref(2, data[0]);
-  //uj_colorchat_print(playerID, playerID, "CORE - data[0]_int = %i, data[0]_float = %f, currentHealth = %f", data[0], float(data[0]), health);
+  //fg_colorchat_print(playerID, playerID, "CORE - data[0]_int = %i, data[0]_float = %f, currentHealth = %f", data[0], float(data[0]), health);
   //return data[0];
 }
 
@@ -208,7 +208,7 @@ public native_uj_core_get_players(pluginID, paramCount)
 fixed_get_players(players[], bool:aliveOnly=false, CsTeams:CSTeam)
 {
   new playerCount = 0;
-  new maxPlayers = get_maxplayers();
+  
   for (new id = 1; id <= maxPlayers; ++id) {
     if (is_user_connected(id)) {
       if (!aliveOnly || is_user_alive(id)) {
@@ -222,38 +222,43 @@ fixed_get_players(players[], bool:aliveOnly=false, CsTeams:CSTeam)
   return playerCount;
 }
 
+fixed_get_player_count(bool:aliveOnly=false, CsTeams:CSTeam)
+{
+  new playerCount = 0;
+  for (new id = 1; id <= maxPlayers; ++id) {
+    if (is_user_connected(id) && (!aliveOnly || is_user_alive(id))) {
+      if (CSTeam == CS_TEAM_UNASSIGNED || cs_get_user_team(id) == CSTeam) {
+        ++playerCount;
+      }
+    }
+  }
+  return playerCount;
+}
+
 public native_uj_core_get_p_count()
 {
-  new players[32];
-  new playerCount = fixed_get_players(players, false, CS_TEAM_T);
-  return playerCount;
+  return fixed_get_player_count(false, CS_TEAM_T);
 }
 
 public native_uj_core_get_l_p_count()
 {
-  new players[32];
-  new playerCount = fixed_get_players(players, true, CS_TEAM_T);
-  return playerCount;
+  return fixed_get_player_count(true, CS_TEAM_T);
 }
 
 public native_uj_core_get_g_count()
 {
-  new players[32];
-  new playerCount = fixed_get_players(players, false, CS_TEAM_CT);
-  return playerCount;
+  return fixed_get_player_count(false, CS_TEAM_CT);
 }
 
 public native_uj_core_get_l_g_count()
 {
-  new players[32];
-  new playerCount = fixed_get_players(players, true, CS_TEAM_CT);
-  return playerCount;
+  return fixed_get_player_count(true, CS_TEAM_CT);
 }
 
 /*
  * Events and forwards
  */
-public event_new_round()
+/*public event_new_round()
 {
   ExecuteForward(g_forwards[FW_CORE_ROUND_NEW], g_forwardResult);
 }
@@ -273,7 +278,7 @@ public LogeventRoundStart()
 public LogeventRoundEnd()
 {
   ExecuteForward(g_forwards[FW_CORE_ROUND_END], g_forwardResult)
-}
+}*/
 
 public FwdWeaponTouchPre(entityID, playerID)
 {
@@ -307,18 +312,19 @@ public FwdAddPlayerItemPre(playerID, entityID)
   return HAM_IGNORED;
 }
 
-public FwdCellButtonUsedPost(iButton, iCaller, iActivator, iUseType, Float: flValue)
-{
-  for(new i = 0; i < sizeof(g_buttons); i++) {
-    if(iButton == g_buttons[i]) {
-      ExecuteForward(g_forwards[FW_CORE_CELLS_OPENED], g_forwardResult, iActivator);
-      break;
-    }
-  }
-}
-
 public TakeDamage(victimID, inflictorID, attackerID, Float:originalDamage, damagebits)
 {
+  if(!(1<= victimID <= 32) || !(1<= attackerID <= 32) || (victimID == attackerID)) {
+    return HAM_IGNORED;
+  }
+
+  if (get_pcvar_num(g_friendlyFire)) {
+    g_iVictimTeam = cs_get_user_team_index(victimID);
+    if(g_iVictimTeam == cs_get_user_team_index(attackerID)) {
+      cs_set_user_team_index(victimID, g_iVictimTeam == TEAM_T ? TEAM_CT : TEAM_T);
+      EnableHamForward(g_iHhTakeDamagePost);
+    }
+  }
   // Retrieve and store the initial, adjusted damage taken
   // (not the same as the unadjusted orginalDamage)
   new data[1];
@@ -327,12 +333,12 @@ public TakeDamage(victimID, inflictorID, attackerID, Float:originalDamage, damag
   new arrayArg = PrepareArray(data, 1, 1);
 
   // Call forwards, and save the result
-  //uj_colorchat_print(attackerID, attackerID, "Original: %f, casted %i", originalDamage, data[0])
+  //fg_colorchat_print(attackerID, attackerID, "Original: %f, casted %i", originalDamage, data[0])
   ExecuteForward(g_forwards[FW_CORE_DAMAGE_TAKEN], g_forwardResult, victimID, inflictorID, attackerID, originalDamage, damagebits, arrayArg);
   new Float:result = float(data[0]);
   //set_pev(victimID, pev_dmg_take, result);
 
-  //uj_colorchat_print(attackerID, attackerID, "Retrieved: %i, floated %f", data[0], result);
+  //fg_colorchat_print(attackerID, attackerID, "Retrieved: %i, floated %f", data[0], result);
 
   // This sets the pre-adjusted damage,
   // which is not what we want.
@@ -341,54 +347,26 @@ public TakeDamage(victimID, inflictorID, attackerID, Float:originalDamage, damag
   // However, if this is HAM_TAKEDAMAGE and *not* post, then
   // the dmg will be adjusted for us anyways (correct?)
   SetHamParamFloat(4, result);
+  return HAM_HANDLED;
+}
+
+public TakeDamagePost(victimID)
+{
+  cs_set_user_team_index(victimID, g_iVictimTeam);
+  DisableHamForward(g_iHhTakeDamagePost);
 }
 
 
 /*
  * Helper functions
  */
-setup_open_cell_doors_buttons()
-{
-  new iEntity = 1
-  new ent3 
-  new Float: vOrigin[3]
-  new Float:radius = 200.0 
-  new class[32] 
-  new name[32]
-  new pos
-  while((pos <= sizeof(g_buttons)) && (iEntity = engfunc(EngFunc_FindEntityByString, iEntity, "classname", "info_player_deathmatch"))) // info_player_deathmatch = tspawn
-  { 
-    new ent2 = 1 
-    pev(iEntity, pev_origin,  vOrigin) 
-    while((ent2 = engfunc(EngFunc_FindEntityInSphere, ent2,  vOrigin, radius)))  // find doors near T spawn
-    { 
-      if(!pev_valid(ent2)) 
-        continue 
-
-      pev(ent2, pev_classname, class, charsmax(class)) 
-      if(!equal(class, "func_door")) // if it's not a door, move on to the next iteration
-        continue
-
-      pev(ent2, pev_targetname, name, charsmax(name)) 
-      ent3 = engfunc(EngFunc_FindEntityByString, 0, "target", name) // find button that opens this door
-      if(pev_valid(ent3) && (in_array(ent3, g_buttons, sizeof(g_buttons)) < 0)) 
-      { 
-        RegisterHamFromEntity(Ham_Use, ent3, "FwdCellButtonUsedPost", 1);
-        
-        g_buttons[pos] = ent3 
-        pos++ // next
-        break // break from current while loop
-      } 
-    }
-  }
-  return pos;
-}
 
 stock in_array(needle, data[], size)
 {
   for(new i = 0; i < size; i++) {
-    if(data[i] == needle)
+    if(data[i] == needle) {
       return i
+    }
   }
   return -1;
 }

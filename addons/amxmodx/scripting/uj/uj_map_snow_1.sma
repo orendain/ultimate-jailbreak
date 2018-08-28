@@ -2,9 +2,9 @@
 #include <engine>
 #include <fakemeta>
 #include <hamsandwich>
-#include <uj_colorchat>
+#include <fg_colorchat>
 
-new const PLUGIN_NAME[] = "[UJ] Map - Snow 1";
+new const PLUGIN_NAME[] = "UJ | Map - Snow 1";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -43,7 +43,7 @@ public cmd_123(playerID)
   if (target > 0 && target < 4) {
     g_target = target;
     g_caller = playerID;
-    uj_colorchat_print(g_caller, 1, "Registered target as %i", g_target);
+    fg_colorchat_print(g_caller, 1, "Registered target as %i", g_target);
   } else {
     g_target = 0;
   }
@@ -67,10 +67,10 @@ public hook_entity_use_pre(iButton, iCaller, iActivator, iUseType, Float: flValu
 {
   //server_print("Target is in PRE-THINK");
   if (g_target > 0) {
-    uj_colorchat_print(g_caller, 1, "Target is thinking");
+    fg_colorchat_print(g_caller, 1, "Target is thinking");
     // Hook all buttons and override with specified target
     if (iButton == 67 || iButton == 68 || iButton == 69) {
-      uj_colorchat_print(g_caller, 1, "Target DISPATCHED");
+      fg_colorchat_print(g_caller, 1, "Target DISPATCHED");
       new entityID = ENTITIES_AVAILABLE[g_target-1];
 
       // Reset target - necessary to do it here because

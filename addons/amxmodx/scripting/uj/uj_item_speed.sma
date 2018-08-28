@@ -4,9 +4,9 @@
 #include <uj_effects>
 #include <uj_menus>
 #include <uj_items>
-#include <uj_colorchat>
+#include <fg_colorchat>
 
-new const PLUGIN_NAME[] = "[UJ] Item - Speed";
+new const PLUGIN_NAME[] = "UJ | Item - Speed";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -108,8 +108,8 @@ public uj_effects_determine_max_speed(playerID, data[])
     new Float:result = float(data[0]);
     result *= get_pcvar_float(g_maxSpeed);
     data[0] = floatround(result);
-    //uj_colorchat_print(playerID, playerID, "item data, %f", data[0]);
-    //uj_colorchat_print(playerID, playerID, "item result, %f", result);
+    //fg_colorchat_print(playerID, playerID, "item data, %f", data[0]);
+    //fg_colorchat_print(playerID, playerID, "item result, %f", result);
   }
 }
 

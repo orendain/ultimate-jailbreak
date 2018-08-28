@@ -1,17 +1,17 @@
 #include <amxmodx>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_freedays>
 #include <uj_menus>
 #include <uj_items>
 
-new const PLUGIN_NAME[] = "[UJ] Item - Freeday";
+new const PLUGIN_NAME[] = "UJ | Item - Freeday";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
 new const ITEM_NAME[] = "Supra's Freeday";
 new const ITEM_MESSAGE[] = "You're free like a bird!";
-new const ITEM_COST[] = "300";
+new const ITEM_COST[] = "250";
 new const ITEM_REBEL[] = "0";
 
 // Menu variables

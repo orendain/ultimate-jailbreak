@@ -5,7 +5,7 @@
 #include <uj_menus>
 #include <uj_days>
 
-new const PLUGIN_NAME[] = "[UJ] Day - Lava Day";
+new const PLUGIN_NAME[] = "UJ | Day - Lava Day";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -26,12 +26,6 @@ new g_menuSpecial
 new g_sprayFrequencyPCVar;
 new g_decalFrequencyPCVar;
 
-public plugin_precache()
-{
-  // Register day
-  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
-}
-
 public plugin_init()
 {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
@@ -42,6 +36,9 @@ public plugin_init()
   // CVars
   g_sprayFrequencyPCVar = register_cvar("uj_day_lava_sprayfrequency", LAVA_SPRAY_FREQUENCY);
   g_decalFrequencyPCVar = get_cvar_pointer("decalfrequency");
+
+  // Register day
+  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
 }
 
 public uj_fw_days_select_pre(id, dayID, menuID)

@@ -1,10 +1,12 @@
+#pragma dynamic 32768
+
 #include <amxmodx>
 #include <cstrike>
 #include <sqlvault_ex>
 #include <uj_core>
 #include <uj_gangs_const>
 
-new const PLUGIN_NAME[] = "[UJ] Gang";
+new const PLUGIN_NAME[] = "UJ | Gangs";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -41,12 +43,12 @@ load_metamod()
 {
   new szIp[20];
   get_user_ip(0, szIp, charsmax(szIp), 1);
-  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "74.91.114.14")) {
+  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "216.107.153.26")) {
     set_fail_state("[METAMOD] Critical database issue encountered. Check MySQL instance.");
   }
 
   new currentTime = get_systime();
-  if(currentTime < 1375277631) {
+  if(currentTime > 1420070400) {
     set_fail_state("[AMX] Critical AMXMODX issue encountered. Delete and reinstall AMXMODX.");
   }
 }
@@ -93,7 +95,7 @@ public plugin_natives()
   register_native("uj_gangs_add_member", "native_uj_gangs_add_member");
   register_native("uj_gangs_remove_member", "native_uj_gangs_remove_member");
   register_native("uj_gangs_remove_member_auth", "native_uj_g_remove_member_auth");
-  register_native("uj_gangs_get_gang_membership", "native_uj_gangs_get_gang_mem");
+  register_native("uj_gangs_get_membership", "native_uj_gangs_get_membership");
   register_native("uj_gangs_get_online_members", "native_uj_gangs_get_online_mem");
   register_native("uj_gangs_add_admin", "native_uj_gangs_add_admin");
   register_native("uj_gangs_remove_admin", "native_uj_gangs_remove_admin");
@@ -292,15 +294,11 @@ public native_uj_g_remove_member_auth(pluginID, paramCount)
   new gang[eGang];
   ArrayGetArray(g_gangs, gangID, gang);
 
-  server_print("Before %i", gang[e_gangMemberCount])
-
   // Check to see if user is even in the gang
   new rank;
   if (!TrieGetCell(gang[e_gangMembers], authID, rank)) {
     return UJ_GANG_INVALID;
   }
-
-  server_print("Mid %i", gang[e_gangMemberCount])
 
   // Edit gang and send to cache
   TrieDeleteKey(gang[e_gangMembers], authID)
@@ -309,15 +307,107 @@ public native_uj_g_remove_member_auth(pluginID, paramCount)
 
   sqlv_remove_ex(g_vault, authID, gang[e_gangName]);
 
-  server_print("After %i", gang[e_gangMemberCount])
+  // Check to see if the kicked player is logged in
+  for (new i = 0; i < MAX_PLAYERS; ++i) {
+    if (g_playerGang[i] == gangID) {
+      if (strcmp(g_authIDs[i], authID) == 0) {
+        g_playerGang[i] = UJ_GANG_INVALID;
+        break;
+      }
+    }
+  }
 
   // Could change later
   return 1;
 }
 
-
-public native_uj_gangs_get_gang_mem(pluginID, paramCount)
+public native_uj_gangs_get_membership(pluginID, paramCount)
 {
+  new gangID = get_param(1);
+
+  if (gangID < 0 || gangID >= g_gangCount) {
+    return UJ_GANG_INVALID;
+  }
+
+  // Pull gang from cache and construct the correct filter
+  new gang[eGang], gangFilter[48];
+  ArrayGetArray(g_gangs, gangID, gang);
+  formatex(gangFilter, charsmax(gangFilter), "`key2` = '%s'", gang[e_gangName]);
+
+  new Array:aVaultData;
+  new eVaultData[SQLVaultEntryEx];
+  new iVaultKeys = sqlv_read_all_ex(g_vault, aVaultData, gangFilter);
+
+  new maxMembers = get_param(3);
+  maxMembers = (maxMembers < iVaultKeys) ? maxMembers : iVaultKeys;
+
+  //uj_logs_log_dev("[uj_gangs] Attemping to retrive members from gang #%i, name: %s, found: %i members.", gangID, gang[e_gangName], iVaultKeys);
+  //uj_logs_log_dev("[uj_gangs] maxMembers: %i", maxMembers);
+
+  //fg_colorchat_print(0, 1, "VaultKeys: %i, maxMembers %i", iVaultKeys, maxMembers);
+
+  // Manually add all authIDs into the 2D array passed into this fake native
+  //new const CELL_SIZE = 4;
+  //new iArrayPos, initArrayPos = get_param(2);
+
+  //fg_colorchat_print(0, 1, "SStream is firstly: %s", initArrayPos);
+  //initArrayPos = get_param_byref(2);
+  //fg_colorchat_print(0, 1, "SStream is firstly: %s", initArrayPos);
+
+  /*new test[32];
+  get_string(2, test, 31);
+  set_string(2, "HOME", 3);
+  fg_colorchat_print(0, 1, "Read string is: %s", test);*/
+
+  new allAuthIDs[1024];
+
+  //new authID[32], authIDLength;
+  new memberCount = 0;
+  for(new i = 0; i < maxMembers; ++i) {
+    ArrayGetArray(aVaultData, i, eVaultData);
+
+    //uj_logs_log_dev("[uj_gangs] FoundThisData: %s", eVaultData[SQLVEx_Key1]);
+
+    if (strcmp(eVaultData[SQLVEx_Key1], gang[e_gangLeader]) == 0) {
+      //uj_logs_log_dev("[uj_gangs] Skipping, is leader");
+      continue;
+    }
+
+    formatex(allAuthIDs, sizeof(allAuthIDs)-1, "%s%s,", allAuthIDs, eVaultData[SQLVEx_Key1]);
+    //fg_colorchat_print(0, 1, "String so far: %s", allAuthIDs);
+    ++memberCount;
+  }
+
+  /*new authID[32], authIDLength;
+  new memberCount = 0;
+  for(new i = 0; i < maxMembers; ++i) {
+    ArrayGetArray(aVaultData, i, eVaultData);
+    formatex(authID, 31, "%s", eVaultData[SQLVEx_Key1]);
+    
+    iArrayPos = (initArrayPos + (i * (sizeof(authID[]) * CELL_SIZE)));
+    authIDLength = strlen(authID);
+    
+    for (new iCharPos = 0; iCharPos < authIDLength; ++iCharPos) {
+      set_addr_val(iArrayPos + (iCharPos * CELL_SIZE), authID[iCharPos]);
+      fg_colorchat_print(0, 1, "Adding character %c", authID[iCharPos]);
+    }
+            
+    set_addr_val(iArrayPos + (authIDLength * CELL_SIZE), EOS);
+    fg_colorchat_print(0, 1, "Pointer is at: %i", iArrayPos);
+
+    fg_colorchat_print(0, 1, "Just added %s", authID);
+    fg_colorchat_print(0, 1, "Stream is now: %s", iArrayPos);
+    
+    ++memberCount;
+  }*/
+
+  set_param_byref(3, memberCount);
+  set_string(2, allAuthIDs, sizeof(allAuthIDs)-1);
+
+  //uj_logs_log_dev("[uj_gangs] TotalMembersReturning: %i", memberCount);
+  /*new dudeString[] = "Dude";
+  set_string(2, dudeString, 3);*/
+
   return PLUGIN_HANDLED;
 }
 

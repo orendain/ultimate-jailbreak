@@ -1,10 +1,10 @@
 #include <amxmodx>
 #include <sqlvault_ex>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_gangs>
 #include <uj_gang_skill_db_const>
 
-new const PLUGIN_NAME[] = "[UJ] Gang Skill DB - Update 1";
+new const PLUGIN_NAME[] = "UJ | Gang Skill DB - Update 1";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -108,13 +108,13 @@ read_db2(playerID)
     ArraySetArray(g_gangs, gangID, gang);
   
     server_print("%i: %s,  %i: %s: %i", gangID, gangName, skillID, skillName, skillLevel);
-    //uj_colorchat_print(playerID, playerID, "%i: %s,  %i: %s: %i", gangID, gangName, skillID, skillName, skillLevel);
+    //fg_colorchat_print(playerID, playerID, "%i: %s,  %i: %s: %i", gangID, gangName, skillID, skillName, skillLevel);
   }
 
   // Done with vault data
   ArrayDestroy(aVaultData);
   server_print("Done reading skills.");
-  uj_colorchat_print(playerID, playerID, "Done reading skills.");
+  fg_colorchat_print(playerID, playerID, "Done reading skills.");
 }
 
 read_db_new()
@@ -215,7 +215,7 @@ wipe_db(playerID)
 {
   sqlv_clear_ex(g_vault);
   server_print("Database table wiped.");
-  uj_colorchat_print(playerID, playerID, "Database table wiped.");
+  fg_colorchat_print(playerID, playerID, "Database table wiped.");
 }
 
 write_db(playerID)
@@ -238,11 +238,11 @@ write_db(playerID)
       // Save skillLevel with gangName and skillName keys
       sqlv_set_num_ex(g_vault, gangName, skillName, skillLevel);
       server_print("%i: %s,  %i: %s: %i", gangID, gangName, skillID, skillName, skillLevel);
-      //uj_colorchat_print(playerID, playerID, "%i: %s,  %i: %s: %i", gangID, gangName, skillID, skillName, skillLevel);
+      //fg_colorchat_print(playerID, playerID, "%i: %s,  %i: %s: %i", gangID, gangName, skillID, skillName, skillLevel);
     }
   }
   server_print("Done writing skills.");
-  uj_colorchat_print(playerID, playerID, "Done writing skills.");
+  fg_colorchat_print(playerID, playerID, "Done writing skills.");
 }
 
 initialize_gangs()

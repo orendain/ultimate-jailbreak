@@ -6,7 +6,7 @@
 #include <uj_gang_skills>
 #include <uj_points>
 
-new const PLUGIN_NAME[] = "[UJ] Menu - Gang Skill Upgrade";
+new const PLUGIN_NAME[] = "UJ | Menu - Gang Skill Upgrade";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 

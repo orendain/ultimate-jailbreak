@@ -1,9 +1,10 @@
 #include <amxmodx>
 #include <uj_core>
 #include <uj_points>
-#include <uj_colorchat>
+#include <fg_colorchat>
+#include <uj_logs>
 
-new const PLUGIN_NAME[] = "[UJ] Points - Base";
+new const PLUGIN_NAME[] = "UJ | Points - Base";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -27,6 +28,9 @@ new g_pointsMinimumPrisoners;
 
 // Variables
 new points;
+new pointsGiven;
+new g_minimumMet;
+new pointsForRound;
 
 public plugin_init()
 {
@@ -44,28 +48,56 @@ public plugin_init()
 
   // Track events
   register_event("DeathMsg", "FwPlayerKilled", "a")
+  // New round
+  register_event("HLTV", "event_new_round", "a", "1=0", "2=0");
+  // Round end
+  register_logevent("LogeventRoundEnd",   2, "1=Round_End");
 }
 
-public uj_fw_core_round_end()
+public LogeventRoundEnd()
 {
-  if (is_minimum_met()) {
-    points = get_pcvar_num(g_pointsPerRound);
+  if (g_minimumMet) {
+    //points = get_pcvar_num(g_pointsPerRound);
 
+    /*
     // Points to all who survived the round
     new players[32];
     new playerCount = uj_core_get_players(players, true);
+    static playerID;
 
     for (new i = 0; i < playerCount; ++i) {
-      uj_points_add(players[i], points);
-      uj_colorchat_print(players[i], players[i], "Way to survive the round!  Here, have ^4%i^1 points!", points);
+      playerID = players[i];
+      fg_colorchat_print(playerID, FG_COLORCHAT_RED, "Way to survive the round!  Here, have ^4%i^1 points!", points);
+      uj_points_add(playerID, points);
+    }*/
+
+    //static data[2];
+    //data[1] = points;
+
+    for (new playerID = 1; playerID <= 32; ++playerID) {
+      if (is_user_alive(playerID)) {
+        fg_colorchat_print(playerID, FG_COLORCHAT_RED, "Way to survive the round!  Here, have ^4%i^1 points!", pointsForRound);
+        //uj_points_add(playerID, points);
+        //data[0] = playerID;
+        set_task(0.3 * playerID, "delay_give_points", playerID);
+      }
     }
+  }
+}
+
+public delay_give_points(playerID)
+{
+  // data[0] = playerID, data[1] = point
+  // Make sure the user is connected before giving points
+  if (is_user_connected(playerID)) {
+    uj_points_add(playerID, pointsForRound);
   }
 }
 
 public FwPlayerKilled()
 {
-  if (is_minimum_met()) {
-    static killerID, victimID, headshot;
+  if (g_minimumMet) {
+    static killerID, victimID;
     killerID = read_data(1);
     victimID = read_data(2);
 
@@ -74,18 +106,17 @@ public FwPlayerKilled()
       return;
     }
 
-    headshot = read_data(3);
+    //new headshot = read_data(3);
 
-    points = get_pcvar_num(g_pointsPerKill);
-
-    uj_points_add(killerID, points);
-    uj_colorchat_print(killerID, killerID, "Sweet kill! That's worth ^4%i^1 point(s)!", points);
-
-    if (headshot) {
+    points = 0;
+    if (read_data(3)) {
       points = get_pcvar_num(g_pointsPerHeadshot);
-      uj_points_add(killerID, points);
-      uj_colorchat_print(killerID, killerID, "BOOM, HEADSHOT! ^4%i^1 point bonus!", points);
+      fg_colorchat_print(killerID, FG_COLORCHAT_RED, "BOOM, HEADSHOT! ^4%i^1 point bonus!", points);
     }
+
+    points += get_pcvar_num(g_pointsPerKill);
+    fg_colorchat_print(killerID, FG_COLORCHAT_RED, "Sweet kill! That's worth ^4%i^1 point(s)!", points);
+    uj_points_add(killerID, points);
   }
 }
 
@@ -101,10 +132,22 @@ is_minimum_met()
 
 public uj_fw_requests_reached(playerID)
 {
-  if (is_minimum_met()) {
+  if (!pointsGiven && g_minimumMet) {
+    pointsGiven = true;
     points = get_pcvar_num(g_pointsLastRequest);
 
     uj_points_add(playerID, points);
-    uj_colorchat_print(playerID, playerID, "Last request, homie! ^4%i^1 points for you!", points);
+    fg_colorchat_print(playerID, FG_COLORCHAT_RED, "Last request, homie! ^4%i^1 points for you!", points);
+
+    new playerName[32];
+    get_user_name(playerID, playerName, charsmax(playerName));
+    uj_logs_log("[uj_points_base] %s won last request and received %i points.", playerName, points);
   }
+}
+
+public event_new_round()
+{
+  pointsGiven = false;
+  g_minimumMet = is_minimum_met();
+  pointsForRound = get_pcvar_num(g_pointsPerRound);
 }

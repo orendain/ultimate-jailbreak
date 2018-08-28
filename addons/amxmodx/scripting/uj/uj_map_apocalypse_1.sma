@@ -2,9 +2,9 @@
 #include <engine>
 #include <fakemeta>
 #include <hamsandwich>
-#include <uj_colorchat>
+#include <fg_colorchat>
 
-new const PLUGIN_NAME[] = "[UJ] Map - Apocalypse 1";
+new const PLUGIN_NAME[] = "UJ | Map - Apocalypse 1";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -53,11 +53,11 @@ public FwdDoorButtonThink(entityID)
     if (entityID == DOOR_BUTTONS_AVAILABLE[i]) {
       if (entityID == DOOR_BUTTON_SEQUENCE[g_sequencePosition]) {
         ++g_sequencePosition;
-        //uj_colorchat_print(0, UJ_COLORCHAT_RED, "so far so good");
+        //fg_colorchat_print(0, FG_COLORCHAT_RED, "so far so good");
       }
       else {
         g_sequencePosition = 0;
-        //uj_colorchat_print(0, UJ_COLORCHAT_RED, "Wrong, reset");
+        //fg_colorchat_print(0, FG_COLORCHAT_RED, "Wrong, reset");
       }
 
       if (g_sequencePosition == sizeof(DOOR_BUTTON_SEQUENCE)) {
@@ -65,7 +65,7 @@ public FwdDoorButtonThink(entityID)
         ExecuteHamB(Ham_Use, DOOR_OPEN_BUTTON, 0, 0 , 1, 1.0);
         g_sequencePosition = 0;
       }
-      //uj_colorchat_print(0, UJ_COLORCHAT_RED, "buttonUsed: %i", entityID);
+      //fg_colorchat_print(0, FG_COLORCHAT_RED, "buttonUsed: %i", entityID);
       return;
     }
   }
@@ -90,7 +90,7 @@ public FwdDoorButtonThink(entityID)
 
 public FwdDoorButtonUsedPost(iButton, iCaller, iActivator, iUseType, Float: flValue)
 {
-  //uj_colorchat_print(0, UJ_COLORCHAT_RED, "iActivator = %i, buttonUsed: %i", iActivator, iButton);
+  //fg_colorchat_print(0, FG_COLORCHAT_RED, "iActivator = %i, buttonUsed: %i", iActivator, iButton);
   for(new i = 0; i < sizeof(g_buttons); i++) {
     if(iButton == g_buttons[i]) {
       ExecuteForward(g_forwards[FW_CORE_CELLS_OPENED], g_forwardResult, iActivator);
@@ -116,7 +116,7 @@ public find_button(playerID)
   if( pev_valid(szTempEnt) )
   {
     entity_get_string( szTempEnt, EV_SZ_classname, szTempClass, charsmax( szTempClass ) );
-    uj_colorchat_print(playerID, playerID, "ID: %i, classname: %s", szTempEnt, szTempClass);
+    fg_colorchat_print(playerID, playerID, "ID: %i, classname: %s", szTempEnt, szTempClass);
   }
   else{
     //fnColorPrint(id, "%L", LANG_SERVER, "JB_DAY_M70");

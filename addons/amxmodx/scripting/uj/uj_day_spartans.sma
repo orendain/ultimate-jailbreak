@@ -7,7 +7,7 @@
 #include <uj_days>
 #include <uj_effects>
 
-new const PLUGIN_NAME[] = "[UJ] Day - Guards vs Spartans";
+new const PLUGIN_NAME[] = "UJ | Day - Guards vs Spartans";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -29,12 +29,6 @@ new g_menuSpecial
 new g_primaryAmmoPCVar;
 new g_secondaryAmmoPCVar;
 
-public plugin_precache()
-{
-  // Register day
-  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
-}
-
 public plugin_init()
 {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
@@ -45,6 +39,9 @@ public plugin_init()
   // CVars
   g_primaryAmmoPCVar = register_cvar("uj_day_spartans_primary_ammo", SPARTA_PRIMARY_AMMO);
   g_secondaryAmmoPCVar = register_cvar("uj_day_spartans_secondary_ammo", SPARTA_SECONDARY_AMMO);
+
+  // Register day
+  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
 }
 
 public uj_fw_days_select_pre(playerID, dayID, menuID)

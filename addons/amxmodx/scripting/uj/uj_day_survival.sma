@@ -7,7 +7,7 @@
 #include <uj_days>
 #include <uj_effects>
 
-new const PLUGIN_NAME[] = "[UJ] Day - Survival";
+new const PLUGIN_NAME[] = "UJ | Day - Survival";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -16,7 +16,7 @@ new const DAY_OBJECTIVE[] = "Guards, kill prisoners on sight!";
 new const DAY_SOUND[] = "";
 
 new const SURVIVAL_MAX_SPEED[] = "0.8";
-new const SURVIVAL_AMMO[] = "50";
+new const SURVIVAL_AMMO[] = "100";
 
 // Day variables
 new g_day;
@@ -29,15 +29,12 @@ new g_menuSpecial
 new g_speedPCVar;
 new g_ammoPCVar;
 
-public plugin_precache()
-{
-  // Register day
-  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
-}
-
 public plugin_init()
 {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
+
+  // Register day
+  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
 
   // Find all valid menus to display this under
   g_menuSpecial = uj_menus_get_menu_id("Special Days");
@@ -101,8 +98,8 @@ start_day()
 
       // Give user items and set effects
       uj_core_strip_weapons(playerID);
-      give_item(playerID, "weapon_usp");
-      cs_set_user_bpammo(playerID, CSW_USP, ammoCount);
+      give_item(playerID, "weapon_tmp");
+      cs_set_user_bpammo(playerID, CSW_TMP, ammoCount);
       //uj_effects_set_max_speed(playerID, maxspeed);
       uj_effects_reset_max_speed(playerID);
     }
@@ -141,6 +138,6 @@ public uj_effects_determine_max_speed(playerID, data[])
     new Float:result = float(data[0]);
     result *= get_pcvar_float(g_speedPCVar);
     data[0] = floatround(result);
-    //uj_colorchat_print(playerID, playerID, "survival speed is %f", data[0]);
+    //fg_colorchat_print(playerID, playerID, "survival speed is %f", data[0]);
   }
 }

@@ -1,8 +1,8 @@
 #include <amxmodx>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 
-new const PLUGIN_NAME[] = "[UJ] Misc - Autojoin";
+new const PLUGIN_NAME[] = "UJ | Misc - Autojoin";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 

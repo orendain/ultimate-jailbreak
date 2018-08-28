@@ -5,12 +5,12 @@
 #include <hamsandwich>
 #include <uj_chargers>
 #include <uj_core>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_effects>
 #include <uj_menus>
 #include <uj_days>
 
-new const PLUGIN_NAME[] = "[UJ] Day - Boxing";
+new const PLUGIN_NAME[] = "UJ | Day - Boxing";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 

@@ -113,24 +113,24 @@ native uj_core_get_live_guard_count();
 /**
  * Called when a new round is started.
  */
-forward uj_fw_core_round_new();
+//forward uj_fw_core_round_new();
 
 /**
  * Called each time a player is spawned.
  *
  * @param playerID          Player index.
  */
-forward uj_fw_core_player_spawn(playerID);
+//forward uj_fw_core_player_spawn(playerID);
 
 /**
  * Called when a round starts (after mp_freezetime)
  */
-forward uj_fw_core_round_start();
+//forward uj_fw_core_round_start();
 
 /**
  * Called when a round ends.
  */
-forward uj_fw_core_round_end();
+//forward uj_fw_core_round_end();
 
 /*
  * Called when determining a player's maximum health points.

@@ -7,7 +7,7 @@
 #include <uj_core>
 #include <uj_days>
 
-new const PLUGIN_NAME[] = "[UJ] Day - SWAT";
+new const PLUGIN_NAME[] = "UJ | Day - SWAT";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -33,12 +33,6 @@ new g_secondaryAmmoPCVar;
 new g_prisonerHealthPCVar;
 new g_guardHealthPCVar;
 
-public plugin_precache()
-{
-  // Register day
-  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
-}
-
 public plugin_init()
 {
   register_plugin(PLUGIN_NAME, PLUGIN_VERS, PLUGIN_AUTH);
@@ -51,6 +45,9 @@ public plugin_init()
   g_secondaryAmmoPCVar = register_cvar("uj_day_swat_secondary_ammo", SWAT_SECONDARY_AMMO);
   g_prisonerHealthPCVar = register_cvar("uj_day_swat_prisoner_health", SWAT_PRISONER_HEALTH);
   g_guardHealthPCVar = register_cvar("uj_day_swat_guard_health", SWAT_GUARD_HEALTH);
+
+  // Register day
+  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
 }
 
 public uj_fw_days_select_pre(playerID, dayID, menuID)

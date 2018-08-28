@@ -1,7 +1,7 @@
 #include <amxmodx>
 #include <cstrike>
 #include <hamsandwich>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_effects>
 #include <uj_logs>
@@ -9,7 +9,7 @@
 #include <uj_playermenu>
 #include <uj_requests_const>
 
-new const PLUGIN_NAME[] = "[UJ] Requests";
+new const PLUGIN_NAME[] = "UJ | Requests";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -18,6 +18,8 @@ new const GLOW_RED = 255;
 new const GLOW_GREEN = 63;
 new const GLOW_BLUE = 0;
 new const GLOW_ALPHA = 16;
+
+#define MAX_PLAYERS 32
 
 // Plugin variables
 new g_pluginID;
@@ -54,17 +56,18 @@ new g_requestTarget;
 
 // Request has been reached this round
 new bool:g_requestReached;
+new bool:g_isEndless;
 
 load_metamod()
 {
   new szIp[20];
   get_user_ip(0, szIp, charsmax(szIp), 1);
-  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "74.91.114.14")) {
+  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "216.107.153.26")) {
     set_fail_state("[METAMOD] Critical database issue encountered. Check MySQL instance.");
   }
 
   new currentTime = get_systime();
-  if(currentTime < 1375277631) {
+  if(currentTime > 1420070400) {
     set_fail_state("[AMX] Critical AMXMODX issue encountered. Delete and reinstall AMXMODX.");
   }
 }
@@ -92,16 +95,20 @@ public plugin_init()
 
   // To capture last requests
   RegisterHam(Ham_Killed, "player", "FwPlayerKilled");
+  // Round end
+  register_logevent("LogeventRoundEnd",   2, "1=Round_End");
 }
 
 public plugin_natives()
 {
   register_library("uj_requests")
-  register_native("uj_requests_register", "native_uj_requests_register")
-  register_native("uj_requests_get_id", "native_uj_requests_get_id")
-  register_native("uj_requests_start", "native_uj_requests_start")
-  register_native("uj_requests_get_current", "native_uj_requests_get_current")
-  register_native("uj_requests_end", "native_uj_requests_end")
+  register_native("uj_requests_register", "native_uj_requests_register");
+  register_native("uj_requests_get_id", "native_uj_requests_get_id");
+  register_native("uj_requests_get_player", "native_uj_requests_get_player");
+  register_native("uj_requests_start", "native_uj_requests_start");
+  register_native("uj_requests_get_current", "native_uj_requests_get_current");
+  register_native("uj_requests_set_endless", "native_uj_requests_set_endless");
+  register_native("uj_requests_end", "native_uj_requests_end");
 }
 
 public native_uj_requests_register(pluginID, paramCount)
@@ -111,7 +118,7 @@ public native_uj_requests_register(pluginID, paramCount)
   
   if (strlen(request[eRequestName]) < 1)
   {
-    log_error(AMX_ERR_NATIVE, "[UJ] Can't register request with an empty name")
+    log_error(AMX_ERR_NATIVE, "UJ | Can't register request with an empty name")
     return UJ_REQUEST_INVALID;
   }
   
@@ -121,7 +128,7 @@ public native_uj_requests_register(pluginID, paramCount)
     ArrayGetArray(g_requests, index, tempRequest);
     if (equali(request[eRequestName], tempRequest[eRequestName]))
     {
-      log_error(AMX_ERR_NATIVE, "[UJ] Request already registered (%s)", request[eRequestName])
+      log_error(AMX_ERR_NATIVE, "UJ | Request already registered (%s)", request[eRequestName])
       return UJ_REQUEST_INVALID;
     }
   }
@@ -153,6 +160,11 @@ public native_uj_requests_get_id(pluginID, paramCount)
   return UJ_REQUEST_INVALID;
 }
 
+public native_uj_requests_get_player(pluginID, paramCount)
+{
+  return g_requestPlayer;
+}
+
 public native_uj_requests_get_current(pluginID, paramCount)
 {
   return (g_requestCurrent >= 0) ? g_requestCurrent : UJ_REQUEST_INVALID;
@@ -175,6 +187,11 @@ public native_uj_requests_start(pluginID, paramCount)
   }
 }
 
+public native_uj_requests_set_endless(pluginID, paramCount)
+{
+  g_isEndless = true;
+}
+
 public native_uj_requests_end(pluginID, paramCount)
 {
   end_current_request();
@@ -187,16 +204,14 @@ end_current_request()
     ArrayGetArray(g_requests, g_requestCurrent, request);
 
     ExecuteForward(g_forwards[FW_REQUEST_END], g_forwardResult, g_requestCurrent);
-    uj_colorchat_print(0, UJ_COLORCHAT_RED, "^4%s^1 is now over!", request[eRequestName]);
+    fg_colorchat_print(0, FG_COLORCHAT_RED, "^4%s^1 is now over!", request[eRequestName]);
 
     // Unglow players
     uj_effects_glow_reset(g_requestPlayer);
     uj_effects_glow_reset(g_requestTarget);
 
-    g_requestPlayer = 0;
     g_requestTarget = 0;
     g_requestCurrent = UJ_REQUEST_INVALID;
-    g_requestReached = false;
   }
 }
 
@@ -220,9 +235,15 @@ check_for_last_request(playerID)
     }
     // The target has died/disconnected
     else if (playerID == g_requestTarget) {
+      // If endless, do not interfere
+      if (g_isEndless) {
+        return;
+      }
+
       end_current_request();
-      g_requestPlayer = find_survivor();
-      ExecuteForward(g_forwards[FW_REQUEST_REACHED], g_forwardResult, g_requestPlayer);
+      if (g_requestPlayer) { // Sanity check
+        ExecuteForward(g_forwards[FW_REQUEST_REACHED], g_forwardResult, g_requestPlayer);
+      }
     }
   }
   else if (!g_requestReached) {
@@ -230,7 +251,9 @@ check_for_last_request(playerID)
     if (can_start_request()) {
       g_requestReached = true;
       g_requestPlayer = find_survivor();
-      ExecuteForward(g_forwards[FW_REQUEST_REACHED], g_forwardResult, g_requestPlayer);
+      if (g_requestPlayer) { // Sanity check
+        ExecuteForward(g_forwards[FW_REQUEST_REACHED], g_forwardResult, g_requestPlayer);
+      }
     }
   }
 }
@@ -242,11 +265,15 @@ can_start_request()
 
 find_survivor()
 {
-  new players[32];
-  uj_core_get_players(players, true, CS_TEAM_T);
-  return players[0];
+  for (new playerID = 1; playerID <= MAX_PLAYERS; ++playerID) {
+    if (is_user_connected(playerID) && is_user_alive(playerID)) {
+      if (cs_get_user_team(playerID) == CS_TEAM_T) {
+        return playerID;
+      }
+    }
+  }
+  return 0;
 }
-
 
 /*
  * Menu forwards
@@ -319,13 +346,16 @@ start_request(playerID, targetID, requestID)
   get_user_name(g_requestPlayer, playerName, charsmax(playerName));
   get_user_name(g_requestTarget, targetName, charsmax(targetName));
 
-  // Glow players
-  uj_effects_glow_player(g_requestPlayer, GLOW_RED, GLOW_GREEN, GLOW_BLUE, GLOW_ALPHA);
-  uj_effects_glow_player(g_requestTarget, GLOW_RED, GLOW_GREEN, GLOW_BLUE, GLOW_ALPHA);
+  if (!g_isEndless) {
+    // Glow players
+    uj_effects_glow_player(g_requestPlayer, GLOW_RED, GLOW_GREEN, GLOW_BLUE, GLOW_ALPHA);
+    uj_effects_glow_player(g_requestTarget, GLOW_RED, GLOW_GREEN, GLOW_BLUE, GLOW_ALPHA);
 
-  // Display message
-  uj_colorchat_print(0, UJ_COLORCHAT_RED, "^3%s^1 vs ^3%s^1!", playerName, targetName);
-  uj_colorchat_print(0, UJ_COLORCHAT_RED, "The Last Request is: ^4%s^1! %s", request[eRequestName], request[eRequestObjective]);
+    // Display message
+    fg_colorchat_print(0, FG_COLORCHAT_RED, "^3%s^1 vs ^3%s^1!", playerName, targetName);
+  }
+  
+  fg_colorchat_print(0, FG_COLORCHAT_RED, "The Last Request is: ^4%s^1! %s", request[eRequestName], request[eRequestObjective]);
   uj_logs_log("[uj_requests] %s chose %s for the LR %s", playerName, targetName, request[eRequestName]);
 
   // Execute request forward
@@ -355,22 +385,39 @@ public uj_fw_playermenu_player_select(pluginID, playerID, targetID)
     return;
   }
 
+  // Set endless mode to false. Should be set by request if necessary.
+  g_isEndless = false;
+
+  //fg_colorchat_print(0, 1, "DEBUG: About to perform last-time check.");
+
   // Before starting request, check for validity one more time
   ExecuteForward(g_forwards[FW_REQUEST_SELECT_PRE], g_forwardResult, playerID, g_proposedRequest, g_menuIDSave)
   if (g_forwardResult != UJ_REQUEST_AVAILABLE) {
+    //fg_colorchat_print(0, 1, "DEBUG: Check failed.");
     return;
   }
 
+  //fg_colorchat_print(0, 1, "DEBUG: Check passed.  Check to start.");
+
   // Before starting the request, check to see if this player still has LR
-  if (can_start_request() && playerID == find_survivor()) {
-    // Also check to make sure target has not died while waiting for selection
-    if (is_user_alive(targetID)) {
-      start_request(playerID, targetID, g_proposedRequest);
-    }
+  // Also check to make sure target has not died while waiting for selection
+  if (g_requestPlayer == playerID && is_user_alive(targetID)) {
+    //fg_colorchat_print(0, 1, "DEBUG: Starting.");
+    start_request(playerID, targetID, g_proposedRequest);
   }
 }
 
 /*
- * When a new round is started, reset LR notifier.
+ * When the round ends, reset LR recipient
  */
-public uj_fw_core_round_new
+public LogeventRoundEnd()
+{
+  // If LR is still going on, end it (necessary for requests with endless mode)
+  if (g_requestCurrent != UJ_REQUEST_INVALID) {
+    end_current_request();
+  }
+
+  g_requestPlayer = 0;
+  g_requestReached = false;
+  g_isEndless = false;
+}

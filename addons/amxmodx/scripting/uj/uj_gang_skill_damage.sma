@@ -1,13 +1,14 @@
 #include <amxmodx>
 #include <cstrike>
 #include <fun>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_gangs>
 #include <uj_gang_skill_db>
 #include <uj_gang_skills>
 #include <uj_logs>
+#include <uj_requests>
 
-new const PLUGIN_NAME[] = "[UJ] Gang Skill - Damage";
+new const PLUGIN_NAME[] = "UJ | Gang Skill - Damage";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -66,7 +67,7 @@ public uj_fw_gang_skill_menus_s_post(playerID, menuID, skillEntryID)
 // Called when determining the final damage to compute
 public uj_fw_core_get_damage_taken(victimID, inflictorID, attackerID, float:originalDamage, damagebits, data[])
 {
-  if ((1<=attackerID<=32) && cs_get_user_team(attackerID) == CS_TEAM_T) {
+  if ((1<=attackerID<=32) && cs_get_user_team(attackerID) == CS_TEAM_T && (uj_requests_get_current() == UJ_REQUEST_INVALID)) {
     new gangID = uj_gangs_get_gang(attackerID);
     new skillLevel = uj_gang_skill_db_get_level(gangID, g_skill);
 
@@ -76,7 +77,7 @@ public uj_fw_core_get_damage_taken(victimID, inflictorID, attackerID, float:orig
       new Float:damage = float(data[0]);
       damage *= 1.0 + (skillLevel * per);
 
-      //uj_colorchat_print(attackerID, attackerID, "Upgrading your damage from %i to %i", data[0], floatround(damage));
+      //fg_colorchat_print(attackerID, attackerID, "Upgrading your damage from %i to %i", data[0], floatround(damage));
       uj_logs_log_dev("[uj_gang_skill_damage] Player %i: upgrading damage from %i to %i", attackerID, data[0], floatround(damage));
 
       data[0] = floatround(damage);

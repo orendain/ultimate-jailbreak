@@ -4,7 +4,7 @@
 #include <uj_effects>
 #include <uj_menus>
 #include <uj_items>
-#include <uj_colorchat>
+#include <fg_colorchat>
 
 #define EMP_HIDE_FLAGS 		(1<<0)|(1<<1)|(1<<3)|(1<<4)|(1<<5)  // hide in order: CAL + FLASH + RHA + TIMER + MONEY
 #define HIDE_NORMAL 	(1<<1)|(1<<4)|(1<<5) // Flashlight, Timer, Money
@@ -18,7 +18,7 @@ new gEMPEffect[] = "Allied_Gamers/emp_effect.wav";
 
 new gmsgScreenFade, gmsgHideWeapon;
 
-new const PLUGIN_NAME[] = "[UJ] Item - EMP";
+new const PLUGIN_NAME[] = "UJ | Item - EMP";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 

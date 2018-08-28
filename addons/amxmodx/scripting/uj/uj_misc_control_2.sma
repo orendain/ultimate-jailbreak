@@ -4,7 +4,7 @@
 #include <fakemeta>
 #include <hamsandwich>
 
-new const PLUGIN_NAME[] = "[UJ] Misc - Control 2";
+new const PLUGIN_NAME[] = "UJ | Misc - Control 2";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 

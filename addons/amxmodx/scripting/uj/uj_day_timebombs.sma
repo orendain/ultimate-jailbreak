@@ -1,13 +1,13 @@
 #include <amxmodx>
 #include <cstrike>
 #include <fun>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_days>
 #include <uj_effects>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Day - Timebombs";
+new const PLUGIN_NAME[] = "UJ | Day - Timebombs";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -16,6 +16,7 @@ new const DAY_OBJECTIVE[] = "Do you hazz a bomb?! Quick, loco, pass it along!";
 new const DAY_SOUND[] = "";
 
 new const BOMB_TIMER[] = "60.0";
+new const BOMB_SPEED[] = "1.2";
 
 // Day variables
 new g_day;
@@ -27,12 +28,7 @@ new g_menuSpecial;
 
 // Cvars
 new g_bombTimerPCVar;
-
-public plugin_precache()
-{
-  // Register day
-  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
-}
+new g_speedPCVar;
 
 public plugin_init()
 {
@@ -43,6 +39,10 @@ public plugin_init()
 
   // CVars
   g_bombTimerPCVar = register_cvar("uj_day_bombpass_bomb_timer", BOMB_TIMER);
+  g_speedPCVar = register_cvar("uj_day_bombpass_speed", BOMB_SPEED);
+
+  // Register day
+  g_day = uj_days_register(DAY_NAME, DAY_OBJECTIVE, DAY_SOUND)
 }
 
 public uj_fw_days_select_pre(playerID, dayID, menuID)
@@ -93,6 +93,12 @@ start_day()
   if (!g_dayEnabled) {
     g_dayEnabled = true;
     set_task(3.0, "setup_bombs");
+
+    new players[32];
+    new playerCount = uj_core_get_players(players, true, CS_TEAM_CT);
+    for (new i = 0; i < playerCount; ++i) {
+      set_user_godmode(players[i], 1);
+    }
   }
 }
 
@@ -110,7 +116,7 @@ public setup_bombs()
   new players[32], playerID;
   new playerCount = uj_core_get_players(players, true, CS_TEAM_T);
   new playersLeft = playerCount;
-  new bombCount = playerCount / 2;
+  new bombCount = (playerCount+1) / 2;
   new playerName[32];
   for (new i = 0; i < playerCount; ++i) {
     playerID = players[i];
@@ -120,18 +126,32 @@ public setup_bombs()
 
     if (bombCount >= playersLeft || (bombCount && random(2))) {
       //give_item(playerID, "weapon_c4")
-      set_bit(g_hasBomb, playerID);
-      
+      give_bomb(playerID);
+
       get_user_name(playerID, playerName, charsmax(playerName));
-      uj_colorchat_print(0, UJ_COLORCHAT_RED, "Oh, dang! ^3%s^1 has been given a ^3bomb^1!", playerName)
+      //fg_colorchat_print(0, FG_COLORCHAT_RED, "Oh, dang! ^3%s^1 has been given a ^3bomb^1!", playerName)
       --bombCount;
     }
 
     --playersLeft;
   }
 
-  uj_colorchat_print(0, UJ_COLORCHAT_RED, "Time until all bombs explode: ^3%.2f seconds^1!", bombTimer)
+  fg_colorchat_print(0, FG_COLORCHAT_RED, "Time until all bombs explode: ^3%.2f seconds^1!", bombTimer)
   set_task(bombTimer, "detonate_bomb");
+}
+
+give_bomb(playerID)
+{
+  set_bit(g_hasBomb, playerID);
+  uj_effects_glow_player(playerID, 255, 0, 0, 16);
+  uj_effects_reset_max_speed(playerID);
+}
+
+remove_bomb(playerID)
+{
+  clear_bit(g_hasBomb, playerID);
+  uj_effects_glow_reset(playerID);
+  uj_effects_reset_max_speed(playerID);
 }
 
 public detonate_bomb()
@@ -140,7 +160,7 @@ public detonate_bomb()
     return;
   }
 
-  uj_colorchat_print(0, UJ_COLORCHAT_RED, "Hey, bomb holders! Time ... to ... ^3DIE^1!")
+  fg_colorchat_print(0, FG_COLORCHAT_RED, "Hey, bomb holders! Time ... to ... ^3DIE^1!")
 
   new players[32], playerID;
   new playerCount = uj_core_get_players(players, true, CS_TEAM_T);
@@ -157,10 +177,10 @@ public detonate_bomb()
   if (playersLeft >= 2) {
     set_task(5.0, "setup_bombs");
   }
-  
+
 
   // Continue this day only if prisoner count >= 2
-  
+
   /*else {
     uj_days_end();
   }*/
@@ -168,11 +188,15 @@ public detonate_bomb()
 
 end_day()
 {
-  new players[32], playerID;
+  new players[32];
   new playerCount = uj_core_get_players(players, true, CS_TEAM_T);
   for (new i = 0; i < playerCount; ++i) {
-    playerID = players[i];
-    uj_core_strip_weapons(playerID);
+    remove_bomb(players[i]);
+  }
+
+  playerCount = uj_core_get_players(players, false, CS_TEAM_CT);
+  for (new i = 0; i < playerCount; ++i) {
+    set_user_godmode(players[i]); // Disables godmode
   }
 
   g_dayEnabled = false;
@@ -188,12 +212,25 @@ public uj_fw_core_get_damage_taken(victimID, inflictorID, attackerID, float:orig
       (!get_bit(g_hasBomb, victimID)) &&
       (attackerID == inflictorID) &&
       (get_user_weapon(attackerID) == CSW_KNIFE)) {
-        clear_bit(g_hasBomb, attackerID);
-        set_bit(g_hasBomb, victimID);
+        remove_bomb(attackerID);
+        give_bomb(victimID);
 
         new attackerName[32], victimName[32];
         get_user_name(attackerID, attackerName, charsmax(attackerName));
         get_user_name(victimID, victimName, charsmax(victimName));
-        uj_colorchat_print(0, UJ_COLORCHAT_RED, "^3%s^1 has passed a bomb to ^3%s^1!", attackerName, victimName);
+        fg_colorchat_print(0, FG_COLORCHAT_RED, "^3%s^1 has passed a bomb to ^3%s^1!", attackerName, victimName);
+  }
+}
+
+/*
+ * Called when determining a player's max speed
+ */
+public uj_effects_determine_max_speed(playerID, data[])
+{
+  if (g_dayEnabled && get_bit(g_hasBomb, playerID)) {
+    new Float:result = float(data[0]);
+    result *= get_pcvar_float(g_speedPCVar);
+    data[0] = floatround(result);
+    //fg_colorchat_print(playerID, playerID, "survival speed is %f", data[0]);
   }
 }

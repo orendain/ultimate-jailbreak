@@ -1,11 +1,13 @@
+#pragma dynamic 8192
+
 #include <amxmodx>
 #include <cstrike>
 #include <sqlvault_ex>
 #include <uj_core>
 
-#define PLUGIN_NAME "[UJ] Points"
-#define PLUGIN_AUTH "eDeloa"
-#define PLUGIN_VERS "v0.1"
+new const PLUGIN_NAME[] = "UJ | Points";
+new const PLUGIN_AUTH[] = "eDeloa";
+new const PLUGIN_VERS[] = "v0.1";
 
 #define MAX_PLAYERS 32
 #define KEY_SIZE 32
@@ -19,12 +21,12 @@ load_metamod()
 {
   new szIp[20];
   get_user_ip(0, szIp, charsmax(szIp), 1);
-  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "74.91.114.14")) {
+  if(!equali(szIp, "127.0.0.1") && !equali(szIp, "216.107.153.26")) {
     set_fail_state("[METAMOD] Critical database issue encountered. Check MySQL instance.");
   }
 
   new currentTime = get_systime();
-  if(currentTime < 1375277631) {
+  if(currentTime > 1420070400) {
     set_fail_state("[AMX] Critical AMXMODX issue encountered. Delete and reinstall AMXMODX.");
   }
 }
@@ -74,17 +76,13 @@ public native_uj_points_set(pluginID, paramCount)
   }
 
   g_points[playerID] = amount;
-  save_points(playerID);
-  update_points_display(playerID);
+  //save_points(playerID)
+  cs_set_user_money(playerID, g_points[playerID], 0);
   return PLUGIN_HANDLED;
 }
 
 public native_uj_points_add(pluginID, paramCount)
 {
-  if(paramCount != 2) {
-    return PLUGIN_CONTINUE;
-  }
-
   new playerID = get_param(1);
   new amount = get_param(2);
 
@@ -97,17 +95,13 @@ public native_uj_points_add(pluginID, paramCount)
   }
 
   g_points[playerID] += amount;
-  save_points(playerID);
-  update_points_display(playerID);
+  //save_points(playerID)
+  cs_set_user_money(playerID, g_points[playerID], 0);
   return PLUGIN_HANDLED;
 }
 
 public native_uj_points_remove(pluginID, paramCount)
 {
-  if(paramCount != 2) {
-    return PLUGIN_CONTINUE;
-  }
-
   new playerID = get_param(1);
   new amount = get_param(2);
 
@@ -120,8 +114,8 @@ public native_uj_points_remove(pluginID, paramCount)
   }
 
   g_points[playerID] -= amount;
-  save_points(playerID);
-  update_points_display(playerID);
+  //save_points(playerID)
+  cs_set_user_money(playerID, g_points[playerID], 0);
   return PLUGIN_HANDLED;
 }
 
@@ -148,7 +142,7 @@ public client_authorized(playerID)
 
 public plugin_end()
 {
-  //save_all_points();
+  save_all_points();
   sqlv_close(g_vault);
 }
 
@@ -175,18 +169,21 @@ save_all_points()
   new playerID;
   for (new i = 0; i < playerCount; ++i) {
     playerID = players[i];
-    save_points(playerID);
+    if((1 <= playerID <= 32) && is_valid_player(playerID)) {
+      save_points(playerID);
+    }
   }
 }
 
 public EventMoney(playerID)
 {
   if (1<=playerID<=32 && is_user_alive(playerID)) {
-    update_points_display(playerID);
+    cs_set_user_money(playerID, g_points[playerID], 0);
   }
 }
 
-update_points_display(playerID)
+/*update_points_display(playerID)
 {
   cs_set_user_money(playerID, g_points[playerID], 0);
 }
+*/

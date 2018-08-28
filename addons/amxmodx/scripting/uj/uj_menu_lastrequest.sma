@@ -1,10 +1,9 @@
 #include <amxmodx>
 #include <cstrike>
 #include <uj_core>
-#include <uj_freedays>
 #include <uj_menus>
 
-new const PLUGIN_NAME[] = "[UJ] Menu - Last Request";
+new const PLUGIN_NAME[] = "UJ | Menu - Last Request";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -46,6 +45,11 @@ public uj_fw_menus_select_pre(playerID, menuID, entryID)
   // Only display to Terrorists
   if (cs_get_user_team(playerID) != CS_TEAM_T) {
     return UJ_MENU_DONT_SHOW;
+  }
+
+  // User must be alive in order to see this menu
+  if (!is_user_alive(playerID)) {
+    return UJ_MENU_NOT_AVAILABLE;
   }
 
   // Only display if one prisoner is left alive and

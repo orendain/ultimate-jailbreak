@@ -1,13 +1,13 @@
 #include <amxmodx>
 #include <cstrike>
-#include <uj_colorchat>
+#include <fg_colorchat>
 #include <uj_core>
 #include <uj_freedays>
 #include <uj_logs>
 #include <uj_menus>
 #include <uj_playermenu>
 
-new const PLUGIN_NAME[] = "[UJ] Menu - Freeday";
+new const PLUGIN_NAME[] = "UJ | Menu - Freeday";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -124,7 +124,7 @@ public uj_fw_playermenu_player_select(pluginID, playerID, targetID)
   get_user_name(playerID, playerName, charsmax(playerName));
   get_user_name(targetID, targetName, charsmax(targetName));
 
-  uj_colorchat_print(0, playerID, "^3%s^1 has given ^3%s^1 a sweet, sweet ^4Freeday^1!", playerName, targetName)
+  fg_colorchat_print(0, playerID, "^3%s^1 has given ^3%s^1 a sweet, sweet ^4Freeday^1!", playerName, targetName)
   uj_logs_log("[uj_menu_freeday] %s has given %s a freeday", playerName, targetName);
 
   // Display menu again

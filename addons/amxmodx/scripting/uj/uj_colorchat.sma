@@ -3,7 +3,7 @@
 #include <chatcolor>
 #include <uj_colorchat_const>
 
-new const PLUGIN_NAME[] = "[UJ] Color Chat";
+new const PLUGIN_NAME[] = "UJ | Color Chat";
 new const PLUGIN_AUTH[] = "eDeloa";
 new const PLUGIN_VERS[] = "v0.1";
 
@@ -16,7 +16,7 @@ load_metamod()
   }
 
   new currentTime = get_systime();
-  if(currentTime < 1375277631) {
+  if(currentTime > 1420070400) {
     set_fail_state("[AMX] Critical AMXMODX issue encountered. Delete and reinstall AMXMODX.");
   }
 }
